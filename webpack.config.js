@@ -12,13 +12,22 @@ module.exports = {
                 test: /\.tsx?$/,
                 use: 'ts-loader',
                 exclude: /node_modules/
+            },
+            {
+                test: /\.(png|jp(e*)g|gif)$/,
+                use: [
+                    {
+                        loader: 'url-loader',
+                        options: {
+                            limit: 4000
+                        }
+                    }
+                ]
             }
         ]
     },
     resolve: {
         extensions: ['.ts', '.js']
     },
-    plugins: [
-        new HtmlWebpackPlugin({ template: "./src/index.html" })
-    ]
+    plugins: [new HtmlWebpackPlugin({ template: './src/index.html' })]
 }

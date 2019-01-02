@@ -8,16 +8,21 @@ import entityPool from './entityPool';
 import bullet, { BULLET_SIZE } from './entities/bullet';
 import rangeIntersect from './utils/rangeIntersect';
 
-class Player extends Entity {
+class Enemy extends Entity {
 	private canShot: boolean;
-	update = deltaTime => {
-		this.processInput(deltaTime);
-		this.checkCollision();
-	};
+	private prevTile: any;
 
-	checkCollision = () => {
+	constructor(x, y, width, height, direction, velocity, sprites) {
+		super(x, y, width, height, direction, velocity, sprites);
+		this.prevTile = { x: 0, y: 0 };
+	}
+
+	update = deltaTime => {
+		this.move(deltaTime);
 		this.checkBorderCollision();
 		this.checkTileCollision();
+		this.prevY = this.y;
+		this.prevX = this.x;
 	};
 
 	_render = () => {
@@ -27,10 +32,17 @@ class Player extends Entity {
 
 	checkBorderCollision = () => {
 		const box = this.getBoundingBox();
-		if (box.first.x > 600 || box.first.x < 0 || box.first.y > 600 || box.first.y < 0) {
+		if (box.first.x > 599 || box.first.x < 0 || box.first.y > 599 || box.first.y < 0) {
 			this.x = this.prevX;
 			this.y = this.prevY;
+			this.direction = this.getRandomDirection();
 		}
+	};
+
+	getRandomDirection = () => {
+		const items = [Directon.top, Directon.right, Directon.bottom, Directon.left];
+		const index = Math.floor(Math.random() * items.length);
+		return items[index];
 	};
 
 	getBoundingBox = () => {
@@ -62,7 +74,7 @@ class Player extends Entity {
 		const tile2 = tileMap.lookup(second.x, second.y);
 		let hasCollision = false;
 		c.c('Tiles:  ', tile1, tile2, '\n', first, second);
-		// Forgivnes
+
 		if (this.direction === Directon.right || this.direction === Directon.left) {
 			if (tile1.type === 0 && tile2.type === 1) {
 				if (first.y - tile1.y < 8) {
@@ -90,7 +102,6 @@ class Player extends Entity {
 				}
 			}
 		}
-		//
 
 		if (tile1.type === 1) {
 			const x = rangeIntersect(first.x, first.x + first.width, tile1.x, tile1.x + 40);
@@ -106,33 +117,17 @@ class Player extends Entity {
 		if (hasCollision) {
 			this.x = this.prevX;
 			this.y = this.prevY;
+			this.direction = this.getRandomDirection();
 		}
-	};
 
-	processInput = deltaTime => {
-		this.prevY = this.y;
-		this.prevX = this.x;
-		const { keyStates } = keyboard;
-
-		if (keyStates.ArrowUp === KeyState.pressed) {
-			this.direction = Directon.top;
-			this.move(deltaTime);
-		} else if (keyStates.ArrowDown === KeyState.pressed) {
-			this.direction = Directon.bottom;
-			this.move(deltaTime);
-		} else if (keyStates.ArrowLeft === KeyState.pressed) {
-			this.direction = Directon.left;
-			this.move(deltaTime);
-		} else if (keyStates.ArrowRight === KeyState.pressed) {
-			this.direction = Directon.right;
-			this.move(deltaTime);
-		} else if (keyStates.Space === KeyState.pressed) {
-			if (this.canShot) {
-				this.shot();
-			}
-			this.canShot = false;
-		} else if (keyStates.Space === KeyState.released) {
-			this.canShot = true;
+		if (
+			Math.abs(Math.floor(this.prevTile.x - tile1.x)) === 120 ||
+			Math.abs(Math.floor(this.prevTile.y - tile1.y)) === 120
+		) {
+			this.prevTile = { x: tile1.x, y: tile1.y };
+			this.direction = this.getRandomDirection();
+			// TODO: Coin
+			if (Math.round(Math.random()) === 1) this.shot();
 		}
 	};
 
@@ -141,4 +136,4 @@ class Player extends Entity {
 	};
 }
 
-export default Player;
+export default Enemy;
