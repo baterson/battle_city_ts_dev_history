@@ -1,29 +1,58 @@
-import createTileSprites, { Tiles, layesrMap } from './utils/createTileSprites';
+import Sprite from './Sprite';
+
+const TILE_SIDE = 20;
+
+enum Tiles {
+	none,
+	brick1,
+	brick2,
+	brick3,
+	brick4,
+	ice,
+	grass,
+}
+
+enum Layers {
+	under,
+	main,
+	over,
+}
+
+const TileSprites = {
+	[Tiles.brick1]: new Sprite(256, 0, 8, 7),
+	[Tiles.brick2]: new Sprite(264, 0, 8, 7),
+	[Tiles.brick3]: new Sprite(256, 8, 8, 7),
+	[Tiles.brick4]: new Sprite(264, 8, 8, 7),
+	[Tiles.ice]: new Sprite(288, 32, 16, 15),
+	[Tiles.grass]: new Sprite(272, 32, 16, 15),
+};
+
+const bricks = [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4];
+const solid = [...bricks];
+
+const layesrMap = {
+	[Layers.under]: [Tiles.ice],
+	[Layers.main]: bricks,
+	[Layers.over]: [Tiles.grass],
+};
 
 class TileMap {
 	public tiles;
-	private sprites;
 
-	constructor(tiles, tileSprites) {
+	constructor(tiles) {
 		this.tiles = tiles;
-		this.sprites = tileSprites;
 	}
 
 	destroy = (x, y) => {
-		const xIndex = Math.max(0, Math.floor(x / 40));
-		const yIndex = Math.max(0, Math.floor(y / 40));
+		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
+		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
 		this.tiles[yIndex][xIndex] = Tiles.none;
 	};
 
-	lookup = (x, y) => {
-		const xIndex = Math.max(0, Math.floor(x / 40));
-		const yIndex = Math.max(0, Math.floor(y / 40));
-		// console.log('Y', yIndex, 'X', xIndex, 'Tile: ', this.tiles[yIndex][xIndex], x, y);
-		var z = this.tiles[yIndex][xIndex];
-		if (z === 1) {
-			// console.log('Y', yIndex, 'X', xIndex, x, y);
-		}
-		return { type: z, x: xIndex * 40, y: yIndex * 40 };
+	lookup = ({ x, y }) => {
+		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
+		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
+		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
 	};
 
 	renderLayer(name) {
@@ -31,28 +60,44 @@ class TileMap {
 			row.forEach((tile, x) => {
 				if (!layesrMap[name].includes(tile)) return;
 
-				this.sprites[tile].draw(x * 40, y * 40, 40, 40);
+				TileSprites[tile].draw(x * TILE_SIDE, y * TILE_SIDE, TILE_SIDE, TILE_SIDE);
 			});
 		});
 	}
 }
 
 const map = [
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 2, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 2, 0, 1, 0, 0, 0, 2, 0, 0, 1, 1, 1, 0, 0],
-	[0, 2, 0, 1, 1, 1, 0, 2, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 2, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
-	[0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, 1, 1, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 0, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 0, 0, 3, 0, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 2, 0, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 0, 1, 2, 0, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 0, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 0, 0, 0, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 3, 4, 0, 0, 0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 1, 2, 0, 0, 0, 1, 2, 1, 2, 1, 2, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
+	[0, 0, 0, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 3, 4, 0, 0, 0, 3, 4, 3, 4, 3, 4, 0, 0, 0, 0],
 ];
 
-export default new TileMap(map, createTileSprites());
+export { bricks, solid, Tiles, Layers };
+export default new TileMap(map);

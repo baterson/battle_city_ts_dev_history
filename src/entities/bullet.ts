@@ -1,23 +1,24 @@
-import { Directon } from '../Entity';
-import Bullet from '../Bullet';
-import Sprite from '../Sprite';
-import canvas from '../canvas';
+import Entity, { Directon } from './Entity';
+import tileMap from '../tileMap';
 
-const BULLET_SIZE = {
-	width: 15,
-	heigth: 20,
-};
-
-const bullet = (x, y, direction) => {
-	const sprites = {
-		[Directon.top]: [new Sprite(320, 96, 8, 10)],
-		[Directon.bottom]: [new Sprite(336, 96, 8, 10)],
-		[Directon.right]: [new Sprite(344, 96, 8, 10)],
-		[Directon.left]: [new Sprite(328, 96, 8, 10)],
+class Bullet extends Entity {
+	update = deltaTime => {
+		this.move(deltaTime);
 	};
 
-	return new Bullet(x, y, 15, 20, direction, 200, sprites);
-};
+	resolveEdgeCollision = () => {
+		this.destroy();
+	};
 
-export { BULLET_SIZE };
-export default bullet;
+	resolveTileCollision = (tile1, tile2) => {
+		this.destroy();
+		tileMap.destroy(tile1.x, tile1.y);
+		tileMap.destroy(tile2.x, tile2.y);
+	};
+
+	resolveEntityCollision(other) {
+		this.destroy();
+	}
+}
+
+export default Bullet;

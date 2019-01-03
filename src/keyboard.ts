@@ -1,7 +1,7 @@
 import c from './utils/console';
 import enemy from './entities/enemy';
 import entityPool from './entityPool';
-import { Directon } from './Entity';
+import { Directon } from './entities/Entity';
 
 enum KeyState {
 	released,
@@ -25,6 +25,10 @@ class Keyboard {
 		const { code, type } = event;
 		if (code === 'KeyC') {
 			c.show = !c.show;
+		}
+		if (code === 'KeyP') {
+			let mywindow: any = window as any;
+			mywindow.getP();
 		}
 		if (!this.keyStates.hasOwnProperty(code)) return;
 

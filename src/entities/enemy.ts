@@ -1,43 +1,69 @@
-import { Directon } from '../Entity';
-import Enemy from '../Enemy';
-import Sprite from '../Sprite';
-import canvas from '../canvas';
+import Tank from './Tank';
+import { Directon } from './Entity';
+import { Tiles } from '../tileMap';
+import Bullet from './Bullet';
 
-const enemy = (x, y, direction) => {
-	const sprites = {
-		[Directon.top]: [new Sprite(0, 128, 16, 15), new Sprite(16, 128, 16, 15)],
-		[Directon.bottom]: [new Sprite(64, 128, 16, 15), new Sprite(80, 128, 16, 15)],
-		[Directon.right]: [new Sprite(96, 128, 16, 15), new Sprite(112, 128, 16, 15)],
-		[Directon.left]: [new Sprite(32, 128, 16, 15), new Sprite(48, 128, 16, 15)],
+class Enemy extends Tank {
+	private prevTile: any;
+
+	constructor(x, y, side, direction, velocity, sprites) {
+		super(x, y, side, direction, velocity, sprites);
+		this.prevTile = { x: 0, y: 0 };
+	}
+
+	update = deltaTime => {
+		this.move(deltaTime);
 	};
 
-	const enemy = new Enemy(x, y, 40, 40, direction, 100, sprites);
-	enemy.render = () => {
-		enemy._render();
-		const { context } = canvas;
-		if (enemy.direction === Directon.top) {
-			context.fillRect(enemy.x, enemy.y - 3, enemy.width, 3);
-			context.fillStyle = 'blue';
-			context.stroke();
-		}
-		if (enemy.direction === Directon.right) {
-			context.fillRect(enemy.x + enemy.height, enemy.y, 3, enemy.width);
-			context.fillStyle = 'blue';
-			context.stroke();
-		}
-		if (enemy.direction === Directon.bottom) {
-			context.fillRect(enemy.x, enemy.y + 43, enemy.width, 3);
-			context.fillStyle = 'blue';
-			context.stroke();
-		}
-		if (enemy.direction === Directon.left) {
-			context.fillRect(enemy.x - 3, enemy.y, 3, enemy.height);
-			context.fillStyle = 'blue';
-			context.stroke();
-		}
+	setRandomDirection = () => {
+		const items = [Directon.top, Directon.right, Directon.bottom, Directon.left];
+		const index = Math.floor(Math.random() * items.length);
+		this.direction = items[index];
 	};
 
-	return enemy;
-};
+	move(deltaTime) {
+		super.move(deltaTime);
+		if (
+			Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
+			Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
+		) {
+			this.prevTile = { x: this.x, y: this.y };
+			this.setRandomDirection();
+			// TODO: Coin
+			if (Math.round(Math.random()) === 1) this.shot();
+		}
+	}
 
-export default enemy;
+	resolveEdgeCollision() {
+		super.resolveEdgeCollision();
+		this.setRandomDirection();
+	}
+
+	// TODO: Tile types
+	resolveTileCollision(tile1, tile2) {
+		this.goBack();
+		this.setRandomDirection();
+	}
+
+	// resolveTileCollision(tile1, tile2) {
+	// 	if (tile1.type === Tiles.none || tile2.type === Tiles.none) {
+	// 		this.helpNavigate(tile1, tile2);
+	// 	} else {
+	// 		this.x = this.prevX;
+	// 		this.y = this.prevY;
+	// 		this.setRandomDirection();
+	// 	}
+	// }
+
+	resolveEntityCollision(other) {
+		if (other instanceof Bullet) {
+			this.destroy();
+		} else {
+			this.x = this.prevX;
+			this.y = this.prevY;
+			this.setRandomDirection();
+		}
+	}
+}
+
+export default Enemy;
