@@ -1,23 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="ie=edge" />
+		<title>Document</title>
+		<style>
+			#root {
+				background-color: rgb(41, 36, 36);
+				/* margin: 50px; */
+				image-rendering: pixelated;
+				z-index: 1;
+				position: absolute;
+				top: 60px;
+				left: 60px;
+			}
+			#border {
+				background-color: rgb(117, 117, 117);
+				margin: 10;
+				image-rendering: pixelated;
+				z-index: 0;
+			}
+		</style>
+	</head>
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Document</title>
-    <style>
-        #root {
-            border: 1px solid red;
-            background-color: rgb(41, 36, 36);
-            margin: 10px;
-            image-rendering: pixelated;
-        }
-    </style>
-</head>
-
-<body>
-    <canvas id="root" width="600" height="600"></canvas>
-</body>
-
+	<body>
+		<canvas id="border" width="750" height="700"></canvas> <canvas id="root" width="600" height="600"></canvas>
+	</body>
 </html>

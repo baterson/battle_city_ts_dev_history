@@ -1,21 +1,23 @@
 import entityPool from './entityPool';
-import tileMap from './tileMap';
 import rectIntersection from './utils/rectIntersection';
-import { bricks } from './tileMap';
+import { rigid } from './TileMap';
 import c from './utils/console';
 
 class CollisionManager {
-	manageTiles = () => {
+	manageTiles = level => {
 		entityPool.forEach(entity => {
+			// TODO: rethink movable
+			if (!entity.movable) return;
+
 			if (entity.outOfScreen) {
 				entity.resolveEdgeCollision();
 			} else {
-				this.checkTiles(entity);
+				this.checkTiles(entity, level);
 			}
 		});
 	};
 
-	manageEntities = () => {
+	manageEntities = level => {
 		entityPool.forEach(entity => this.checkEntities(entity));
 	};
 
@@ -29,12 +31,11 @@ class CollisionManager {
 		});
 	};
 
-	checkTiles = entity => {
-		const [point1, point2] = entity.getCollisionPoints();
-		const tile1 = tileMap.lookup(point1);
-		const tile2 = tileMap.lookup(point2);
-		if (bricks.includes(tile1.type) || bricks.includes(tile2.type)) {
-			entity.resolveTileCollision(tileMap.lookup(point1), tileMap.lookup(point2));
+	checkTiles = (entity, level) => {
+		const points = entity.getCollisionPoints();
+		const tiles = level.map.lookupMany(points);
+		if (rigid.includes(tiles[0].type) || rigid.includes(tiles[1].type) || rigid.includes(tiles[2].type)) {
+			entity.resolveTileCollision(tiles, level);
 		}
 	};
 }

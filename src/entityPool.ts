@@ -1,3 +1,5 @@
+import { Enemy } from './entities';
+
 class EntityPool {
 	// TODO: getter for pool
 	public pool;
@@ -28,6 +30,10 @@ class EntityPool {
 			cb(this.pool[key]);
 		});
 	};
+
+	getEnemies(): any[] {
+		return Object.values(this.pool).filter(entity => entity instanceof Enemy);
+	}
 }
 
 export default new EntityPool();

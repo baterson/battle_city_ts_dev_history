@@ -1,23 +1,26 @@
 const sprite = require('./assets/sprites.png');
-import createLoop from './utils/loop';
 import loadImage from './utils/loadImage';
-import { Layers } from './tileMap';
 import keyboard from './keyboard';
-import tileMap from './tileMap';
+import tileMap from './TileMap';
 import canvas from './canvas';
 import entityPool from './entityPool';
-import { bullet, player, enemy } from './entityConstructors';
-import { Directon } from './entities/Entity';
+import Player from './entities/Player';
+import Enemy from './entities/Enemy';
+import { Direction } from './entities/Entity';
+import { Types } from './entities/PowerUp';
 import collisionManager from './collisionManager';
-
-// 15 x 15
+import Game from './Game';
 
 async function main() {
 	canvas.image = await loadImage(sprite);
 	keyboard.listenToEvents();
 
-	entityPool.add(player());
-	entityPool.add(enemy(120, 40, Directon.bottom));
+	entityPool.add(new Player({ x: 0, y: 300 }));
+
+	// entityPool.add(new Enemy({ x: 10, y: 40, direction: Direction.top, type: 2 }));
+	// entityPool.add(new Enemy({ x: 10, y: 80, direction: Direction.right, type: 2 }));
+	// entityPool.add(new Enemy({ x: 10, y: 120, direction: Direction.bottom, type: 2 }));
+	// entityPool.add(new Enemy({ x: 10, y: 160, direction: Direction.left, type: 2 }));
 
 	let myWindow = window as any;
 	let p = entityPool.pool[1];
@@ -34,24 +37,8 @@ async function main() {
 	};
 	myWindow.entities = entityPool.pool;
 
-	return createLoop(
-		deltaTime => {
-			entityPool.forEach(entity => {
-				entity.update(deltaTime);
-				collisionManager.manageTiles();
-				collisionManager.manageEntities();
-			});
-			entityPool.removeEntities();
-		},
-		() => {
-			canvas.context.clearRect(0, 0, 600, 600);
-			canvas.context.beginPath();
-			tileMap.renderLayer(Layers.under);
-			tileMap.renderLayer(Layers.main);
-			entityPool.forEach(entity => entity.render());
-			tileMap.renderLayer(Layers.over);
-		}
-	);
+	const game = new Game();
+	return game.createLoop();
 }
 
 main();

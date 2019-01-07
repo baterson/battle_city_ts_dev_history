@@ -1,23 +1,28 @@
 import c from './utils/console';
-import enemy from './entities/enemy';
-import entityPool from './entityPool';
-import { Directon } from './entities/Entity';
 
-enum KeyState {
-	released,
-	pressed,
+enum Keys {
+	ArrowUp = 'ArrowUp',
+	ArrowRight = 'ArrowRight',
+	ArrowDown = 'ArrowDown',
+	ArrowLeft = 'ArrowLeft',
+	Space = 'Space',
 }
 
+const movement = [Keys.ArrowUp, Keys.ArrowRight, Keys.ArrowDown, Keys.ArrowLeft];
+
 class Keyboard {
+	public shot;
+	public movementQueue;
 	public keyStates;
 
 	constructor() {
+		this.movementQueue = new Set();
 		this.keyStates = {
-			ArrowLeft: KeyState.released,
-			ArrowRight: KeyState.released,
-			ArrowDown: KeyState.released,
-			ArrowUp: KeyState.released,
-			Space: KeyState.released,
+			ArrowUp: false,
+			ArrowRight: false,
+			ArrowDown: false,
+			ArrowLeft: false,
+			Space: false,
 		};
 	}
 
@@ -30,13 +35,21 @@ class Keyboard {
 			let mywindow: any = window as any;
 			mywindow.getP();
 		}
-		if (!this.keyStates.hasOwnProperty(code)) return;
+		if (!Keys[code]) return;
 
 		if (type === 'keydown') {
-			this.keyStates[code] = KeyState.pressed;
+			this.keyStates[code] = true;
 		} else {
-			this.keyStates[code] = KeyState.released;
+			this.keyStates[code] = false;
 		}
+
+		if (movement.includes(code)) {
+			this.keyStates[code] ? this.movementQueue.add(code) : this.movementQueue.delete(code);
+		}
+	}
+
+	getMovement() {
+		return Array.from(this.movementQueue).pop();
 	}
 
 	listenToEvents() {
@@ -48,5 +61,5 @@ class Keyboard {
 	}
 }
 
-export { KeyState };
+export { Keys };
 export default new Keyboard();
