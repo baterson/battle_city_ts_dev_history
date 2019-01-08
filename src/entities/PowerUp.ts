@@ -24,8 +24,11 @@ const grenadeReaction = () => {
 	enemies.forEach(enemy => entityPool.toRemove(enemy.id));
 };
 
+const shovelReaction = level => {};
+
 const reactions = {
 	[Types.grenade]: grenadeReaction,
+	[Types.shovel]: shovelReaction,
 };
 
 class PowerUp {
@@ -55,7 +58,7 @@ class PowerUp {
 
 	resolveEntityCollision(other, level) {
 		if (other instanceof Player) {
-			reactions[this.type]();
+			reactions[this.type](level);
 			entityPool.toRemove(this.id);
 		}
 	}

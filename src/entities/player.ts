@@ -1,4 +1,4 @@
-import Tank, { TANK_SIDE } from './Tank';
+import Tank, { TANK_SIDE, deathSprites } from './Tank';
 import Sprite from '../Sprite';
 import { Direction } from './Entity';
 import keyboard, { Keys } from '../keyboard';
@@ -22,11 +22,20 @@ class Player extends Tank {
 		direction = Direction.top,
 		velocity = 180,
 	}) {
-		super({ x, y, side, direction, velocity, sprites: sprites });
+		super({
+			x,
+			y,
+			side,
+			direction,
+			velocity,
+			sprites: sprites,
+			deathTimer: deathSprites.length,
+			deathSprites: deathSprites,
+		});
 	}
 
-	update(deltaTime) {
-		this.processInput(deltaTime);
+	update(deltaTime, level) {
+		this.processInput(deltaTime, level);
 	}
 
 	render = () => {
@@ -34,7 +43,7 @@ class Player extends Tank {
 		frame.draw(this.x, this.y, this.side);
 	};
 
-	processInput = deltaTime => {
+	processInput = (deltaTime, level) => {
 		this.prevY = this.y;
 		this.prevX = this.x;
 		const { keyStates } = keyboard;
@@ -52,19 +61,14 @@ class Player extends Tank {
 		} else if (movement === Keys.ArrowRight) {
 			this.direction = Direction.right;
 			this.move(deltaTime);
-		}
-
-		if (keyStates.Space) {
-			if (this.canShot) {
-				this.shot();
-			}
-			this.canShot = false;
-		} else {
-			this.canShot = true;
+			// TODO: move space in common queu
+		} else if (keyStates.Space) {
+			this.shot();
 		}
 	};
 
 	resolveEntityCollision(other, level) {
+		if (other.isDeath) return;
 		this.x = this.prevX;
 		this.y = this.prevY;
 	}

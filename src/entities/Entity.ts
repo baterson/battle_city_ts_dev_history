@@ -1,6 +1,5 @@
 import idGen from '../utils/idGen';
 import entityPool from '../entityPool';
-import { Tiles, rigid } from '../TileMap';
 import c from '../utils/console';
 
 enum Direction {
@@ -21,8 +20,11 @@ class Entity {
 	protected sprites;
 	public direction;
 	public movable;
+	public deathTimer;
+	public isDeath;
+	public deathSprites;
 
-	constructor({ x, y, side, direction, velocity, sprites }) {
+	constructor({ x, y, side, direction, velocity, sprites, deathTimer, deathSprites }) {
 		this.id = idGen();
 		this.x = x;
 		this.y = y;
@@ -33,14 +35,23 @@ class Entity {
 		this.direction = direction;
 		this.sprites = sprites;
 		this.movable = true;
+		this.deathTimer = deathTimer;
+		this.isDeath = false;
+		this.deathSprites = deathSprites;
 	}
 
 	render() {
-		const frame = this.resolveFrame();
-		frame.draw(this.x, this.y, this.side);
+		if (this.isDeath && this.deathSprites.length) {
+			this.deathTimer -= 1;
+			const { sprite, side } = this.deathSprites[this.deathTimer];
+			sprite.draw(this.x, this.y, side);
+		} else {
+			const frame = this.resolveFrame();
+			frame.draw(this.x, this.y, this.side);
+		}
 	}
 
-	update(deltaTime) {}
+	update(deltaTime, level) {}
 
 	move(deltaTime) {
 		this.prevY = this.y;
@@ -75,6 +86,7 @@ class Entity {
 	};
 
 	destroy = () => {
+		this.isDeath = true;
 		entityPool.toRemove(this.id);
 	};
 
@@ -118,7 +130,7 @@ class Entity {
 
 	get outOfScreen() {
 		const [point] = this.getCollisionPoints();
-		return point.x > 600 || point.x < 0 || point.y > 600 || point.y < 0;
+		return point.x > 595 || point.x < 0 || point.y > 595 || point.y < 0;
 	}
 }
 

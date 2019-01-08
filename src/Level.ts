@@ -1,4 +1,5 @@
 import { Direction } from './entities/Entity';
+import Flag from './entities/Flag';
 import entityPool from './entityPool';
 import { Enemy } from './entities';
 
@@ -8,6 +9,7 @@ class Level {
 	public tick;
 	public number;
 	public lastSpawnTick;
+	public isLost;
 
 	constructor(map, tanks) {
 		this.tanks = tanks;
@@ -15,6 +17,8 @@ class Level {
 		this.tick = 0;
 		this.number = 0;
 		this.lastSpawnTick = 0;
+		this.isLost = false;
+		entityPool.add(new Flag());
 	}
 
 	spawnEnemy() {
@@ -28,6 +32,10 @@ class Level {
 
 	incrementTick() {
 		this.tick += 1;
+	}
+
+	gameOver() {
+		this.isLost = true;
 	}
 }
 

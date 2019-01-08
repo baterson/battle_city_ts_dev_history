@@ -52,12 +52,15 @@ class TileMap {
 	lookup = ({ x, y }) => {
 		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
 		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
+		if (!this.tiles) {
+			debugger;
+		}
 		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
 	};
 
-	lookupMany(points) {
+	lookupMany = points => {
 		return points.map(point => this.lookup(point));
-	}
+	};
 
 	renderLayer(name) {
 		this.tiles.forEach((row, y) => {

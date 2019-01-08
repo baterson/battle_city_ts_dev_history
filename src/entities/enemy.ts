@@ -1,8 +1,9 @@
-import Tank, { TANK_SIDE } from './Tank';
+import Tank, { TANK_SIDE, deathSprites } from './Tank';
 import Sprite from '../Sprite';
 import { Direction } from './Entity';
 import { Tiles } from '../TileMap';
 import Bullet from './Bullet';
+import Player from './Player';
 
 enum TankTypes {
 	default,
@@ -33,9 +34,9 @@ const sprites = {
 };
 
 const velocityMap = {
-	[TankTypes.default]: 180,
-	[TankTypes.fast]: 250,
-	[TankTypes.armored]: 160,
+	[TankTypes.default]: 160,
+	[TankTypes.fast]: 200,
+	[TankTypes.armored]: 120,
 };
 
 class Enemy extends Tank {
@@ -43,31 +44,44 @@ class Enemy extends Tank {
 	public type;
 
 	constructor({ x, y, side = TANK_SIDE, direction, type }) {
-		super({ x, y, side, direction, velocity: velocityMap[type], sprites: sprites[type] });
+		super({
+			x,
+			y,
+			side,
+			direction,
+			velocity: velocityMap[type],
+			sprites: sprites[type],
+			deathTimer: deathSprites.length,
+			deathSprites: deathSprites,
+		});
 		this.prevTile = { x: 0, y: 0 };
 		this.type = type;
 	}
 
-	update = deltaTime => {
+	update(deltaTime, level) {
+		if (this.isDeath) return;
 		this.move(deltaTime);
-	};
+	}
 
 	setRandomDirection = () => {
-		const items = [Direction.top, Direction.right, Direction.bottom, Direction.left];
+		const items = [Direction.top, Direction.right, Direction.bottom, Direction.left].filter(
+			direction => direction !== this.direction
+		);
 		const index = Math.floor(Math.random() * items.length);
 		this.direction = items[index];
 	};
 
 	move(deltaTime) {
-		super.move(deltaTime);
 		if (
 			Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
 			Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
 		) {
 			this.prevTile = { x: this.x, y: this.y };
+			this.shot();
 			this.setRandomDirection();
-			// TODO: Coin
-			if (Math.round(Math.random()) === 1) this.shot();
+			// if (Math.round(Math.random()) === 1) this.shot(level);
+		} else {
+			super.move(deltaTime);
 		}
 	}
 
@@ -83,9 +97,9 @@ class Enemy extends Tank {
 	}
 
 	resolveEntityCollision(other, level) {
-		if (other instanceof Bullet) {
+		if (other instanceof Bullet && other.shooter instanceof Player) {
 			this.destroy();
-		} else {
+		} else if (other instanceof Enemy || other instanceof Player) {
 			this.x = this.prevX;
 			this.y = this.prevY;
 			this.setRandomDirection();

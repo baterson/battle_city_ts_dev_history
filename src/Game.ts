@@ -40,20 +40,19 @@ class Game {
 		});
 		entityPool.removeEntities();
 
-		if (!this.lives) {
-			// TODO: gameover
+		if (!this.lives || this.level.isLost) {
+			// todo gameover
 		}
 
 		const enemies = entityPool.getEnemies();
 		const { tick, lastSpawnTick, tanks, number } = this.level;
-		let x = 0;
 
-		if (!tanks.length && !enemies.length) {
-			const lvlNum = number + 1;
-			this.level = new Level(new TileMap(maps[lvlNum]), tanksConfig[lvlNum]);
-		} else if (tanks.length && enemies.length <= 1 && tick - lastSpawnTick > 50) {
-			this.level.spawnEnemy();
-		}
+		// if (!tanks.length && !enemies.length) {
+		// 	const lvlNum = number + 1;
+		// 	this.level = new Level(new TileMap(maps[lvlNum]), tanksConfig[lvlNum]);
+		// } else if (tanks.length && enemies.length <= 1 && tick - lastSpawnTick > 50) {
+		// 	this.level.spawnEnemy();
+		// }
 
 		this.level.incrementTick();
 	}

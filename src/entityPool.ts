@@ -7,7 +7,7 @@ class EntityPool {
 
 	constructor() {
 		this.pool = {};
-		this.removedEntities = [];
+		this.removedEntities = new Set();
 	}
 
 	add = entity => {
@@ -15,13 +15,15 @@ class EntityPool {
 	};
 
 	toRemove = id => {
-		this.removedEntities.push(id);
-		// delete this.pool[id];
+		this.removedEntities.add(id);
 	};
 
 	removeEntities = () => {
 		this.removedEntities.forEach(entityId => {
-			delete this.pool[entityId];
+			if (this.pool[entityId].deathTimer === 0) {
+				delete this.pool[entityId];
+				this.removedEntities.delete(entityId);
+			}
 		});
 	};
 

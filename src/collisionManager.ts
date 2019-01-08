@@ -7,7 +7,7 @@ class CollisionManager {
 	manageTiles = level => {
 		entityPool.forEach(entity => {
 			// TODO: rethink movable
-			if (!entity.movable) return;
+			if (!entity.movable || entity.isDeath) return;
 
 			if (entity.outOfScreen) {
 				entity.resolveEdgeCollision();
@@ -18,15 +18,18 @@ class CollisionManager {
 	};
 
 	manageEntities = level => {
-		entityPool.forEach(entity => this.checkEntities(entity));
+		entityPool.forEach(entity => {
+			if (entity.isDeath) return;
+			this.checkEntities(entity, level);
+		});
 	};
 
-	checkEntities = entity => {
+	checkEntities = (entity, level) => {
 		entityPool.forEach(otherEntity => {
 			if (entity.id === otherEntity.id) return;
 			if (rectIntersection(entity, otherEntity)) {
-				entity.resolveEntityCollision(otherEntity);
-				otherEntity.resolveEntityCollision(entity);
+				entity.resolveEntityCollision(otherEntity, level);
+				otherEntity.resolveEntityCollision(entity, level);
 			}
 		});
 	};

@@ -19,7 +19,7 @@ async function main() {
 
 	// entityPool.add(new Enemy({ x: 10, y: 40, direction: Direction.top, type: 2 }));
 	// entityPool.add(new Enemy({ x: 10, y: 80, direction: Direction.right, type: 2 }));
-	// entityPool.add(new Enemy({ x: 10, y: 120, direction: Direction.bottom, type: 2 }));
+	// entityPool.add(new Enemy({ x: 50, y: 80, direction: Direction.bottom, type: 2 }));
 	// entityPool.add(new Enemy({ x: 10, y: 160, direction: Direction.left, type: 2 }));
 
 	let myWindow = window as any;
