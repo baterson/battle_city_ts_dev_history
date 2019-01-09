@@ -14,6 +14,7 @@ class Sprite {
 	}
 
 	draw(x, y, side, context = 'mainContext') {
+		// TODO: move context in the constructor
 		canvas[context].drawImage(canvas.image, this.dx, this.dy, this.dWidth, this.dHeight, x, y, side, side);
 	}
 }

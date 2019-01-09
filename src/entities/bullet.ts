@@ -15,7 +15,7 @@ class Bullet extends Entity {
 		y,
 		shooter,
 		direction,
-		shootUnlockCb,
+		shootUnlockCb, // TODO: Shot on timer
 		side = BULLET_SIDE,
 		velocity = BULLET_VELOCITY,
 		sprites = {

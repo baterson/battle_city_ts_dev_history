@@ -47,12 +47,13 @@ class Game {
 		const enemies = entityPool.getEnemies();
 		const { tick, lastSpawnTick, tanks, number } = this.level;
 
-		// if (!tanks.length && !enemies.length) {
-		// 	const lvlNum = number + 1;
-		// 	this.level = new Level(new TileMap(maps[lvlNum]), tanksConfig[lvlNum]);
-		// } else if (tanks.length && enemies.length <= 1 && tick - lastSpawnTick > 50) {
-		// 	this.level.spawnEnemy();
-		// }
+		if (!tanks.length && !enemies.length) {
+			// TODO fix some memory leak when all levels are finished
+			const lvlNum = number + 1;
+			this.level = new Level(new TileMap(maps[lvlNum]), tanksConfig[lvlNum]);
+		} else if (tanks.length && enemies.length <= 1 && tick - lastSpawnTick > 50) {
+			this.level.spawnEnemy();
+		}
 
 		this.level.timer.checkTimers(this.level.tick);
 		this.level.incrementTick();
@@ -68,7 +69,7 @@ class Game {
 		this.level.map.renderLayer(Layers.main);
 		entityPool.forEach(entity => entity.render());
 		this.level.map.renderLayer(Layers.over);
-		this.level.drawDashboard();
+		this.level.drawDashboard(this.lives);
 	}
 }
 
