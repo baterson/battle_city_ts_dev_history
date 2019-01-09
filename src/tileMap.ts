@@ -52,9 +52,6 @@ class TileMap {
 	lookup = ({ x, y }) => {
 		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
 		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
-		if (!this.tiles) {
-			debugger;
-		}
 		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
 	};
 
@@ -67,7 +64,7 @@ class TileMap {
 			row.forEach((tile, x) => {
 				if (!layesrMap[name].includes(tile)) return;
 
-				TileSprites[tile].draw(x * TILE_SIDE, y * TILE_SIDE, TILE_SIDE, TILE_SIDE);
+				TileSprites[tile].draw(x * TILE_SIDE, y * TILE_SIDE, TILE_SIDE);
 			});
 		});
 	}

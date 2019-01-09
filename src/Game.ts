@@ -54,17 +54,21 @@ class Game {
 		// 	this.level.spawnEnemy();
 		// }
 
+		this.level.timer.checkTimers(this.level.tick);
 		this.level.incrementTick();
 	}
 
 	render() {
 		// TODO: render layers in level
-		canvas.context.clearRect(0, 0, 600, 600);
-		canvas.context.beginPath();
+		canvas.mainContext.clearRect(0, 0, 600, 600);
+		canvas.mainContext.beginPath();
+		canvas.dashboardContext.clearRect(0, 0, 750, 700);
+		canvas.dashboardContext.beginPath();
 		this.level.map.renderLayer(Layers.under);
 		this.level.map.renderLayer(Layers.main);
 		entityPool.forEach(entity => entity.render());
 		this.level.map.renderLayer(Layers.over);
+		this.level.drawDashboard();
 	}
 }
 

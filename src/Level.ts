@@ -1,7 +1,9 @@
 import { Direction } from './entities/Entity';
 import Flag from './entities/Flag';
+import Timer from './Timer';
 import entityPool from './entityPool';
 import { Enemy } from './entities';
+import Sprite from './Sprite';
 
 class Level {
 	public tanks;
@@ -10,6 +12,7 @@ class Level {
 	public number;
 	public lastSpawnTick;
 	public isLost;
+	public timer;
 
 	constructor(map, tanks) {
 		this.tanks = tanks;
@@ -18,6 +21,7 @@ class Level {
 		this.number = 0;
 		this.lastSpawnTick = 0;
 		this.isLost = false;
+		this.timer = new Timer();
 		entityPool.add(new Flag());
 	}
 
@@ -36,6 +40,14 @@ class Level {
 
 	gameOver() {
 		this.isLost = true;
+	}
+
+	drawDashboard() {
+		const x = new Sprite(320.25, 192.75, 8.5, 7.75);
+		x.draw(670, 70, 15, 'dashboardContext');
+		x.draw(690, 70, 15, 'dashboardContext');
+		x.draw(670, 90, 15, 'dashboardContext');
+		x.draw(690, 90, 15, 'dashboardContext');
 	}
 }
 

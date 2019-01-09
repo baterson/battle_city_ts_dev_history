@@ -13,8 +13,8 @@ class Sprite {
 		this.dHeight = dHeight;
 	}
 
-	draw(x, y, side) {
-		canvas.context.drawImage(canvas.image, this.dx, this.dy, this.dWidth, this.dHeight, x, y, side, side);
+	draw(x, y, side, context = 'mainContext') {
+		canvas[context].drawImage(canvas.image, this.dx, this.dy, this.dWidth, this.dHeight, x, y, side, side);
 	}
 }
 

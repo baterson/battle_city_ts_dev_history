@@ -1,9 +1,13 @@
-const canvas: any = document.getElementById('root');
-const context = canvas.getContext('2d');
+const main: any = document.getElementById('root');
+const dashboard: any = document.getElementById('dashboard');
+const mainContext = main.getContext('2d');
+const dashboardContext = dashboard.getContext('2d');
 
-export { canvas };
+export { main };
 export default {
 	image: null, // will be loaded in the main.ts
-	context,
-	canvas,
+	mainContext,
+	dashboardContext,
+	main,
+	dashboard,
 };

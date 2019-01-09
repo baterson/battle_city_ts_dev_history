@@ -12,19 +12,25 @@
 				image-rendering: pixelated;
 				z-index: 1;
 				position: absolute;
-				top: 60px;
-				left: 60px;
+				top: 50px;
+				left: 50px;
 			}
-			#border {
+			#dashboard {
 				background-color: rgb(117, 117, 117);
-				margin: 10;
 				image-rendering: pixelated;
 				z-index: 0;
+			}
+			#container {
+				margin: 10;
+				position: relative;
 			}
 		</style>
 	</head>
 
 	<body>
-		<canvas id="border" width="750" height="700"></canvas> <canvas id="root" width="600" height="600"></canvas>
+		<div id="container">
+			<canvas id="dashboard" width="750" height="700"></canvas>
+			<canvas id="root" width="600" height="600"></canvas>
+		</div>
 	</body>
 </html>

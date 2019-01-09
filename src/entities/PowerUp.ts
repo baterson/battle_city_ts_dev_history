@@ -41,6 +41,7 @@ class PowerUp {
 	public movable;
 
 	constructor(x, y, type, sprite) {
+		// TODO: add remove timer
 		this.id = idGen();
 		this.x = x;
 		this.y = y;
