@@ -61,15 +61,14 @@ class Game {
 
 	render() {
 		// TODO: render layers in level
+		// TODO: move all context to reset() method
 		canvas.mainContext.clearRect(0, 0, 600, 600);
 		canvas.mainContext.beginPath();
 		canvas.dashboardContext.clearRect(0, 0, 750, 700);
 		canvas.dashboardContext.beginPath();
-		this.level.map.renderLayer(Layers.under);
-		this.level.map.renderLayer(Layers.main);
-		entityPool.forEach(entity => entity.render());
-		this.level.map.renderLayer(Layers.over);
-		this.level.drawDashboard(this.lives);
+
+		this.level.drawAll(this.lives);
+		// TODO: move to stage
 	}
 }
 

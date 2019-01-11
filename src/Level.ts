@@ -1,10 +1,14 @@
 import { Direction } from './entities/Entity';
+import { Layers } from './tileMap';
 import Flag from './entities/Flag';
 import Timer from './Timer';
 import entityPool from './entityPool';
 import { Enemy } from './entities';
 import Sprite from './Sprite';
+import canvas from './canvas';
 import c from './utils/console';
+
+const STARTING_FRAME = 300;
 
 class Level {
 	// TODO rename to stage
@@ -28,7 +32,7 @@ class Level {
 	}
 
 	spawnEnemy() {
-		if (!this.tanks.length) return;
+		if (!this.tanks.length || this.tick < 300) return;
 
 		// TODO: Random topleft or topright
 		const enemy = new Enemy({ x: 0, y: 0, direction: Direction.top, type: this.tanks.pop() });
@@ -84,6 +88,29 @@ class Level {
 		this.drawTanks();
 		this.drawLives(lives);
 		this.drawLevelNum();
+	}
+
+	drawStarting() {
+		// TODO: canvas width constant
+		canvas.mainContext.fillRect(0, 0, 600, 300 - this.tick);
+		canvas.mainContext.fillRect(0, 300 + this.tick, 600, 300 - this.tick);
+	}
+
+	drawAll(lives) {
+		canvas.mainContext.clearRect(0, 0, 600, 600);
+		canvas.mainContext.beginPath();
+		canvas.dashboardContext.clearRect(0, 0, 750, 700);
+		canvas.dashboardContext.beginPath();
+
+		this.map.renderLayer(Layers.under);
+		this.map.renderLayer(Layers.main);
+		entityPool.forEach(entity => entity.render());
+		this.map.renderLayer(Layers.over);
+		this.drawDashboard(lives);
+		if (this.tick < 300) {
+			// TODO: constant start tick
+			this.drawStarting();
+		}
 	}
 
 	getNumberSprite(num) {
