@@ -1,24 +1,35 @@
 class Timer {
 	public timers;
+	public ticks;
 
 	constructor() {
 		this.timers = {};
+		this.ticks = 0;
 	}
 
-	setTimer(tick, cb) {
-		if (this.timers[tick]) {
-			this.timers[tick].push(cb);
+	set(ticksToWait, cb) {
+		const tickToCall = this.ticks + ticksToWait;
+		if (this.timers[tickToCall]) {
+			this.timers[tickToCall].push(cb);
 		} else {
-			this.timers[tick] = [cb];
+			this.timers[tickToCall] = [cb];
 		}
 	}
 
-	checkTimers(tick) {
-		const cbs = this.timers[tick];
+	checkAll() {
+		const cbs = this.timers[this.ticks];
 		if (cbs) {
 			cbs.forEach(cb => cb());
 		}
 	}
+
+	reset() {
+		this.ticks = 0;
+	}
+
+	increment() {
+		this.ticks += 1;
+	}
 }
 
-export default Timer;
+export default new Timer();

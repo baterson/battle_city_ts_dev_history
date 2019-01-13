@@ -1,57 +1,29 @@
-import idGen from '../utils/idGen';
-import entityPool from '../entityPool';
-import c from '../utils/console';
+import { Direction } from '../constants';
+import pool from '../gameObjectPool';
+import GameObject from './GameObject';
 
-enum Direction {
-	top,
-	bottom,
-	right,
-	left,
-}
-
-class Entity {
-	public id;
-	public x;
-	public y;
-	public side;
+class Entity extends GameObject {
 	public prevX;
 	public prevY;
-	protected velocity;
-	protected sprites;
+	public velocity;
 	public direction;
-	public movable;
-	public deathTimer;
+	public sprites;
 	public isDeath;
-	public deathSprites;
 
-	constructor({ x, y, side, direction, velocity, sprites, deathTimer, deathSprites }) {
-		this.id = idGen();
-		this.x = x;
-		this.y = y;
-		this.side = side;
+	constructor(x, y, side, direction, velocity, sprites) {
+		super(x, y, side);
 		this.prevX = x;
 		this.prevY = y;
 		this.velocity = velocity;
 		this.direction = direction;
 		this.sprites = sprites;
-		this.movable = true;
-		this.deathTimer = deathTimer;
 		this.isDeath = false;
-		this.deathSprites = deathSprites;
 	}
 
 	render() {
-		if (this.isDeath && this.deathSprites.length) {
-			this.deathTimer -= 1;
-			const { sprite, side } = this.deathSprites[this.deathTimer];
-			sprite.draw(this.x, this.y, side);
-		} else {
-			const frame = this.resolveFrame();
-			frame.draw(this.x, this.y, this.side);
-		}
+		const frame = this.resolveFrame();
+		frame.draw(this.x, this.y, this.side);
 	}
-
-	update(deltaTime, level) {}
 
 	move(deltaTime) {
 		this.prevY = this.y;
@@ -73,7 +45,7 @@ class Entity {
 		this.y = this.prevY;
 	}
 
-	resolveFrame = () => {
+	resolveFrame() {
 		const sprites = this.sprites[this.direction];
 		let distance;
 		if (this.direction === Direction.left || this.direction === Direction.right) {
@@ -83,11 +55,11 @@ class Entity {
 		}
 		const index = Math.floor(distance / 2) % sprites.length;
 		return sprites[index];
-	};
+	}
 
 	destroy = () => {
 		this.isDeath = true;
-		entityPool.toRemove(this.id);
+		pool.toRemove(this.id);
 	};
 
 	resolveEdgeCollision() {
@@ -134,5 +106,4 @@ class Entity {
 	}
 }
 
-export { Direction };
 export default Entity;

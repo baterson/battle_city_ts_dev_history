@@ -28,6 +28,7 @@ class Keyboard {
 
 	handleEvent(event) {
 		const { code, type } = event;
+		// TODO: remove it
 		if (code === 'KeyC') {
 			c.show = !c.show;
 		}

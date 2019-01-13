@@ -1,44 +1,45 @@
-import entityPool from './entityPool';
-import rectIntersection from './utils/rectIntersection';
+import pool from './gameObjectPool';
+import squareIntersection from './utils/squareIntersection';
 import { rigid } from './TileMap';
-import c from './utils/console';
+import { Entity } from './gameObjects';
 
 class CollisionManager {
 	manageTiles = level => {
-		entityPool.forEach(entity => {
-			// TODO: rethink movable
-			if (!entity.movable || entity.isDeath) return;
+		pool.forEach(gameObject => {
+			if (!(gameObject instanceof Entity) || gameObject.isDeath) return;
 
-			if (entity.outOfScreen) {
-				entity.resolveEdgeCollision();
+			if (gameObject.outOfScreen) {
+				gameObject.resolveEdgeCollision();
 			} else {
-				this.checkTiles(entity, level);
+				this.checkTiles(gameObject, level);
 			}
 		});
 	};
 
 	manageEntities = level => {
-		entityPool.forEach(entity => {
-			if (entity.isDeath) return;
-			this.checkEntities(entity, level);
+		pool.forEach(gameObject => {
+			if (gameObject.isDeath) return;
+			this.checkEntities(gameObject, level);
 		});
 	};
 
-	checkEntities = (entity, level) => {
-		entityPool.forEach(otherEntity => {
-			if (entity.id === otherEntity.id) return;
-			if (rectIntersection(entity, otherEntity)) {
-				entity.resolveEntityCollision(otherEntity, level);
-				otherEntity.resolveEntityCollision(entity, level);
+	checkEntities = (gameObject, level) => {
+		pool.forEach(other => {
+			if (gameObject.id === other.id) return;
+			if (squareIntersection(gameObject, other)) {
+				gameObject.resolveEntityCollision(other, level, gameObject);
+				other.resolveEntityCollision(gameObject, level, gameObject);
 			}
 		});
 	};
 
-	checkTiles = (entity, level) => {
-		const points = entity.getCollisionPoints();
+	checkTiles = (gameObject, level) => {
+		const points = gameObject.getCollisionPoints();
 		const tiles = level.map.lookupMany(points);
-		if (rigid.includes(tiles[0].type) || rigid.includes(tiles[1].type) || rigid.includes(tiles[2].type)) {
-			entity.resolveTileCollision(tiles, level);
+		const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
+
+		if (collided) {
+			gameObject.resolveTileCollision(tiles, level);
 		}
 	};
 }

@@ -1,16 +1,22 @@
-import { maps, tanks as tanksConfig } from './levelConfig';
-import TileMap, { Layers } from './tileMap';
-import canvas from './canvas';
-import entityPool from './entityPool';
+import { maps, tanks as tanksConfig } from './stageConfig';
+import { START_TICKS } from './constants';
+import { Flag } from './gameObjects';
+import mainScreen from './screens/mainScreen';
+import dashboard from './screens/dashboard';
+import TileMap from './tileMap';
+import pool from './gameObjectPool';
 import collisionManager from './collisionManager';
-import Level from './Level';
+import Stage from './Stage';
+import timer from './timer';
+
+const GAME_OVER = false;
 
 class Game {
-	public level;
+	public stage;
 	public lives;
 
 	constructor() {
-		this.level = new Level(new TileMap(maps[0]), tanksConfig[0]);
+		this.stage = new Stage(new TileMap(maps[0]), tanksConfig[0], 1);
 		this.lives = 3;
 	}
 
@@ -33,43 +39,42 @@ class Game {
 	}
 
 	update(deltaTime) {
-		entityPool.forEach(entity => {
-			entity.update(deltaTime, this.level);
-			collisionManager.manageTiles(this.level);
-			collisionManager.manageEntities(this.level);
+		pool.forEach(entity => {
+			entity.update(deltaTime, this.stage);
+			collisionManager.manageTiles(this.stage);
+			collisionManager.manageEntities(this.stage);
 		});
-		entityPool.removeEntities();
 
-		if (!this.lives || this.level.isLost) {
+		if (!this.lives || this.stage.isLost) {
 			// todo gameover
 		}
 
-		const enemies = entityPool.getEnemies();
-		const { tick, lastSpawnTick, tanks, number } = this.level;
+		const { tanks, number } = this.stage;
 
-		if (!tanks.length && !enemies.length) {
-			// TODO fix some memory leak when all levels are finished
+		if (!tanks.length && !pool.getEnemies().length) {
+			// TODO fix some memory leak when all stages are finished
 			const lvlNum = number + 1;
-			this.level = new Level(new TileMap(maps[lvlNum]), tanksConfig[lvlNum]);
-		} else if (tanks.length && enemies.length <= 1 && tick - lastSpawnTick > 50) {
-			this.level.spawnEnemy();
+			this.stage = new Stage(new TileMap(maps[lvlNum]), tanksConfig[lvlNum], lvlNum);
+			timer.reset();
+			pool.add(new Flag());
 		}
 
-		this.level.timer.checkTimers(this.level.tick);
-		this.level.incrementTick();
+		this.stage.spawnEnemy();
+		timer.checkAll();
+		timer.increment();
+		pool.removeFromQueue();
 	}
 
 	render() {
-		// TODO: render layers in level
-		// TODO: move all context to reset() method
-		canvas.mainContext.clearRect(0, 0, 600, 600);
-		canvas.mainContext.beginPath();
-		canvas.dashboardContext.clearRect(0, 0, 750, 700);
-		canvas.dashboardContext.beginPath();
-
-		this.level.drawAll(this.lives);
-		// TODO: move to stage
+		mainScreen.clearScreen();
+		dashboard.clearScreen();
+		this.stage.draw();
+		dashboard.draw(this.stage.number, this.lives, this.stage.tanks);
+		if (timer.ticks < START_TICKS) {
+			mainScreen.drawStageStart();
+		}
 	}
 }
 
+export { GAME_OVER };
 export default Game;

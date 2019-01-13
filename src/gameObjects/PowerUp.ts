@@ -1,6 +1,6 @@
 import Entity from './Entity';
 import Player from './Player';
-import entityPool from '../entityPool';
+import pool from '../gameObjectPool';
 import idGen from '../utils/idGen';
 import Sprite from '../Sprite';
 
@@ -19,10 +19,11 @@ const Sprites = {
 	[Types.grenade]: new Sprite(318.5, 112, 15, 14),
 };
 
-const grenadeReaction = () => {
-	const enemies = entityPool.getEnemies();
-	enemies.forEach(enemy => entityPool.toRemove(enemy.id));
-};
+const grenadeReaction = () => {};
+// const grenadeReaction = () => {
+// 	const enemies = pool.getEnemies();
+// 	enemies.forEach(enemy => pool.toRemove(enemy.id));
+// };
 
 const shovelReaction = level => {};
 
@@ -60,7 +61,7 @@ class PowerUp {
 	resolveEntityCollision(other, level) {
 		if (other instanceof Player) {
 			reactions[this.type](level);
-			entityPool.toRemove(this.id);
+			pool.toRemove(this.id);
 		}
 	}
 }
