@@ -1,11 +1,4 @@
-import {
-	Direction,
-	START_TICKS,
-	STAGE_SPAWN_TIMER,
-	ENEMY_SPAWN_POSITION,
-	STAGE_SPAWN_RETRY_TIMER,
-	TANK_SIDE,
-} from './constants';
+import { Direction, START_TICKS, STAGE_SPAWN_DELAY, ENEMY_SPAWN_POSITION, TANK_SIDE } from './constants';
 import { Layers } from './tileMap';
 import { Enemy } from './gameObjects';
 import { randomInt } from './utils/random';
@@ -16,15 +9,14 @@ class Stage {
 	public tanks;
 	public map;
 	public number;
-	public canSpawn;
-	public isLost;
+	public ticks;
+	public lastSpawnTick;
 
 	constructor(map, tanks, number) {
 		this.tanks = tanks;
 		this.map = map;
 		this.number = number;
-		this.isLost = false;
-		this.canSpawn = true;
+		this.ticks = 0;
 	}
 
 	spawnEnemy() {
@@ -34,20 +26,13 @@ class Stage {
 		if (pool.getByIntersection({ x, y, side: TANK_SIDE }).length) {
 			[x, y] = ENEMY_SPAWN_POSITION[1 - index];
 			if (pool.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-				this.canSpawn = false;
-				timer.set(STAGE_SPAWN_RETRY_TIMER, () => (this.canSpawn = true));
 				return;
 			}
 		}
 
 		const enemy = new Enemy(x, y, Direction.bottom, this.tanks.pop());
-		this.canSpawn = false;
+		this.lastSpawnTick = this.ticks;
 		pool.add(enemy);
-		timer.set(STAGE_SPAWN_TIMER, () => (this.canSpawn = true));
-	}
-
-	gameOver() {
-		this.isLost = true;
 	}
 
 	draw() {
@@ -55,6 +40,14 @@ class Stage {
 		this.map.renderLayer(Layers.main);
 		pool.forEach(entity => entity.render());
 		this.map.renderLayer(Layers.over);
+	}
+
+	get canSpawn() {
+		if (!this.lastSpawnTick) {
+			return true;
+		} else {
+			return this.lastSpawnTick + STAGE_SPAWN_DELAY < this.ticks;
+		}
 	}
 }
 

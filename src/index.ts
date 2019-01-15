@@ -4,15 +4,16 @@ import keyboard from './keyboard';
 import tileMap from './TileMap';
 import pool from './gameObjectPool';
 import { Player, Enemy } from './gameObjects';
-import image from './screens/image';
 import Game from './Game';
 
 async function main() {
 	//game = new Game()
 	//await game.setupSprites()
 	//return game.createLoop()
+	const image = await loadImage(sprite);
+	const game = new Game();
+	game.setupSprites(image);
 
-	image.image = await loadImage(sprite);
 	keyboard.listenToEvents();
 
 	pool.add(new Player());
@@ -37,7 +38,6 @@ async function main() {
 	};
 	myWindow.entities = pool.pool;
 
-	const game = new Game();
 	return game.createLoop();
 }
 
