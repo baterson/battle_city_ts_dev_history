@@ -74,6 +74,13 @@ class Game {
 			mainScreen.drawStageStart();
 		}
 	}
+
+	//gameOver(){}
+
+	//runIntro()
+
+	//changeStage - stageTick, new
+	//stageNum, new Map, new Tanks and pass game all around
 }
 
 export { GAME_OVER };
