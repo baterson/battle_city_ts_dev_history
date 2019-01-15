@@ -8,6 +8,10 @@ import image from './screens/image';
 import Game from './Game';
 
 async function main() {
+	//game = new Game()
+	//await game.setupSprites()
+	//return game.createLoop()
+
 	image.image = await loadImage(sprite);
 	keyboard.listenToEvents();
 
