@@ -1,9 +1,4 @@
-export enum Direction {
-	top,
-	bottom,
-	right,
-	left,
-}
+import { Direction, move } from './common';
 
 export default function createEnemy(sprites) {
 	return function flag(x, y, direction) {
@@ -47,7 +42,7 @@ export default function createEnemy(sprites) {
 					this.shot();
 					this.setRandomDirection();
 				} else {
-					super.move(deltaTime);
+					move(deltaTime);
 				}
 			},
 
@@ -84,23 +79,15 @@ export default function createEnemy(sprites) {
 			},
 
 			render() {
-				const frame = this.resolveFrame();
-				frame.draw(this.x, this.y, this.side);
-			},
-
-			_move(deltaTime) {
-				this.prevY = this.y;
-				this.prevX = this.x;
-
-				if (this.direction === Direction.top) {
-					this.y -= this.velocity * deltaTime;
-				} else if (this.direction === Direction.bottom) {
-					this.y += this.velocity * deltaTime;
-				} else if (this.direction === Direction.left) {
-					this.x -= this.velocity * deltaTime;
-				} else if (this.direction === Direction.right) {
-					this.x += this.velocity * deltaTime;
+				let distance;
+				const sprites = this.sprites[this.direction];
+				if (this.direction === Direction.left || this.direction === Direction.right) {
+					distance = this.x;
+				} else {
+					distance = this.y;
 				}
+				const index = Math.floor(distance / 2) % sprites.length;
+				sprites[index](this.x, this.y, this.side);
 			},
 
 			goBack() {
