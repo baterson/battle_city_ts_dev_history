@@ -1,7 +1,7 @@
 import { Direction } from './constants';
 
 function renderStatic() {
-	this.spr;
+	this.sprite(this.x, this.y, this.side);
 }
 
 function renderMovable() {
@@ -17,4 +17,4 @@ function renderMovable() {
 	sprites[index](this.x, this.y, this.side);
 }
 
-export { renderMovable };
+export { renderMovable, renderStatic };

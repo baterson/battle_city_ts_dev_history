@@ -1,25 +1,21 @@
-import { FLAG_SPRITE, FLAG_DEATH_SPRITE } from '../constants';
-import Entity from './Entity';
-import Bullet from './Bullet';
-
-class Flag extends Entity {
-	public sprite;
-
-	constructor(x = 280, y = 560, side = 40) {
-		super(x, y, side);
-		this.sprite = FLAG_SPRITE;
-	}
-
-	render() {
-		this.sprite.draw(this.x, this.y, this.side);
-	}
-
-	resolveEntityCollision(other, level) {
-		if (other instanceof Bullet) {
-			this.sprite = FLAG_DEATH_SPRITE;
-			level.gameOver();
-		}
-	}
+export default function createFlag(sprite, deathSprite) {
+	return function flag(id) {
+		return {
+			type: 'flag',
+			id,
+			x: 280,
+			y: 560,
+			side: 40,
+			sprite,
+			render() {
+				this.sprite(this.x, this.y, this.side);
+			},
+			resolveEntityCollision(other, game) {
+				if (other.type === 'bullet') {
+					this.sprite = deathSprite;
+					game.gameOver();
+				}
+			},
+		};
+	};
 }
-
-export default Flag;

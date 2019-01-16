@@ -1,3 +1,6 @@
 export * from './squareIntersection';
-export * from './createSprite';
 export * from './squareIntersection';
+export * from './setupSprites';
+import idGen from './idGen';
+// TODO: Imports
+export { idGen };

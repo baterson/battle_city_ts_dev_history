@@ -1,7 +1,6 @@
-import Movable from './Movable';
-import Bullet from './Bullet';
-import Enemy from './Enemy';
-import Player from './Player';
-import Flag from './Flag';
+import createEnemy from './enemy';
+import createPlayer from './player';
+import createBullet from './bullet';
+import createFlag from './flag';
 
-export { Bullet, Enemy, Player, Movable, Flag };
+export { createEnemy, createPlayer, createFlag, createBullet };

@@ -15,4 +15,29 @@ function move(deltaTime) {
 	}
 }
 
-export { move };
+function goBack() {
+	this.x = this.prevX;
+	this.y = this.prevY;
+}
+
+function setRandomDirection() {
+	const items = [Direction.top, Direction.right, Direction.bottom, Direction.left].filter(
+		direction => direction !== this.direction
+	);
+	const index = Math.floor(Math.random() * items.length);
+	this.direction = items[index];
+}
+
+function setOpositeDirection() {
+	if (this.direction === Direction.top) {
+		this.direction = Direction.bottom;
+	} else if (this.direction === Direction.bottom) {
+		this.direction = Direction.top;
+	} else if (this.direction === Direction.right) {
+		this.direction = Direction.left;
+	} else {
+		this.direction = Direction.right;
+	}
+}
+
+export { move, goBack, setRandomDirection, setOpositeDirection };

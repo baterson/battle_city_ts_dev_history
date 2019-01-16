@@ -1,90 +1,97 @@
-import { Direction, TANK_VELOCITY, TANK_LIVES, TANK_SPRITES } from '../constants';
-import Tank from './Tank';
-import Bullet from './Bullet';
-import Player from './Player';
+import {
+	Direction,
+	TANK_VELOCITY,
+	TANK_LIVES,
+	TANK_SIDE,
+	move,
+	renderMovable,
+	goBack,
+	setRandomDirection,
+	setOpositeDirection,
+	getCollisionPoints,
+	isOutOfScreen,
+	shot,
+	destroy,
+} from './common';
 
-class Enemy extends Tank {
-	public prevTile: any;
-	public type;
-	public lives;
+export default function createEnemy(allTypesSprites) {
+	return function enemy(id, x, y, direction, type) {
+		return {
+			type: 'enemy',
+			id,
+			direction,
+			x,
+			y,
+			sprites: allTypesSprites[type],
+			velocity: TANK_VELOCITY[type],
+			side: TANK_SIDE,
+			prevTile: { x: 0, y: 0 },
+			lives: TANK_LIVES[type],
+			canShoot: true,
 
-	constructor(x, y, direction, type) {
-		super(x, y, direction, TANK_VELOCITY[type], TANK_SPRITES[type]);
-		this.prevTile = { x: 0, y: 0 };
-		this.type = type;
-		this.lives = TANK_LIVES[type];
-	}
+			render: renderMovable,
+			goBack,
+			setRandomDirection,
+			setOpositeDirection,
+			getCollisionPoints,
+			isOutOfScreen,
+			shot,
+			destroy,
 
-	update(deltaTime, level) {
-		super.update(deltaTime, level);
-		if (this.isDeath || this.isSpawning) return;
-		this.move(deltaTime);
-	}
+			update(deltaTime, game) {
+				if (this.isSpawning) {
+					this.spawnTimer -= 1;
+					return;
+				} else if (this.isDeath) {
+					this.deathTimer -= 1;
+					return;
+				}
+				this.move(deltaTime);
+			},
 
-	setRandomDirection() {
-		const items = [Direction.top, Direction.right, Direction.bottom, Direction.left].filter(
-			direction => direction !== this.direction
-		);
-		const index = Math.floor(Math.random() * items.length);
-		this.direction = items[index];
-	}
+			move(deltaTime) {
+				if (
+					Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
+					Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
+				) {
+					this.prevTile = { x: this.x, y: this.y };
+					this.shot();
+					this.setRandomDirection();
+				} else {
+					move(deltaTime);
+				}
+			},
 
-	setOpositeDirection() {
-		if (this.direction === Direction.top) {
-			this.direction = Direction.bottom;
-		} else if (this.direction === Direction.bottom) {
-			this.direction = Direction.top;
-		} else if (this.direction === Direction.right) {
-			this.direction = Direction.left;
-		} else {
-			this.direction = Direction.right;
-		}
-	}
+			resolveEdgeCollision() {
+				this.goBack();
+				this.setRandomDirection();
+			},
 
-	move(deltaTime) {
-		if (
-			Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
-			Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
-		) {
-			this.prevTile = { x: this.x, y: this.y };
-			this.shot();
-			this.setRandomDirection();
-		} else {
-			super.move(deltaTime);
-		}
-	}
+			resolveTileCollision(tiles, game) {
+				this.goBack();
+				if (!this.canShoot) {
+					this.setOpositeDirection();
+				} else {
+					this.shot();
+				}
+			},
 
-	resolveEdgeCollision() {
-		super.resolveEdgeCollision();
-		this.setRandomDirection();
-	}
-
-	// TODO: Tile types
-	resolveTileCollision(tiles, level) {
-		this.goBack();
-		if (!this.canShoot) {
-			this.setOpositeDirection();
-		} else {
-			this.shot();
-		}
-	}
-
-	resolveEntityCollision(other, level, initiator) {
-		if (other instanceof Bullet && other.shooter instanceof Player) {
-			if (this.lives === 1) {
-				this.destroy();
-			} else {
-				this.lives -= 1;
-				this.sprites = TANK_SPRITES[`${this.type}${this.lives}`];
-			}
-		} else if (other instanceof Enemy && initiator.id === this.id) {
-			this.goBack();
-			this.setOpositeDirection();
-		} else if (other instanceof Player) {
-			this.goBack();
-			this.shot();
-		}
-	}
+			resolveEntityCollision(other, level, initiator) {
+				if (other.type === 'bullet' && other.shooter.type === 'player') {
+					if (this.lives === 1) {
+						this.destroy();
+					} else {
+						this.lives -= 1;
+						this.sprites = allTypesSprites[`${this.type}${this.lives}`];
+					}
+				} else if (other.type === 'enemy' && initiator.id === this.id) {
+					this.goBack();
+					this.setOpositeDirection();
+				} else if (other.type === 'player') {
+					this.goBack();
+					this.shot();
+				}
+			},
+		};
+	};
 }
-
-export default Enemy;
