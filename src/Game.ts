@@ -1,13 +1,11 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
 import { START_TICKS, Direction, TankTypes } from './constants';
-import { Flag } from './gameObjects';
-import TileMap from './tileMap';
-import pool from './gameObjectPool';
-import collisionManager from './collisionManager';
+import { Flag, Entity } from './entities';
+import TileMap, { rigid } from './tileMap';
+import pool from './entityPool';
 import Stage from './Stage';
-import timer from './timer';
 import { main as mainScreen, dashboard } from './screens';
-import { createSprite } from './utils';
+import { createSprite, squareIntersection } from './utils';
 
 const GAME_OVER = false;
 
@@ -41,14 +39,12 @@ class Game {
 
 	update(deltaTime) {
 		pool.forEach(entity => {
-			entity.update(deltaTime, this.stage);
-			collisionManager.manageTiles(this.stage);
-			collisionManager.manageEntities(this.stage);
+			entity.update(deltaTime, this);
 		});
+		this.checkTileCollision();
+		this.checkEntitiesCollision();
 
-		if (!this.lives || this.stage.isLost) {
-			// todo gameover
-		}
+		// todo gameover
 
 		const { tanks, number } = this.stage;
 
@@ -56,13 +52,10 @@ class Game {
 			// TODO fix some memory leak when all stages are finished
 			const lvlNum = number + 1;
 			this.stage = new Stage(new TileMap(maps[lvlNum]), tanksConfig[lvlNum], lvlNum);
-			timer.reset();
 			pool.add(new Flag());
 		}
 
 		this.stage.spawnEnemy();
-		timer.checkAll();
-		timer.increment();
 		pool.removeFromQueue();
 	}
 
@@ -82,9 +75,40 @@ class Game {
 
 	//changeStage - stageTick, new
 	//stageNum, new Map, new Tanks and pass game all around
+	checkTileCollision() {
+		pool.forEach(entity => {
+			if (!(entity instanceof Entity) || entity.isDeath) return;
+
+			if (entity.outOfScreen) {
+				entity.resolveEdgeCollision();
+			} else {
+				const points = entity.getCollisionPoints();
+				const tiles = this.stage.map.lookupMany(points);
+				const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
+
+				if (collided) {
+					entity.resolveTileCollision(tiles, this);
+				}
+			}
+		});
+	}
+
+	checkEntitiesCollision() {
+		pool.forEach(entity => {
+			if (entity.isDeath) return;
+
+			pool.forEach(other => {
+				if (entity.id === other.id) return;
+				if (squareIntersection(entity, other)) {
+					entity.resolveEntityCollision(other, this, entity);
+					other.resolveEntityCollision(entity, this, entity);
+				}
+			});
+		});
+	}
 
 	async setupSprites(image) {
-		const mainSprite = createSprite(image, main.context);
+		const mainSprite = createSprite(image, mainScreen.context);
 		const dashboardSprite = createSprite(image, dashboard.context);
 
 		this.sprites = {
@@ -160,10 +184,10 @@ class Game {
 				{ sprite: mainSprite(258, 128.75, 13.75, 13.25), side: 35 },
 			],
 			tankSpawn: [
-				{ sprite: new Sprite(257, 97, 15, 14), side: 35 },
-				{ sprite: new Sprite(273, 97, 15, 14), side: 35 },
-				{ sprite: new Sprite(288, 97, 15, 14), side: 35 },
-				{ sprite: new Sprite(303, 97, 15, 14), side: 35 },
+				{ sprite: mainSprite(257, 97, 15, 14), side: 35 },
+				{ sprite: mainSprite(273, 97, 15, 14), side: 35 },
+				{ sprite: mainSprite(288, 97, 15, 14), side: 35 },
+				{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
 			],
 		};
 	}

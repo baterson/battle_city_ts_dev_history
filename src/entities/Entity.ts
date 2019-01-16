@@ -1,6 +1,6 @@
 import idGen from '../utils/idGen';
 
-class GameObject {
+class Entity {
 	public id;
 	public x;
 	public y;
@@ -14,4 +14,4 @@ class GameObject {
 	}
 }
 
-export default GameObject;
+export default Entity;

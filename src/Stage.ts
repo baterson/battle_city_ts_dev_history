@@ -1,9 +1,9 @@
 import { Direction, START_TICKS, STAGE_SPAWN_DELAY, ENEMY_SPAWN_POSITION, TANK_SIDE } from './constants';
 import { Layers } from './tileMap';
-import { Enemy } from './gameObjects';
+import { Enemy } from './entities';
 import { randomInt } from './utils/random';
 import timer from './timer';
-import pool from './gameObjectPool';
+import pool from './entityPool';
 
 class Stage {
 	public tanks;
@@ -35,6 +35,8 @@ class Stage {
 		pool.add(enemy);
 	}
 
+	spawnPowerUp() {}
+
 	draw() {
 		this.map.renderLayer(Layers.under);
 		this.map.renderLayer(Layers.main);
@@ -51,5 +53,4 @@ class Stage {
 	}
 }
 
-export { START_TICKS };
 export default Stage;

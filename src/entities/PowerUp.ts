@@ -1,6 +1,6 @@
-import Entity from './Entity';
+import Entity from './Movable';
 import Player from './Player';
-import pool from '../gameObjectPool';
+import pool from '../entityPool';
 import idGen from '../utils/idGen';
 import Sprite from '../Sprite';
 

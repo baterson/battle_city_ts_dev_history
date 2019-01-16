@@ -1,8 +1,8 @@
 import { Direction } from '../constants';
-import pool from '../gameObjectPool';
-import GameObject from './GameObject';
+import entityPool from '../entityPool';
+import Entity from './Entity';
 
-class Entity extends GameObject {
+class Movable extends Entity {
 	public prevX;
 	public prevY;
 	public velocity;
@@ -59,7 +59,7 @@ class Entity extends GameObject {
 
 	destroy = () => {
 		this.isDeath = true;
-		pool.toRemove(this.id);
+		entityPool.toRemove(this.id);
 	};
 
 	resolveEdgeCollision() {
@@ -106,4 +106,4 @@ class Entity extends GameObject {
 	}
 }
 
-export default Entity;
+export default Movable;

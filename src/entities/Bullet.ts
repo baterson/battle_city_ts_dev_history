@@ -1,5 +1,5 @@
 import { BULLET_SPRITES, BULLET_SIDE, BULLET_VELOCITY } from '../constants';
-import Entity from './Entity';
+import Entity from './Movable';
 import Enemy from './Enemy';
 import PowerUp from './PowerUp';
 

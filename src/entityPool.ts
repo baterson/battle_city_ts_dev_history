@@ -1,7 +1,7 @@
-import { Enemy, Player } from './gameObjects';
-import squareIntersection from './utils/squareIntersection';
+import { Enemy, Player } from './entities';
+import { squareIntersection } from './utils/squareIntersection';
 
-class GameObjectPool {
+class EntityPool {
 	// TODO: getter for pool
 	public pool;
 	private toRemoveQueue;
@@ -39,13 +39,13 @@ class GameObjectPool {
 		return Object.values(this.pool).filter(obj => obj instanceof Enemy);
 	}
 
-	getByIntersection(gameObject) {
+	getByIntersection(entity) {
 		return Object.values(this.pool).filter(obj => {
-			if ((obj instanceof Enemy || obj instanceof Player) && squareIntersection(gameObject, obj)) {
+			if ((obj instanceof Enemy || obj instanceof Player) && squareIntersection(entity, obj)) {
 				return obj;
 			}
 		});
 	}
 }
 
-export default new GameObjectPool();
+export default new EntityPool();

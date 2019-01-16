@@ -1,8 +1,8 @@
 import { FLAG_SPRITE, FLAG_DEATH_SPRITE } from '../constants';
-import GameObject from './GameObject';
+import Entity from './Entity';
 import Bullet from './Bullet';
 
-class Flag extends GameObject {
+class Flag extends Entity {
 	public sprite;
 
 	constructor(x = 280, y = 560, side = 40) {

@@ -7,10 +7,10 @@ import {
 	TANK_SPAWN_SPRITES,
 	TANK_DEATH_SPRITES,
 } from '../constants';
-import Entity from './Entity';
+import Entity from './Movable';
 import Bullet from './Bullet';
 import timer from '../timer';
-import pool from '../gameObjectPool';
+import pool from '../entityPool';
 
 class Tank extends Entity {
 	public canShoot;

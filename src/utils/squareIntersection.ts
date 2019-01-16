@@ -1,4 +1,4 @@
-export default function squareIntersection(square1, square2) {
+export const squareIntersection = (square1, square2) => {
 	if (
 		square1.x < square2.x + square2.side &&
 		square1.x + square1.side > square2.x &&
@@ -8,4 +8,4 @@ export default function squareIntersection(square1, square2) {
 		return true;
 	}
 	return false;
-}
+};

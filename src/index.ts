@@ -2,8 +2,8 @@ const sprite = require('./assets/sprites.png');
 import loadImage from './utils/loadImage';
 import keyboard from './keyboard';
 import tileMap from './TileMap';
-import pool from './gameObjectPool';
-import { Player, Enemy } from './gameObjects';
+import pool from './entityPool';
+import { Player, Enemy } from './entities';
 import Game from './Game';
 
 async function main() {
