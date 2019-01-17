@@ -1,12 +1,10 @@
-import { Direction, BULLET_SIDE } from './constants';
+import { Direction, BULLET_SIDE, SHOT_DELAY } from './constants';
 import entityManager from '../../entityManager';
 
-function shot() {
-	if (!this.canShoot) return;
+function shot(ticks) {
+	if (this.lastShotTick && this.lastShotTick + SHOT_DELAY < ticks) return;
 
-	this.canShoot = false;
 	let bulletArgs;
-
 	if (this.direction === Direction.top) {
 		bulletArgs = { x: this.x + this.side / 2 - BULLET_SIDE / 2, y: this.y - BULLET_SIDE };
 	} else if (this.direction === Direction.right) {
@@ -18,12 +16,7 @@ function shot() {
 	}
 
 	entityManager.spawnBullet(bulletArgs.x, bulletArgs.y, this.direction, this);
-	// timer.set(50, () => (this.canShoot = true));
+	this.lastShotTick = ticks;
 }
 
-function destroy() {
-	this.isDeath = true;
-	entityManager.toRemove(this.id);
-}
-
-export { shot, destroy };
+export { shot };

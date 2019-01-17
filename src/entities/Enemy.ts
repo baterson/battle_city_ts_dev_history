@@ -4,17 +4,17 @@ import {
 	TANK_LIVES,
 	TANK_SIDE,
 	move,
-	renderMovable,
+	renderAnimated,
 	goBack,
 	setRandomDirection,
 	setOpositeDirection,
 	getCollisionPoints,
 	isOutOfScreen,
 	shot,
-	destroy,
 } from './common';
+import entityManager from '../entityManager';
 
-export default function createEnemy(allTypesSprites) {
+export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimation) {
 	return function enemy(id, x, y, direction, type) {
 		return {
 			type: 'enemy',
@@ -22,28 +22,30 @@ export default function createEnemy(allTypesSprites) {
 			direction,
 			x,
 			y,
+			spawnAnimation,
+			deathAnimation,
 			sprites: allTypesSprites[type],
 			velocity: TANK_VELOCITY[type],
 			side: TANK_SIDE,
 			prevTile: { x: 0, y: 0 },
 			lives: TANK_LIVES[type],
-			canShoot: true,
+			spawnTick: spawnAnimation.length - 1,
+			deathTick: 0,
 
-			render: renderMovable,
+			render: renderAnimated,
 			goBack,
 			setRandomDirection,
 			setOpositeDirection,
 			getCollisionPoints,
 			isOutOfScreen,
 			shot,
-			destroy,
 
 			update(deltaTime, game) {
-				if (this.isSpawning) {
-					this.spawnTimer -= 1;
+				if (this.spawnTick) {
+					this.spawnTick -= 1;
 					return;
-				} else if (this.isDeath) {
-					this.deathTimer -= 1;
+				} else if (this.deathTick) {
+					this.deathTick -= 1;
 					return;
 				}
 				this.move(deltaTime);
@@ -76,10 +78,11 @@ export default function createEnemy(allTypesSprites) {
 				}
 			},
 
-			resolveEntityCollision(other, level, initiator) {
+			resolveEntityCollision(other, game, initiator) {
 				if (other.type === 'bullet' && other.shooter.type === 'player') {
 					if (this.lives === 1) {
-						this.destroy();
+						this.deathTick = this.deathAnimation.length - 1;
+						entityManager.toRemove(this.id);
 					} else {
 						this.lives -= 1;
 						this.sprites = allTypesSprites[`${this.type}${this.lives}`];

@@ -73,26 +73,6 @@ class Game {
 
 	//changeStage - stageTick, new
 	//stageNum, new Map, new Tanks and pass game all around
-	// async setupSprites(image) {
-	// 	const mainSprite = createSprite(image, mainScreen.context);
-	// 	const dashboardSprite = createSprite(image, dashboard.context);
-
-	// 	this.effects = {
-	// 		tankDeath: [
-	// 			{ sprite: mainSprite(336, 128.75, 32, 32), side: 80 },
-	// 			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), side: 80 },
-	// 			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), side: 40 },
-	// 			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), side: 37 },
-	// 			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), side: 35 },
-	// 		],
-	// 		tankSpawn: [
-	// 			{ sprite: mainSprite(257, 97, 15, 14), side: 35 },
-	// 			{ sprite: mainSprite(273, 97, 15, 14), side: 35 },
-	// 			{ sprite: mainSprite(288, 97, 15, 14), side: 35 },
-	// 			{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
-	// 		],
-	// 	};
-	// }
 }
 
 export { GAME_OVER };

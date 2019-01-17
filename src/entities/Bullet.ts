@@ -1,13 +1,5 @@
-import {
-	renderMovable,
-	getCollisionPoints,
-	isOutOfScreen,
-	shot,
-	destroy,
-	move,
-	BULLET_VELOCITY,
-	BULLET_SIDE,
-} from './common';
+import { renderMovable, getCollisionPoints, isOutOfScreen, shot, move, BULLET_VELOCITY, BULLET_SIDE } from './common';
+import entityManager from '../entityManager';
 
 export default function createBullet(sprites) {
 	return function bullet(id, x, y, direction, shooter) {
@@ -26,20 +18,18 @@ export default function createBullet(sprites) {
 			getCollisionPoints,
 			isOutOfScreen,
 			shot,
-			destroy,
 			move,
 
 			update(deltaTime) {
-				if (this.isDeath) return;
 				this.move(deltaTime);
 			},
 
 			resolveEdgeCollision() {
-				this.destroy();
+				entityManager.toRemove(this.id);
 			},
 
 			resolveTileCollision(tiles, game) {
-				this.destroy();
+				entityManager.toRemove(this.id);
 				tiles.forEach(tile => {
 					game.stage.map.destroy(tile);
 				});
@@ -47,7 +37,7 @@ export default function createBullet(sprites) {
 
 			resolveEntityCollision(other, game) {
 				if ((other.type === 'enemy' && this.shooter.type === 'enemy') || other.type === 'powerUp') return;
-				this.destroy();
+				entityManager.toRemove(this.id);
 			},
 		};
 	};

@@ -8,22 +8,24 @@ enum Keys {
 	Space = 'Space',
 }
 
-const movement = [Keys.ArrowUp, Keys.ArrowRight, Keys.ArrowDown, Keys.ArrowLeft];
+// const movement = [Keys.ArrowUp, Keys.ArrowRight, Keys.ArrowDown, Keys.ArrowLeft];
 
 class Keyboard {
-	public shot;
-	public movementQueue;
-	public keyStates;
+	// public shot;
+	// public movementQueue;
+	public queue;
+	// public keyStates;
 
 	constructor() {
-		this.movementQueue = new Set();
-		this.keyStates = {
-			ArrowUp: false,
-			ArrowRight: false,
-			ArrowDown: false,
-			ArrowLeft: false,
-			Space: false,
-		};
+		this.queue = new Set();
+		// this.movementQueue = new Set();
+		// this.keyStates = {
+		// 	ArrowUp: false,
+		// 	ArrowRight: false,
+		// 	ArrowDown: false,
+		// 	ArrowLeft: false,
+		// 	Space: false,
+		// };
 	}
 
 	handleEvent(event) {
@@ -39,18 +41,24 @@ class Keyboard {
 		if (!Keys[code]) return;
 
 		if (type === 'keydown') {
-			this.keyStates[code] = true;
+			this.queue.add(code);
+			// this.keyStates[code] = true;
 		} else {
-			this.keyStates[code] = false;
+			this.queue.delete(code);
+			// this.keyStates[code] = false;
 		}
 
-		if (movement.includes(code)) {
-			this.keyStates[code] ? this.movementQueue.add(code) : this.movementQueue.delete(code);
-		}
+		// if (movement.includes(code)) {
+		// 	this.keyStates[code] ? this.movementQueue.add(code) : this.movementQueue.delete(code);
+		// }
 	}
 
-	getMovement() {
-		return Array.from(this.movementQueue).pop();
+	// getMovement() {
+	// 	return Array.from(this.movementQueue).pop();
+	// }
+
+	getKey() {
+		return Array.from(this.queue).pop();
 	}
 
 	listenToEvents() {

@@ -1,6 +1,6 @@
 import {
 	Direction,
-	renderMovable,
+	renderAnimated,
 	goBack,
 	getCollisionPoints,
 	isOutOfScreen,
@@ -12,7 +12,7 @@ import {
 } from './common';
 import keyboard, { Keys } from '../keyboard';
 
-export default function createPlayer(sprites) {
+export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 	return function player(id) {
 		return {
 			type: 'player',
@@ -20,26 +20,32 @@ export default function createPlayer(sprites) {
 			direction: Direction.top,
 			x: PLAYER_SPAWN_POSITION.x,
 			y: PLAYER_SPAWN_POSITION.y,
+			spawnAnimation,
+			deathAnimation,
 			sprites,
 			velocity: PLAYER_VELOCITY,
 			side: TANK_SIDE,
 			prevTile: { x: 0, y: 0 },
 			lives: 3,
-			canShoot: true,
+			spawnTick: spawnAnimation.length - 1,
+			deathTick: 0,
 
-			render: renderMovable,
 			goBack,
 			getCollisionPoints,
 			isOutOfScreen,
 			shot,
 			move,
+			render: renderAnimated,
 
 			update(deltaTime, game) {
-				if (this.isSpawning) {
-					this.spawnTimer -= 1;
+				if (this.spawnTick) {
+					this.spawnTick -= 1;
 					return;
-				} else if (this.isDeath) {
-					this.deathTimer -= 1;
+				} else if (this.deathTick) {
+					if (this.deathTick === 1) {
+						this.respawn();
+					}
+					this.deathTick -= 1;
 					return;
 				}
 				this.processInput(deltaTime);
@@ -48,25 +54,27 @@ export default function createPlayer(sprites) {
 			processInput(deltaTime) {
 				this.prevY = this.y;
 				this.prevX = this.x;
-				const { keyStates } = keyboard;
-				const movement = keyboard.getMovement();
+				// const { keyStates } = keyboard;
+				const key = keyboard.getKey();
 
-				if (movement === Keys.ArrowUp) {
+				if (key === Keys.ArrowUp) {
 					this.direction = Direction.top;
 					this.move(deltaTime);
-				} else if (movement === Keys.ArrowDown) {
+				} else if (key === Keys.ArrowDown) {
 					this.direction = Direction.bottom;
 					this.move(deltaTime);
-				} else if (movement === Keys.ArrowLeft) {
+				} else if (key === Keys.ArrowLeft) {
 					this.direction = Direction.left;
 					this.move(deltaTime);
-				} else if (movement === Keys.ArrowRight) {
+				} else if (key === Keys.ArrowRight) {
 					this.direction = Direction.right;
 					this.move(deltaTime);
-					// TODO: move space in common queue
-				} else if (keyStates.Space) {
+				} else if (key === Keys.Space) {
 					this.shot();
 				}
+				// } else if (keyStates.Space) {
+				// 	this.shot();
+				// }
 			},
 
 			resolveEdgeCollision() {
@@ -82,27 +90,20 @@ export default function createPlayer(sprites) {
 
 				if (other.type === 'bullet') {
 					if (this.lives === 0) {
+						// TODO: gameover
 					}
 
-					this.isDeath = true;
+					this.deathTick = this.deathAnimation - 1;
 					this.lives -= 1;
-					// timer.set(TANK_DEATH_TIMER, () => this.respawn());
 				} else {
 					this.goBack();
 				}
 			},
 
 			respawn() {
-				this.isSpawning = true;
-				this.isDeath = false;
-				// this.deathTimer = TANK_DEATH_TIMER;
-				// this.spawnTimer = TANK_SPAWN_TIMER;
-				// this.x = PLAYER_SPAWN_POSITION.x;
-				// this.y = PLAYER_SPAWN_POSITION.y;
-				// timer.set(TANK_SPAWN_TIMER, () => {
-				//     this.isSpawning = false;
-				//     this.spawnTimer = TANK_SPAWN_TIMER;
-				// });
+				this.spawnTimer = this.spawnAnimation.length - 1;
+				this.x = PLAYER_SPAWN_POSITION.x;
+				this.y = PLAYER_SPAWN_POSITION.y;
 			},
 		};
 	};

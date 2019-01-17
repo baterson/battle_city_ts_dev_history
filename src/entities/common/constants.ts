@@ -14,6 +14,7 @@ export enum TankTypes {
 // BULLET
 export const BULLET_SIDE = 10;
 export const BULLET_VELOCITY = 350;
+export const SHOT_DELAY = 50;
 
 // TANKS
 export const TANK_SIDE = 35;

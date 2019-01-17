@@ -17,4 +17,16 @@ function renderMovable() {
 	sprites[index](this.x, this.y, this.side);
 }
 
-export { renderMovable, renderStatic };
+function renderAnimated() {
+	if (this.deathTick) {
+		const { sprite, side } = this.deathAnimation[this.spawnTimer];
+		sprite(this.x, this.y, side);
+	} else if (this.spawnTick) {
+		const { sprite, side } = this.spawnAnimation[this.deathTimer];
+		sprite(this.x, this.y, side);
+	} else {
+		renderMovable();
+	}
+}
+
+export { renderMovable, renderStatic, renderAnimated };

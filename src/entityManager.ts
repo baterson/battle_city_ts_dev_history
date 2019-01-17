@@ -14,8 +14,8 @@ class EntityManager {
 
 	setupEntityConstructors(sprites) {
 		this.constructors = {
-			player: createPlayer(sprites.player),
-			enemy: createEnemy(sprites.enemy),
+			player: createPlayer(sprites.player, sprites.tankSpawnAnimation, sprites.tankDeathAnimation),
+			enemy: createEnemy(sprites.enemy, sprites.tankSpawnAnimation, sprites.tankDeathAnimation),
 			bullet: createBullet(sprites.bullet),
 			flag: createFlag(sprites.flag, sprites.flagDeath),
 		};
@@ -47,8 +47,8 @@ class EntityManager {
 
 	removeFromQueue = () => {
 		this.toRemoveQueue.forEach(entityId => {
-			const obj = this.pool[entityId];
-			if (obj.deathTimer === 0 || !obj.deathTimer) {
+			const entity = this.pool[entityId];
+			if (!entity.deathTick) {
 				delete this.pool[entityId];
 				this.toRemoveQueue.delete(entityId);
 			}
