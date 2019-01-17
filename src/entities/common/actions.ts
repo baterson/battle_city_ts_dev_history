@@ -2,7 +2,7 @@ import { Direction, BULLET_SIDE, SHOT_DELAY } from './constants';
 import entityManager from '../../entityManager';
 
 function shot(ticks) {
-	if (this.lastShotTick && this.lastShotTick + SHOT_DELAY < ticks) return;
+	if (this.lastShotTick && this.lastShotTick + SHOT_DELAY > ticks) return;
 
 	let bulletArgs;
 	if (this.direction === Direction.top) {

@@ -54,6 +54,7 @@ class Game {
 		// }
 
 		// this.stage.spawnEnemy();
+		this.stage.incrementTicks();
 		entityManager.removeFromQueue();
 	}
 

@@ -41,6 +41,10 @@ class Stage {
 		this.map.renderLayer(Layers.over);
 	}
 
+	incrementTicks() {
+		this.ticks += 1;
+	}
+
 	get canSpawn() {
 		if (!this.lastSpawnTick) {
 			return true;

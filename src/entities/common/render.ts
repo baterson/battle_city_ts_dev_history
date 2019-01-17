@@ -19,13 +19,13 @@ function renderMovable() {
 
 function renderAnimated() {
 	if (this.deathTick) {
-		const { sprite, side } = this.deathAnimation[this.spawnTimer];
+		const { sprite, side } = this.deathAnimation[this.deathTick];
 		sprite(this.x, this.y, side);
 	} else if (this.spawnTick) {
-		const { sprite, side } = this.spawnAnimation[this.deathTimer];
+		const { sprite, side } = this.spawnAnimation[this.spawnTick];
 		sprite(this.x, this.y, side);
 	} else {
-		renderMovable();
+		renderMovable.call(this);
 	}
 }
 

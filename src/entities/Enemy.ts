@@ -48,16 +48,16 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 					this.deathTick -= 1;
 					return;
 				}
-				this.move(deltaTime);
+				this.move(deltaTime, game.stage.ticks);
 			},
 
-			move(deltaTime) {
+			move(deltaTime, ticks) {
 				if (
 					Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
 					Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
 				) {
 					this.prevTile = { x: this.x, y: this.y };
-					this.shot();
+					this.shot(ticks);
 					this.setRandomDirection();
 				} else {
 					move(deltaTime);
@@ -74,7 +74,7 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 				if (!this.canShoot) {
 					this.setOpositeDirection();
 				} else {
-					this.shot();
+					this.shot(game.stage.ticks);
 				}
 			},
 
@@ -92,7 +92,7 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 					this.setOpositeDirection();
 				} else if (other.type === 'player') {
 					this.goBack();
-					this.shot();
+					this.shot(game.stage.ticks);
 				}
 			},
 		};

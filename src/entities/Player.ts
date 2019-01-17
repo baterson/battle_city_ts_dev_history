@@ -48,10 +48,10 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 					this.deathTick -= 1;
 					return;
 				}
-				this.processInput(deltaTime);
+				this.processInput(deltaTime, game.stage.ticks);
 			},
 
-			processInput(deltaTime) {
+			processInput(deltaTime, ticks) {
 				this.prevY = this.y;
 				this.prevX = this.x;
 				// const { keyStates } = keyboard;
@@ -70,7 +70,7 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 					this.direction = Direction.right;
 					this.move(deltaTime);
 				} else if (key === Keys.Space) {
-					this.shot();
+					this.shot(ticks);
 				}
 				// } else if (keyStates.Space) {
 				// 	this.shot();
