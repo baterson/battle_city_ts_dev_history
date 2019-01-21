@@ -1,56 +1,47 @@
+import entityManager from '../entityManager';
+import c from '../utils/console';
+
 const canvas: any = document.getElementById('dashboard');
 const context = canvas.getContext('2d');
 
-// const drawTanks = tanks => {
-// 	if (!tanks.length) return;
-// 	const sprite = new Sprite(320.25, 192.75, 8.5, 7.75);
-// 	let y = 70;
-// 	let counter = 0;
-// 	tanks.forEach((_, idx) => {
-// 		if (idx % 2 === 0) {
-// 			tank.draw(695, y, 15);
-// 		} else {
-// 			tank.draw(670, y, 15);
-// 		}
+const drawTanks = (tanks, tankSprite) => {
+	if (!tanks.length) return;
+	let y = 70;
+	let counter = 0;
+	c.c(tanks);
+	tanks.forEach((_, idx) => {
+		if (idx % 2 === 0) {
+			tankSprite(695, y, 15);
+		} else {
+			tankSprite(670, y, 15);
+		}
 
-// 		if (counter === 2) {
-// 			y += 20;
-// 			counter = 0;
-// 		} else {
-// 			counter += 1;
-// 		}
-// 	});
-// };
-
-// const drawLives = lives => {
-// 	const tank = new Sprite(376.5, 144.5, 8, 8.5);
-// 	const live = numbers[lives];
-// 	tank.draw(670, 380, 20);
-// 	live.draw(700, 380, 20);
-// };
-
-// const drawStageNum = (sprites, stageNum => {
-// 	const number = numbers[stageNum];
-// 	flag.draw(670, 450, 40);
-// 	number.draw(690, 485, 20);
-// };
+		if (counter === 2) {
+			y += 20;
+			counter = 0;
+		} else {
+			counter += 1;
+		}
+	});
+};
 
 export default {
 	canvas,
 	context,
-	// draw(game) {
-	// 	const {sprites: {numbers}, stage} = game
-	// 	// get player lives
-	// 	const liveNumber = numbers[]
-	// 	tank.draw(670, 380, 20);
-	// 	live.draw(700, 380, 20);
-
-	// 	drawTanks(tanks);
-	// 	drawLives(lives);
-	// 	drawStageNum(stage.number, sprites);
-	// },
+	render(game) {
+		const {
+			sprites: { numberIcons, flagIcon, playerIcon, tankIcon },
+			stage,
+		} = game;
+		const player = entityManager.getPlayer();
+		drawTanks(stage.tanks, tankIcon);
+		flagIcon(670, 450, 40);
+		playerIcon(670, 380, 20);
+		numberIcons[stage.number + 1](690, 485, 20);
+		numberIcons[player ? player.lives : 0](700, 380, 20);
+	},
 	clearScreen() {
-		context.clearRect(0, 0, 600, 600);
+		context.clearRect(0, 0, 750, 700);
 		context.beginPath();
 	},
 };

@@ -30,7 +30,7 @@ class TileMap {
 	public sprites;
 
 	constructor(tiles, sprites) {
-		this.tiles = tiles;
+		this.tiles = tiles.map(row => [...row]);
 		this.sprites = sprites;
 	}
 

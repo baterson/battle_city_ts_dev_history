@@ -1,5 +1,4 @@
-import timer from '../timer';
-import { START_TICKS } from '../constants';
+import { START_TICKS } from '../Stage';
 
 const canvas: any = document.getElementById('root');
 const context = canvas.getContext('2d');
@@ -11,8 +10,8 @@ export default {
 		context.clearRect(0, 0, 600, 600);
 		context.beginPath();
 	},
-	drawStageStarting() {
-		context.fillRect(0, 0, 600, START_TICKS - timer.ticks);
-		context.fillRect(0, START_TICKS + timer.ticks, 600, START_TICKS - timer.ticks);
+	renderStageStarting(ticks) {
+		context.fillRect(0, 0, 600, START_TICKS - ticks);
+		context.fillRect(0, START_TICKS + ticks, 600, START_TICKS - ticks);
 	},
 };

@@ -7,6 +7,8 @@ export default function createFlag(sprite, deathSprite) {
 			y: 560,
 			side: 40,
 			sprite,
+
+			update() {},
 			render() {
 				this.sprite(this.x, this.y, this.side);
 			},

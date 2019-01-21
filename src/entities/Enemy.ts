@@ -1,5 +1,4 @@
 import {
-	Direction,
 	TANK_VELOCITY,
 	TANK_LIVES,
 	TANK_SIDE,
@@ -15,7 +14,7 @@ import {
 import entityManager from '../entityManager';
 
 export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimation) {
-	return function enemy(id, x, y, direction, type) {
+	return function enemy(id, x, y, direction, enemyType) {
 		return {
 			type: 'enemy',
 			id,
@@ -24,11 +23,11 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 			y,
 			spawnAnimation,
 			deathAnimation,
-			sprites: allTypesSprites[type],
-			velocity: TANK_VELOCITY[type],
+			sprites: allTypesSprites[enemyType],
+			velocity: TANK_VELOCITY[enemyType],
 			side: TANK_SIDE,
 			prevTile: { x: 0, y: 0 },
-			lives: TANK_LIVES[type],
+			lives: TANK_LIVES[enemyType],
 			spawnTick: spawnAnimation.length - 1,
 			deathTick: 0,
 
@@ -48,7 +47,7 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 					this.deathTick -= 1;
 					return;
 				}
-				this.move(deltaTime, game.stage.ticks);
+				this.move(deltaTime, game.ticks);
 			},
 
 			move(deltaTime, ticks) {
@@ -60,7 +59,7 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 					this.shot(ticks);
 					this.setRandomDirection();
 				} else {
-					move(deltaTime);
+					move.call(this, deltaTime);
 				}
 			},
 
@@ -74,7 +73,7 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 				if (!this.canShoot) {
 					this.setOpositeDirection();
 				} else {
-					this.shot(game.stage.ticks);
+					this.shot(game.ticks);
 				}
 			},
 
@@ -85,14 +84,14 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 						entityManager.toRemove(this.id);
 					} else {
 						this.lives -= 1;
-						this.sprites = allTypesSprites[`${this.type}${this.lives}`];
+						this.sprites = allTypesSprites[`${enemyType}${this.lives}`];
 					}
 				} else if (other.type === 'enemy' && initiator.id === this.id) {
 					this.goBack();
 					this.setOpositeDirection();
 				} else if (other.type === 'player') {
 					this.goBack();
-					this.shot(game.stage.ticks);
+					this.shot(game.ticks);
 				}
 			},
 		};

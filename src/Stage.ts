@@ -1,25 +1,31 @@
-import { Direction, START_TICKS, STAGE_SPAWN_DELAY, ENEMY_SPAWN_POSITION, TANK_SIDE } from './constants';
+import { Direction, TANK_SIDE } from './entities/common/constants';
 import { Layers } from './tileMap';
 import { randomInt } from './utils/random';
-import timer from './timer';
 import entityManager from './entityManager';
+
+// const START_TICKS = 10;
+const START_TICKS = 300;
+const STAGE_SPAWN_DELAY = 100;
+const ENEMY_SPAWN_POSITION = [[0, 0], [560, 0]];
 
 class Stage {
 	public tanks;
 	public map;
 	public number;
-	public ticks;
+	public startTick;
 	public lastSpawnTick;
 
-	constructor(map, tanks, number) {
-		this.tanks = tanks;
+	constructor(map, tanks, number, startTick) {
+		this.tanks = [...tanks];
 		this.map = map;
 		this.number = number;
-		this.ticks = 0;
+		this.startTick = startTick;
+		entityManager.spawnFlag();
 	}
 
-	spawnEnemy() {
-		if (!this.tanks.length || timer.ticks < START_TICKS || !this.canSpawn) return;
+	spawnEnemy(game) {
+		const { ticks } = game;
+		if (!this.tanks.length || ticks - this.startTick < START_TICKS || !this.canSpawn(ticks)) return;
 		const index = randomInt(2);
 		let [x, y] = ENEMY_SPAWN_POSITION[index];
 		if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
@@ -29,29 +35,25 @@ class Stage {
 			}
 		}
 		entityManager.spawnEnemy(x, y, Direction.bottom, this.tanks.pop());
-		this.lastSpawnTick = this.ticks;
+		this.lastSpawnTick = ticks;
 	}
 
 	spawnPowerUp() {}
 
-	draw() {
+	render() {
 		this.map.renderLayer(Layers.under);
 		this.map.renderLayer(Layers.main);
 		entityManager.render();
 		this.map.renderLayer(Layers.over);
 	}
 
-	incrementTicks() {
-		this.ticks += 1;
-	}
-
-	get canSpawn() {
+	canSpawn(ticks) {
 		if (!this.lastSpawnTick) {
 			return true;
 		} else {
-			return this.lastSpawnTick + STAGE_SPAWN_DELAY < this.ticks;
+			return this.lastSpawnTick + STAGE_SPAWN_DELAY < ticks;
 		}
 	}
 }
-
+export { START_TICKS, STAGE_SPAWN_DELAY, ENEMY_SPAWN_POSITION };
 export default Stage;

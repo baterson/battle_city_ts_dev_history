@@ -42,6 +42,12 @@ const setupSprites = image => {
 				[Direction.right]: [mainSprite(222.75, 111.75, 16, 16), mainSprite(239, 111.75, 14.75, 16)],
 				[Direction.left]: [mainSprite(159, 111.75, 16, 16), mainSprite(174.75, 111.75, 16, 16)],
 			},
+			[`${TankTypes.armored}3`]: {
+				[Direction.top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
+				[Direction.bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
+				[Direction.right]: [mainSprite(223.75, 175.75, 16, 16), mainSprite(239.75, 175.75, 14.75, 16)],
+				[Direction.left]: [mainSprite(159, 175.75, 16, 16), mainSprite(174.75, 175.75, 16, 16)],
+			},
 			[`${TankTypes.armored}2`]: {
 				[Direction.top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
 				[Direction.bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
@@ -93,6 +99,7 @@ const setupSprites = image => {
 			[Tiles.ice]: mainSprite(288, 32, 16, 15),
 			[Tiles.grass]: mainSprite(272, 32, 16, 15),
 		},
+		gameOver: mainSprite(288.5, 184, 31.2, 16),
 	};
 };
 

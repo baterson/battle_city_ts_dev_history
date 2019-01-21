@@ -11,6 +11,7 @@ import {
 	TANK_SIDE,
 } from './common';
 import keyboard, { Keys } from '../keyboard';
+import entityManager from '../entityManager';
 
 export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 	return function player(id) {
@@ -26,7 +27,7 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 			velocity: PLAYER_VELOCITY,
 			side: TANK_SIDE,
 			prevTile: { x: 0, y: 0 },
-			lives: 3,
+			lives: 1,
 			spawnTick: spawnAnimation.length - 1,
 			deathTick: 0,
 
@@ -42,19 +43,18 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 					this.spawnTick -= 1;
 					return;
 				} else if (this.deathTick) {
-					if (this.deathTick === 1) {
+					if (this.deathTick === 1 && this.lives > 0) {
 						this.respawn();
 					}
 					this.deathTick -= 1;
 					return;
 				}
-				this.processInput(deltaTime, game.stage.ticks);
+				this.processInput(deltaTime, game.ticks);
 			},
 
 			processInput(deltaTime, ticks) {
 				this.prevY = this.y;
 				this.prevX = this.x;
-				// const { keyStates } = keyboard;
 				const key = keyboard.getKey();
 
 				if (key === Keys.ArrowUp) {
@@ -72,9 +72,6 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 				} else if (key === Keys.Space) {
 					this.shot(ticks);
 				}
-				// } else if (keyStates.Space) {
-				// 	this.shot();
-				// }
 			},
 
 			resolveEdgeCollision() {
@@ -87,14 +84,12 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 
 			resolveEntityCollision(other, game) {
 				if (other.isDeath) return;
-
 				if (other.type === 'bullet') {
-					if (this.lives === 0) {
-						// TODO: gameover
-					}
-
-					this.deathTick = this.deathAnimation - 1;
+					this.deathTick = this.deathAnimation.length - 1;
 					this.lives -= 1;
+					if (this.lives === 0) {
+						entityManager.toRemove(this.id);
+					}
 				} else {
 					this.goBack();
 				}

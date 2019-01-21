@@ -22,22 +22,22 @@ class EntityManager {
 	}
 
 	spawnPlayer() {
-		const player = this.constructors.player(idGen());
+		const player = this.constructors.player(idGen.getId());
 		this.pool[player.id] = player;
 	}
 
 	spawnEnemy(x, y, direction, type) {
-		const enemy = this.constructors.enemy(idGen(), x, y, direction, type);
+		const enemy = this.constructors.enemy(idGen.getId(), x, y, direction, type);
 		this.pool[enemy.id] = enemy;
 	}
 
 	spawnBullet(x, y, direction, shooter) {
-		const bullet = this.constructors.bullet(idGen(), x, y, direction, shooter);
+		const bullet = this.constructors.bullet(idGen.getId(), x, y, direction, shooter);
 		this.pool[bullet.id] = bullet;
 	}
 
 	spawnFlag() {
-		const flag = this.constructors.flag(idGen());
+		const flag = this.constructors.flag(idGen.getId());
 		this.pool[flag.id] = flag;
 	}
 
@@ -65,6 +65,10 @@ class EntityManager {
 		return Object.values(this.pool).filter((el: any) => el.type === 'enemy');
 	}
 
+	getPlayer() {
+		return this.pool[1];
+	}
+
 	getByIntersection(entity) {
 		return Object.values(this.pool).filter((el: any) => {
 			if ((el.type === 'enemy' || el.type === 'player') && squareIntersection(entity, el)) {
@@ -83,7 +87,7 @@ class EntityManager {
 
 	checkTileCollision(game) {
 		this.forEach(entity => {
-			// if (!(entity instanceof Entity) || entity.isDeath) return;
+			if (entity.type === 'flag' || entity.type === 'powerUp' || entity.isDeath) return;
 
 			if (entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
@@ -100,16 +104,23 @@ class EntityManager {
 	}
 
 	checkEntitiesCollision(game) {
+		const seen = new Set();
 		this.forEach(entity => {
-			if (entity.isDeath) return;
+			if (entity.type === 'flag' || entity.type === 'powerUp' || entity.isDeath) return;
+			seen.add(entity.id);
 			this.forEach(other => {
-				if (entity.id === other.id) return;
+				if (entity.id === other.id || seen.has(other.id)) return;
 				if (squareIntersection(entity, other)) {
 					entity.resolveEntityCollision(other, game, entity);
 					other.resolveEntityCollision(entity, game, entity);
 				}
 			});
 		});
+	}
+
+	clear() {
+		this.pool = {};
+		this.toRemoveQueue = new Set();
 	}
 }
 

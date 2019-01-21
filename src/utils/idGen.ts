@@ -1,7 +1,12 @@
 const createIdGen = () => {
 	let value = 0;
-	return function idGen() {
-		return (value += 1);
+	return {
+		getId() {
+			return (value += 1);
+		},
+		reset() {
+			value = 0;
+		},
 	};
 };
 
