@@ -1,4 +1,5 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
+import { Powerups } from './entities/common';
 import { setupSprites, idGen } from './utils';
 import { START_TICKS } from './Stage';
 import TileMap from './tileMap';
@@ -20,6 +21,7 @@ class Game {
 		this.ticks = 0;
 		entityManager.setupEntityConstructors(this.sprites);
 		entityManager.spawnPlayer();
+
 		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.ticks);
 	}
 
@@ -55,7 +57,7 @@ class Game {
 		const { tanks, number } = this.stage;
 		const player = entityManager.getPlayer();
 
-		if (entityManager.getEnemies().length < 1) {
+		if (entityManager.getEnemies().length < 3) {
 			// TODO: Remove
 			this.stage.spawnEnemy(this);
 		}
@@ -71,6 +73,7 @@ class Game {
 			player.respawn();
 		} else {
 			// this.stage.spawnEnemy(game);
+			this.stage.spawnPowerup(this);
 			entityManager.removeFromQueue();
 		}
 
@@ -87,7 +90,7 @@ class Game {
 		const tickDiff = this.ticks - this.stage.startTick;
 		mainScreen.clearScreen();
 		dashboard.clearScreen();
-		this.stage.render();
+		this.stage.render(this);
 		dashboard.render(this);
 		if (tickDiff < START_TICKS) {
 			mainScreen.renderStageStarting(tickDiff);

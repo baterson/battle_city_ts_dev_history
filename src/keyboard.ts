@@ -9,31 +9,16 @@ enum Keys {
 	Space = 'Space',
 }
 
-// const movement = [Keys.ArrowUp, Keys.ArrowRight, Keys.ArrowDown, Keys.ArrowLeft];
-
 class Keyboard {
-	// public shot;
-	// public movementQueue;
 	public queue;
-	// public keyStates;
 
 	constructor() {
 		this.queue = new Set();
-		// this.movementQueue = new Set();
-		// this.keyStates = {
-		// 	ArrowUp: false,
-		// 	ArrowRight: false,
-		// 	ArrowDown: false,
-		// 	ArrowLeft: false,
-		// 	Space: false,
-		// };
 	}
 
 	handleEvent(event, game) {
-		console.log(game.isLost());
 		const { code, type } = event;
 		if (game.isLost()) {
-			console.log('HERE??');
 			return game.restart();
 		}
 
@@ -55,20 +40,10 @@ class Keyboard {
 
 		if (type === 'keydown') {
 			this.queue.add(code);
-			// this.keyStates[code] = true;
 		} else {
 			this.queue.delete(code);
-			// this.keyStates[code] = false;
 		}
-
-		// if (movement.includes(code)) {
-		// 	this.keyStates[code] ? this.movementQueue.add(code) : this.movementQueue.delete(code);
-		// }
 	}
-
-	// getMovement() {
-	// 	return Array.from(this.movementQueue).pop();
-	// }
 
 	getKey() {
 		return Array.from(this.queue).pop();

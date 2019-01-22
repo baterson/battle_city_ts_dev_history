@@ -27,7 +27,7 @@ export default function createPlayer(sprites, spawnAnimation, deathAnimation) {
 			velocity: PLAYER_VELOCITY,
 			side: TANK_SIDE,
 			prevTile: { x: 0, y: 0 },
-			lives: 1,
+			lives: 3,
 			spawnTick: spawnAnimation.length - 1,
 			deathTick: 0,
 

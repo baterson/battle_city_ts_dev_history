@@ -1,4 +1,4 @@
-import { createEnemy, createPlayer, createBullet, createFlag } from './entities';
+import { createEnemy, createPlayer, createBullet, createFlag, createPowerup } from './entities';
 import { squareIntersection, idGen } from './utils';
 import { rigid } from './tileMap';
 
@@ -18,6 +18,7 @@ class EntityManager {
 			enemy: createEnemy(sprites.enemy, sprites.tankSpawnAnimation, sprites.tankDeathAnimation),
 			bullet: createBullet(sprites.bullet),
 			flag: createFlag(sprites.flag, sprites.flagDeath),
+			powerup: createPowerup(sprites.powerups),
 		};
 	}
 
@@ -39,6 +40,11 @@ class EntityManager {
 	spawnFlag() {
 		const flag = this.constructors.flag(idGen.getId());
 		this.pool[flag.id] = flag;
+	}
+
+	spawnPowerup(x, y, type) {
+		const powerup = this.constructors.powerup(idGen.getId(), x, y, type);
+		this.pool[powerup.id] = powerup;
 	}
 
 	toRemove = id => {
@@ -77,8 +83,8 @@ class EntityManager {
 		});
 	}
 
-	render() {
-		this.forEach(entity => entity.render());
+	render(game) {
+		this.forEach(entity => entity.render(game));
 	}
 
 	update(deltaTime, game) {
@@ -87,7 +93,7 @@ class EntityManager {
 
 	checkTileCollision(game) {
 		this.forEach(entity => {
-			if (entity.type === 'flag' || entity.type === 'powerUp' || entity.isDeath) return;
+			if (entity.type === 'flag' || entity.type === 'powerup' || entity.isDeath) return;
 
 			if (entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
@@ -106,7 +112,7 @@ class EntityManager {
 	checkEntitiesCollision(game) {
 		const seen = new Set();
 		this.forEach(entity => {
-			if (entity.type === 'flag' || entity.type === 'powerUp' || entity.isDeath) return;
+			if (entity.type === 'flag' || entity.type === 'powerup' || entity.isDeath) return;
 			seen.add(entity.id);
 			this.forEach(other => {
 				if (entity.id === other.id || seen.has(other.id)) return;

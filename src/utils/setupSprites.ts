@@ -1,5 +1,5 @@
 import { main, dashboard } from '../screens';
-import { Direction, TankTypes } from '../entities/common';
+import { Direction, TankTypes, Powerups } from '../entities/common';
 import { Tiles } from '../tileMap';
 
 const createSprite = (image, context) => (dx, dy, dWidth, dHeight) => (x, y, side) => {
@@ -100,6 +100,14 @@ const setupSprites = image => {
 			[Tiles.grass]: mainSprite(272, 32, 16, 15),
 		},
 		gameOver: mainSprite(288.5, 184, 31.2, 16),
+		powerups: {
+			[Powerups.helmet]: mainSprite(255.5, 112, 16, 14),
+			[Powerups.stopwatch]: mainSprite(271.5, 112, 16, 14),
+			[Powerups.shovel]: mainSprite(287.5, 112, 16, 14),
+			[Powerups.star]: mainSprite(303.5, 112, 16, 14),
+			[Powerups.grenade]: mainSprite(319.5, 112, 16, 14),
+			[Powerups.tank]: mainSprite(335.5, 112, 16, 14),
+		},
 	};
 };
 

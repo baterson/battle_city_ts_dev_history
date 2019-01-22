@@ -5,17 +5,27 @@ export enum Direction {
 	left,
 }
 
+// TODO: Tanks
 export enum TankTypes {
 	default,
 	fast,
 	armored,
 }
 
+export enum Powerups {
+	helmet,
+	stopwatch,
+	shovel,
+	star,
+	grenade,
+	tank,
+}
+
 // BULLET
 export const BULLET_SIDE = 10;
 export const BULLET_VELOCITY = 350;
-// export const SHOT_DELAY = 50;
-export const SHOT_DELAY = 20;
+export const SHOT_DELAY = 200;
+// export const SHOT_DELAY = 20;
 
 // TANKS
 export const TANK_SIDE = 35;
@@ -37,3 +47,6 @@ export const PLAYER_SPAWN_POSITION = {
 	y: 560,
 };
 export const PLAYER_VELOCITY = 150;
+
+// Powerups
+export const FREEZE_DELAY = 300;

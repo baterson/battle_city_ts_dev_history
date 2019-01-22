@@ -2,8 +2,9 @@ import {
 	TANK_VELOCITY,
 	TANK_LIVES,
 	TANK_SIDE,
+	FREEZE_DELAY,
 	move,
-	renderAnimated,
+	renderMovable,
 	goBack,
 	setRandomDirection,
 	setOpositeDirection,
@@ -30,8 +31,8 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 			lives: TANK_LIVES[enemyType],
 			spawnTick: spawnAnimation.length - 1,
 			deathTick: 0,
+			freezeTick: 0, // TODO: maybe add timers?
 
-			render: renderAnimated,
 			goBack,
 			setRandomDirection,
 			setOpositeDirection,
@@ -46,8 +47,25 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 				} else if (this.deathTick) {
 					this.deathTick -= 1;
 					return;
+				} else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
+					return;
 				}
+
 				this.move(deltaTime, game.ticks);
+			},
+
+			render(game) {
+				if (this.deathTick) {
+					const { sprite, side } = this.deathAnimation[this.deathTick];
+					sprite(this.x, this.y, side);
+				} else if (this.spawnTick) {
+					const { sprite, side } = this.spawnAnimation[this.spawnTick];
+					sprite(this.x, this.y, side);
+				} else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
+					this.sprites[this.direction][0](this.x, this.y, this.side);
+				} else {
+					renderMovable.call(this);
+				}
 			},
 
 			move(deltaTime, ticks) {
@@ -93,6 +111,17 @@ export default function createEnemy(allTypesSprites, spawnAnimation, deathAnimat
 					this.goBack();
 					this.shot(game.ticks);
 				}
+			},
+
+			// TODO: powerup observer (react to powerup)
+
+			die() {
+				this.deathTick = this.deathAnimation.length - 1;
+				entityManager.toRemove(this.id);
+			},
+
+			freeze(game) {
+				this.freezeTick = game.ticks;
 			},
 		};
 	};
