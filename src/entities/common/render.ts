@@ -1,9 +1,5 @@
 import { Direction } from './constants';
 
-function renderStatic() {
-	this.sprite(this.x, this.y, this.side);
-}
-
 function renderMovable() {
 	// TODO: this types
 	let distance;
@@ -29,4 +25,4 @@ function renderAnimated() {
 	}
 }
 
-export { renderMovable, renderStatic, renderAnimated };
+export { renderMovable, renderAnimated };

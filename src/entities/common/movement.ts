@@ -1,6 +1,7 @@
 import { Direction } from './constants';
 
-function move(deltaTime) {
+function move(game) {
+	const { deltaTime } = game;
 	this.prevY = this.y;
 	this.prevX = this.x;
 

@@ -1,9 +1,8 @@
-import { createEnemy, createPlayer, createBullet, createFlag, createPowerup } from './entities';
+import * as entities from './entities';
 import { squareIntersection, idGen } from './utils';
 import { rigid } from './tileMap';
 
 class EntityManager {
-	public constructors;
 	public pool;
 	private toRemoveQueue;
 
@@ -12,40 +11,35 @@ class EntityManager {
 		this.toRemoveQueue = new Set();
 	}
 
-	setupEntityConstructors(sprites) {
-		this.constructors = {
-			player: createPlayer(sprites.player, sprites.tankSpawnAnimation, sprites.tankDeathAnimation),
-			enemy: createEnemy(sprites.enemy, sprites.tankSpawnAnimation, sprites.tankDeathAnimation),
-			bullet: createBullet(sprites.bullet),
-			flag: createFlag(sprites.flag, sprites.flagDeath),
-			powerup: createPowerup(sprites.powerups),
-		};
+	spawnEntity(type, game, ...args) {
+		const id = idGen.getId();
+		this.pool[id] = entities[type](id, game, ...args);
 	}
 
-	spawnPlayer() {
-		const player = this.constructors.player(idGen.getId());
-		this.pool[player.id] = player;
-	}
+	// spawnPlayer() {
+	// 	const player = this.constructors.player(idGen.getId());
+	// 	this.pool[player.id] = player;
+	// }
 
-	spawnEnemy(x, y, direction, type) {
-		const enemy = this.constructors.enemy(idGen.getId(), x, y, direction, type);
-		this.pool[enemy.id] = enemy;
-	}
+	// spawnEnemy(x, y, direction, type) {
+	// 	const enemy = this.constructors.enemy(idGen.getId(), x, y, direction, type);
+	// 	this.pool[enemy.id] = enemy;
+	// }
 
-	spawnBullet(x, y, direction, shooter) {
-		const bullet = this.constructors.bullet(idGen.getId(), x, y, direction, shooter);
-		this.pool[bullet.id] = bullet;
-	}
+	// spawnBullet(x, y, direction, shooter) {
+	// 	const bullet = this.constructors.bullet(idGen.getId(), x, y, direction, shooter);
+	// 	this.pool[bullet.id] = bullet;
+	// }
 
-	spawnFlag() {
-		const flag = this.constructors.flag(idGen.getId());
-		this.pool[flag.id] = flag;
-	}
+	// spawnFlag() {
+	// 	const flag = this.constructors.flag(idGen.getId());
+	// 	this.pool[flag.id] = flag;
+	// }
 
-	spawnPowerup(x, y, type) {
-		const powerup = this.constructors.powerup(idGen.getId(), x, y, type);
-		this.pool[powerup.id] = powerup;
-	}
+	// spawnPowerup(x, y, type) {
+	// 	const powerup = this.constructors.powerup(idGen.getId(), x, y, type);
+	// 	this.pool[powerup.id] = powerup;
+	// }
 
 	toRemove = id => {
 		this.toRemoveQueue.add(id);
@@ -76,6 +70,7 @@ class EntityManager {
 	}
 
 	getByIntersection(entity) {
+		// Refactor name at least
 		return Object.values(this.pool).filter((el: any) => {
 			if ((el.type === 'enemy' || el.type === 'player') && squareIntersection(entity, el)) {
 				return el;
@@ -87,13 +82,13 @@ class EntityManager {
 		this.forEach(entity => entity.render(game));
 	}
 
-	update(deltaTime, game) {
-		this.forEach(entity => entity.update(deltaTime, game));
+	update(game) {
+		this.forEach(entity => entity.update(game));
 	}
 
 	checkTileCollision(game) {
 		this.forEach(entity => {
-			if (entity.type === 'flag' || entity.type === 'powerup' || entity.isDeath) return;
+			if (!entity.canInitCollision || entity.isDeath) return;
 
 			if (entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
@@ -112,7 +107,7 @@ class EntityManager {
 	checkEntitiesCollision(game) {
 		const seen = new Set();
 		this.forEach(entity => {
-			if (entity.type === 'flag' || entity.type === 'powerup' || entity.isDeath) return;
+			if (!entity.canInitCollision || entity.isDeath) return;
 			seen.add(entity.id);
 			this.forEach(other => {
 				if (entity.id === other.id || seen.has(other.id)) return;

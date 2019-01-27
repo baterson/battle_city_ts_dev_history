@@ -1,44 +1,59 @@
-import { renderMovable, getCollisionPoints, isOutOfScreen, shot, move, BULLET_VELOCITY, BULLET_SIDE } from './common';
+import {
+	renderMovable,
+	getCollisionPoints,
+	isOutOfScreen,
+	move,
+	BULLET_VELOCITY,
+	BULLET_SIDE,
+	Direction,
+} from './common';
 import entityManager from '../entityManager';
 
-export default function createBullet(sprites) {
-	return function bullet(id, x, y, direction, shooter) {
-		return {
-			type: 'bullet',
-			id,
-			shooter,
-			direction,
-			x,
-			y,
-			sprites,
-			velocity: BULLET_VELOCITY,
-			side: BULLET_SIDE,
+export function bullet(id, x, y, direction, shooter) {
+	return {
+		type: 'bullet',
+		id,
+		direction,
+		x,
+		y,
+		velocity: BULLET_VELOCITY,
+		side: BULLET_SIDE,
+		shooter,
 
-			render: renderMovable,
-			getCollisionPoints,
-			isOutOfScreen,
-			shot,
-			move,
+		getCollisionPoints,
+		isOutOfScreen,
+		move,
 
-			update(deltaTime) {
-				this.move(deltaTime);
-			},
+		update(game) {
+			this.move(game);
+		},
 
-			resolveEdgeCollision() {
-				entityManager.toRemove(this.id);
-			},
+		render(game) {
+			let distance;
+			const sprites = game.sprites[this.type];
+			if (this.direction === Direction.left || this.direction === Direction.right) {
+				distance = this.x;
+			} else {
+				distance = this.y;
+			}
+			const index = Math.floor(distance / 2) % sprites.length;
+			sprites[index](this.x, this.y, this.side);
+		},
 
-			resolveTileCollision(tiles, game) {
-				entityManager.toRemove(this.id);
-				tiles.forEach(tile => {
-					game.stage.map.destroy(tile);
-				});
-			},
+		resolveEdgeCollision() {
+			entityManager.toRemove(this.id);
+		},
 
-			resolveEntityCollision(other, game) {
-				if ((other.type === 'enemy' && this.shooter.type === 'enemy') || other.type === 'powerUp') return;
-				entityManager.toRemove(this.id);
-			},
-		};
+		resolveTileCollision(tiles, game) {
+			entityManager.toRemove(this.id);
+			tiles.forEach(tile => {
+				game.stage.map.destroy(tile);
+			});
+		},
+
+		resolveEntityCollision(other, game) {
+			if ((other.type === 'enemy' && this.shooter.type === 'enemy') || other.type === 'powerUp') return;
+			entityManager.toRemove(this.id);
+		},
 	};
 }

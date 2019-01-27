@@ -13,40 +13,39 @@ class Stage {
 	public tanks;
 	public map;
 	public number;
-	public startTick;
+	public startTime;
 	public lastSpawnTick; // TODO: tank spawn tick
 	public lastPowerupTick;
 	public powerupsAvailable;
 
-	constructor(map, tanks, number, startTick) {
+	constructor(map, tanks, number, startTime) {
 		this.tanks = [...tanks];
 		this.map = map;
 		this.number = number;
-		this.startTick = startTick;
+		this.startTime = startTime;
 		this.lastPowerupTick = POWERUP_SPAWN_DELAY;
 		this.powerupsAvailable = 5;
-		entityManager.spawnFlag();
 	}
 
 	spawnEnemy(game) {
 		const { ticks } = game;
-		if (!this.tanks.length || ticks - this.startTick < START_TICKS || !this.canSpawn(ticks)) return;
-		const index = randomInt(2);
-		let [x, y] = ENEMY_SPAWN_POSITION[index];
-		if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-			[x, y] = ENEMY_SPAWN_POSITION[1 - index];
-			if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-				return;
-			}
-		}
-		entityManager.spawnEnemy(x, y, Direction.bottom, this.tanks.pop());
-		this.lastSpawnTick = ticks;
+		// if (!this.tanks.length || ticks - this.startTick < START_TICKS || !this.canSpawn(ticks)) return;
+		// const index = randomInt(2);
+		// let [x, y] = ENEMY_SPAWN_POSITION[index];
+		// if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+		// 	[x, y] = ENEMY_SPAWN_POSITION[1 - index];
+		// 	if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+		// 		return;
+		// 	}
+		// }
+		// entityManager.spawnEntity('enemy', game, x, y, Direction.bottom, this.tanks.pop());
+		// this.lastSpawnTick = ticks;
 	}
 
 	spawnPowerup(game) {
 		if (!this.powerupsAvailable || this.lastPowerupTick + POWERUP_SPAWN_DELAY > game.ticks) return;
 		const index = randomInt(Object.keys(Powerups).length / 2);
-		entityManager.spawnPowerup(randomInt(600), randomInt(600), Powerups[Powerups[index]]); // TODO: looks odd
+		// entityManager.spawnPowerup(randomInt(600), randomInt(600), Powerups[Powerups[index]]); // TODO: looks odd
 		this.powerupsAvailable -= 1;
 		this.lastPowerupTick = game.ticks;
 	}

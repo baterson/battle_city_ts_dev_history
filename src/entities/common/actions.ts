@@ -1,4 +1,4 @@
-import { Direction, BULLET_SIDE, SHOT_DELAY } from './constants';
+import { Direction, BULLET_SIDE, SHOT_DELAY, TANK_DEATH_ANIMATION, TANK_SPAWN_ANIMATION } from './constants';
 import entityManager from '../../entityManager';
 
 function shot(ticks) {
@@ -15,8 +15,24 @@ function shot(ticks) {
 		bulletArgs = { x: this.x - BULLET_SIDE, y: this.y + this.side / 2 - BULLET_SIDE / 2 };
 	}
 
-	entityManager.spawnBullet(bulletArgs.x, bulletArgs.y, this.direction, this);
+	entityManager.spawnEntity('bullet', bulletArgs.x, bulletArgs.y, this.direction, this);
 	this.lastShotTick = ticks;
 }
 
-export { shot };
+const stateToTimeMap = {
+	death: 4,
+	spawn: 4,
+};
+
+function getState(type, entity, game) {
+	const time = stateToTimeMap[type];
+	const prop = `${type}Duration`;
+	const timeLeft = entity.hasOwnProperty(prop) ? entity[prop] + time - game.elapsedTime : -1;
+	return timeLeft;
+}
+
+function setState(type, entity, game) {
+	entity[`${type}Duration`] = game.elapsedTime;
+}
+
+export { shot, getState, setState };
