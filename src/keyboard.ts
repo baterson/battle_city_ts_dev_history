@@ -27,8 +27,8 @@ class Keyboard {
 			c.show = !c.show;
 		}
 		if (code === 'KeyP') {
-			let mywindow: any = window as any;
-			mywindow.getP();
+			const p = entityManager.getPlayer();
+			console.log(p);
 		}
 		if (code === 'KeyK') {
 			const p = entityManager.getPlayer();

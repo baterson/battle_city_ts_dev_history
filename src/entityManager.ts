@@ -16,31 +16,6 @@ class EntityManager {
 		this.pool[id] = entities[type](id, game, ...args);
 	}
 
-	// spawnPlayer() {
-	// 	const player = this.constructors.player(idGen.getId());
-	// 	this.pool[player.id] = player;
-	// }
-
-	// spawnEnemy(x, y, direction, type) {
-	// 	const enemy = this.constructors.enemy(idGen.getId(), x, y, direction, type);
-	// 	this.pool[enemy.id] = enemy;
-	// }
-
-	// spawnBullet(x, y, direction, shooter) {
-	// 	const bullet = this.constructors.bullet(idGen.getId(), x, y, direction, shooter);
-	// 	this.pool[bullet.id] = bullet;
-	// }
-
-	// spawnFlag() {
-	// 	const flag = this.constructors.flag(idGen.getId());
-	// 	this.pool[flag.id] = flag;
-	// }
-
-	// spawnPowerup(x, y, type) {
-	// 	const powerup = this.constructors.powerup(idGen.getId(), x, y, type);
-	// 	this.pool[powerup.id] = powerup;
-	// }
-
 	toRemove = id => {
 		this.toRemoveQueue.add(id);
 	};

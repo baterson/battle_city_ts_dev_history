@@ -8,10 +8,11 @@ import {
 	PLAYER_SPAWN_POSITION,
 	PLAYER_VELOCITY,
 	TANK_SIDE,
-	getState,
-	setState,
+	Powerups,
+	getStateRemainingTime,
 } from './common';
 import keyboard, { Keys } from '../keyboard';
+import { powerupEvents } from './powerup';
 import entityManager from '../entityManager';
 
 export function player(id, game) {
@@ -23,11 +24,12 @@ export function player(id, game) {
 		y: PLAYER_SPAWN_POSITION.y,
 		velocity: PLAYER_VELOCITY,
 		side: TANK_SIDE,
-
+		state: {
+			spawn: game.elapsedTime,
+		},
 		canInitCollision: true,
-		spawnTick: 0,
 		prevTile: { x: 0, y: 0 },
-		lives: 3,
+		lives: 2,
 
 		goBack,
 		getCollisionPoints,
@@ -36,8 +38,8 @@ export function player(id, game) {
 		move,
 
 		update(game) {
-			const spawnLeft = getState('spawn', this, game);
-			const deathLeft = getState('death', this, game);
+			const spawnLeft = getStateRemainingTime('spawn', this, game);
+			const deathLeft = getStateRemainingTime('death', this, game);
 
 			// if (deathLeft === 1 && this.lives > 0) {
 			// 	return;
@@ -48,13 +50,12 @@ export function player(id, game) {
 		},
 
 		render(game) {
-			const spawnLeft = getState('spawn', this, game);
-			const deathLeft = getState('death', this, game);
+			const spawnLeft = getStateRemainingTime('spawn', this, game);
+			const deathLeft = getStateRemainingTime('death', this, game);
+
 			if (spawnLeft >= 0) {
 				const index = Math.floor(spawnLeft);
-				console.log('IN', index);
 				const frame = game.sprites.tankDeathAnimation[index];
-				console.log('Fra', frame);
 				frame.sprite(this.x, this.y, this.side);
 				return;
 			} else if (deathLeft >= 0) {
@@ -93,7 +94,7 @@ export function player(id, game) {
 				this.direction = Direction.right;
 				this.move(game);
 			} else if (key === Keys.Space) {
-				// this.shot(ticks);
+				this.shot(game);
 			}
 		},
 
@@ -106,10 +107,14 @@ export function player(id, game) {
 		},
 
 		resolveEntityCollision(other, game) {
-			const isOtherDead = getState('death', other, game);
-			if (isOtherDead) return;
+			if (other.type === 'powerup') {
+				return;
+			} else if (getStateRemainingTime('death', other, game) >= 0) {
+				return;
+			}
+
 			if (other.type === 'bullet') {
-				setState('death', this, game);
+				this.state.death = game.elapsedTime;
 				this.lives -= 1;
 				if (this.lives === 0) {
 					entityManager.toRemove(this.id);
@@ -120,12 +125,20 @@ export function player(id, game) {
 		},
 
 		respawn(game) {
-			setState('spawn', this, game);
+			this.state.spawn = game.elapsedTime;
 			this.x = PLAYER_SPAWN_POSITION.x;
 			this.y = PLAYER_SPAWN_POSITION.y;
 		},
-	};
 
-	setState('spawn', entity, game);
+		powerupObserver(powerupType) {
+			console.log('This', this);
+			if (powerupType === Powerups.tank) {
+				console.log('this.lives', this.lives);
+				this.lives += 1;
+			}
+		},
+	};
+	// TODO: move observer to module
+	powerupEvents.subscribe(entity.id, entity.powerupObserver.bind(entity));
 	return entity;
 }

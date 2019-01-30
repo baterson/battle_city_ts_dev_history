@@ -93,7 +93,7 @@ const setupSprites = image => {
 			[Tiles.grass]: mainSprite(272, 32, 16, 15),
 		},
 		gameOver: mainSprite(288.5, 184, 31.2, 16),
-		powerups: {
+		powerup: {
 			[Powerups.helmet]: mainSprite(255.5, 112, 16, 14),
 			[Powerups.stopwatch]: mainSprite(271.5, 112, 16, 14),
 			[Powerups.shovel]: mainSprite(287.5, 112, 16, 14),

@@ -25,6 +25,8 @@ class Game {
 		this.elapsedTime = 0;
 		entityManager.spawnEntity('player', this);
 
+		entityManager.spawnEntity('powerup', this, 20, 500, Powerups.tank);
+
 		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.ticks);
 	}
 

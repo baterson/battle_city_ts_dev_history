@@ -29,26 +29,39 @@ const actions = {
 	[Powerups.stopwatch]: stopwatch,
 };
 
-export default function createPowerup(sprites) {
-	return function powerup(id, x, y, powerupType) {
-		return {
-			type: 'powerup',
-			id,
-			x,
-			y,
-			side: 40,
-			sprite: sprites[powerupType],
+class PowerupEvents {
+	public observers = {};
 
-			update() {},
-			render() {
-				this.sprite(this.x, this.y, this.side);
-			},
-			resolveEntityCollision(other, game) {
-				if (other.type === 'player') {
-					actions[powerupType](game);
-					entityManager.toRemove(this.id);
-				}
-			},
-		};
+	subscribe(entityId, observer) {
+		this.observers[entityId] = observer;
+	}
+
+	unsubscribe(entityId) {
+		delete this.observers[entityId];
+	}
+
+	notify(eventType) {
+		Object.values(this.observers).forEach((observer: any): any => observer(eventType));
+	}
+}
+
+export const powerupEvents = new PowerupEvents();
+
+export function powerup(id, game, x, y, powerupType) {
+	return {
+		type: 'powerup',
+		id,
+		x,
+		y,
+		side: 40,
+
+		update() {},
+		render(game) {
+			game.sprites[this.type][powerupType](this.x, this.y, this.side);
+		},
+		resolveEntityCollision(other, game) {
+			entityManager.toRemove(this.id);
+			powerupEvents.notify(powerupType);
+		},
 	};
 }

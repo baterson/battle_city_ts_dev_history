@@ -11,8 +11,7 @@ import {
 	isOutOfScreen,
 	shot,
 	Direction,
-	getState,
-	setState,
+	getStateRemainingTime,
 } from './common';
 import entityManager from '../entityManager';
 
@@ -25,10 +24,10 @@ export function enemy(id, game, x, y, direction, enemyType) {
 		y,
 		velocity: ENEMY_TANK_VELOCITY[enemyType],
 		side: TANK_SIDE,
-
+		state: {
+			spawn: game.elapsedTime,
+		},
 		canInitCollision: true,
-		isSpawning: true,
-		isDeath: false,
 		prevTile: { x: 0, y: 0 },
 		lives: ENEMY_TANK_LIVES[enemyType],
 
@@ -40,8 +39,8 @@ export function enemy(id, game, x, y, direction, enemyType) {
 		shot,
 
 		update(game) {
-			const spawnLeft = getState('spawn', this, game);
-			const deathLeft = getState('death', this, game);
+			const spawnLeft = getStateRemainingTime('spawn', this, game);
+			const deathLeft = getStateRemainingTime('death', this, game);
 
 			if (deathLeft > 0 || spawnLeft > 0) {
 				return;
@@ -54,8 +53,8 @@ export function enemy(id, game, x, y, direction, enemyType) {
 		},
 
 		render(game) {
-			const spawnLeft = getState('spawn', this, game);
-			const deathLeft = getState('death', this, game);
+			const spawnLeft = getStateRemainingTime('spawn', this, game);
+			const deathLeft = getStateRemainingTime('death', this, game);
 
 			if (spawnLeft > 0) {
 				const frame = game.sprites.tankSpawnAnimation[spawnLeft];
@@ -110,7 +109,7 @@ export function enemy(id, game, x, y, direction, enemyType) {
 		resolveEntityCollision(other, game, initiator) {
 			if (other.type === 'bullet' && other.shooter.type === 'player') {
 				if (this.lives === 1) {
-					setState('death', this, game);
+					this.state.death = game.elapsedTime;
 					entityManager.toRemove(this.id);
 				} else {
 					this.lives -= 1;
@@ -124,6 +123,5 @@ export function enemy(id, game, x, y, direction, enemyType) {
 			}
 		},
 	};
-	setState('spawn', entity, game);
 	return entity;
 }

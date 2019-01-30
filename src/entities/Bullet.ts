@@ -19,6 +19,7 @@ export function bullet(id, x, y, direction, shooter) {
 		velocity: BULLET_VELOCITY,
 		side: BULLET_SIDE,
 		shooter,
+		canInitCollision: true,
 
 		getCollisionPoints,
 		isOutOfScreen,
@@ -30,7 +31,7 @@ export function bullet(id, x, y, direction, shooter) {
 
 		render(game) {
 			let distance;
-			const sprites = game.sprites[this.type];
+			const sprites = game.sprites[this.type][this.direction];
 			if (this.direction === Direction.left || this.direction === Direction.right) {
 				distance = this.x;
 			} else {
@@ -45,6 +46,7 @@ export function bullet(id, x, y, direction, shooter) {
 		},
 
 		resolveTileCollision(tiles, game) {
+			console.log('Here?');
 			entityManager.toRemove(this.id);
 			tiles.forEach(tile => {
 				game.stage.map.destroy(tile);

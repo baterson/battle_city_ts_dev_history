@@ -10,6 +10,7 @@ export function flag(id) {
 
 		update() {},
 		render(game) {
+			// if game.over()
 			if (this.isDeath) {
 				game.sprites[`${this.type}Death`](this.x, this.y, this.side);
 			} else {
