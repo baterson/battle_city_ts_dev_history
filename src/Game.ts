@@ -5,6 +5,7 @@ import { START_TICKS } from './Stage';
 import TileMap from './tileMap';
 import entityManager from './entityManager';
 import Stage from './Stage';
+import { getStateRemainingTime } from './entities/common/actions';
 import { main as mainScreen, dashboard } from './screens';
 
 const GAME_OVER_TICKS = 301;
@@ -17,15 +18,22 @@ class Game {
 	public gameOverTime;
 	public deltaTime;
 	public elapsedTime;
+	public state: { stageStarting?: number; gameOver?: number } = {};
 
 	constructor(image) {
 		this.sprites = setupSprites(image);
 		this.ticks = 0;
 		this.deltaTime = 1 / 60;
 		this.elapsedTime = 0;
+		this.state = {
+			stageStarting: 0,
+		};
+
 		entityManager.spawnEntity('player', this);
 
-		entityManager.spawnEntity('powerup', this, 20, 500, Powerups.tank);
+		entityManager.spawnEntity('powerup', this, 20, 500, Powerups.star);
+		entityManager.spawnEntity('powerup', this, 20, 300, Powerups.helmet);
+		entityManager.spawnEntity('powerup', this, 20, 200, Powerups.stopwatch);
 
 		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.ticks);
 	}
@@ -50,14 +58,14 @@ class Game {
 	}
 
 	update() {
-		// if (this.gameOverTick) return;
+		if (this.state.gameOver) return;
 		entityManager.update(this);
 		entityManager.checkTileCollision(this);
 		entityManager.checkEntitiesCollision(this);
 	}
 
 	checkCurrentState() {
-		// if (this.gameOverTick) return;
+		if (this.state.gameOver) return;
 		const { tanks, number } = this.stage;
 		const player = entityManager.getPlayer();
 
@@ -68,13 +76,14 @@ class Game {
 
 		if (!tanks.length && !entityManager.getEnemies().length) {
 			// TODO: assemble stage
-			const gtageNum = this.getNextStageNum();
+			const stageNum = this.getNextStageNum();
 			this.stage = new Stage(
-				new TileMap(maps[gtageNum], this.sprites.tiles),
-				tanksConfig[gtageNum],
-				gtageNum,
+				new TileMap(maps[stageNum], this.sprites.tiles),
+				tanksConfig[stageNum],
+				stageNum,
 				this.elapsedTime
 			);
+			this.state.stageStarting = this.elapsedTime;
 			entityManager.spawnEntity('flag', this);
 			player.respawn(this);
 		} else {
@@ -89,16 +98,14 @@ class Game {
 	}
 
 	render() {
-		// if (this.gameOverTick) {
-		// 	return this.renderGameOver();
-		// }
+		const stageStarting = getStateRemainingTime('stageStarting', this, this);
 		mainScreen.clearScreen();
 		dashboard.clearScreen();
 		this.stage.render(this);
 		dashboard.render(this);
-		// if (tickDiff < START_TICKS) {
-		// 	mainScreen.renderStageStarting(tickDiff);
-		// }
+		if (stageStarting > 0) {
+			mainScreen.renderStageStarting(stageStarting);
+		}
 	}
 
 	renderGameOver() {
@@ -115,7 +122,7 @@ class Game {
 	}
 
 	gameOver() {
-		this.gameOverTime = this.elapsedTime;
+		this.state.gameOver = this.elapsedTime;
 	}
 
 	isLost() {
@@ -134,9 +141,9 @@ class Game {
 		entityManager.clear();
 		idGen.reset();
 		this.ticks = 0;
-		// this.gameOverTick = null;
+		this.elapsedTime = 0;
 		entityManager.spawnEntity('player', this);
-		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 1, this.ticks);
+		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.elapsedTime);
 	}
 }
 

@@ -13,9 +13,16 @@ import {
 	Direction,
 	getStateRemainingTime,
 	Powerups,
+	TankTypes,
 } from './common';
 import entityManager from '../entityManager';
 import { powerupEvents } from './powerup';
+
+const velocityScale = {
+	[TankTypes.default]: 1,
+	[TankTypes.fast]: 2,
+	[TankTypes.armored]: 1.2,
+};
 
 function powerupObserver(game, powerupType) {
 	if (powerupType === Powerups.stopwatch) {
@@ -99,7 +106,7 @@ export function enemy(id, game, x, y, direction, enemyType) {
 				// this.shot(ticks);
 				this.setRandomDirection();
 			} else {
-				move.call(this, game);
+				move.call(this, velocityScale[this.type], game);
 			}
 		},
 

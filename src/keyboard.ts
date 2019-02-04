@@ -26,9 +26,14 @@ class Keyboard {
 		if (code === 'KeyC') {
 			c.show = !c.show;
 		}
+
 		if (code === 'KeyP') {
 			const p = entityManager.getPlayer();
 			console.log(p);
+		}
+		if (code === 'KeyR') {
+			const p = entityManager.getPlayer();
+			p.respawn(game);
 		}
 		if (code === 'KeyK') {
 			const p = entityManager.getPlayer();

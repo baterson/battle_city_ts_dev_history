@@ -26,7 +26,7 @@ export function bullet(id, x, y, direction, shooter) {
 		move,
 
 		update(game) {
-			this.move(game);
+			this.move(1, game);
 		},
 
 		render(game) {
@@ -46,7 +46,6 @@ export function bullet(id, x, y, direction, shooter) {
 		},
 
 		resolveTileCollision(tiles, game) {
-			console.log('Here?');
 			entityManager.toRemove(this.id);
 			tiles.forEach(tile => {
 				game.stage.map.destroy(tile);

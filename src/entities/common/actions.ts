@@ -2,6 +2,7 @@ import { Direction, BULLET_SIDE } from './constants';
 import entityManager from '../../entityManager';
 
 function shot(game) {
+	// TODO: Firerate scale
 	const shotCD = getStateRemainingTime('shotCD', this, game);
 	if (shotCD >= 0) return;
 
@@ -24,10 +25,11 @@ function shot(game) {
 
 const stateToTimeMap = {
 	death: 2,
-	spawn: 2,
-	shotCD: 2,
+	spawn: 1,
+	shotCD: 1,
 	freeze: 2,
-	invincible: 2,
+	invincible: 10,
+	stageStarting: 5,
 };
 
 function getStateRemainingTime(stateName, entity, game) {

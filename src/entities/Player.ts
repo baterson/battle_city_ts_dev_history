@@ -21,6 +21,12 @@ export enum Power {
 	Second,
 }
 
+const velocityScale = {
+	[Power.Default]: 1,
+	[Power.First]: 1.5,
+	[Power.Second]: 2,
+};
+
 function powerupObserver(game, powerupType) {
 	if (powerupType === Powerups.tank) {
 		this.lives += 1;
@@ -37,8 +43,10 @@ export function player(id, game) {
 		type: 'player',
 		id,
 		direction: Direction.top,
-		x: PLAYER_SPAWN_POSITION.x,
-		y: PLAYER_SPAWN_POSITION.y,
+		x: 20,
+		y: 50,
+		// x: PLAYER_SPAWN_POSITION.x,
+		// y: PLAYER_SPAWN_POSITION.y,
 		velocity: PLAYER_VELOCITY,
 		side: TANK_SIDE,
 		state: {
@@ -48,6 +56,7 @@ export function player(id, game) {
 		canInitCollision: true,
 		prevTile: { x: 0, y: 0 },
 		lives: 2,
+		power: Power.Default,
 
 		goBack,
 		getCollisionPoints,
@@ -70,10 +79,15 @@ export function player(id, game) {
 		render(game) {
 			const spawnLeft = getStateRemainingTime('spawn', this, game);
 			const deathLeft = getStateRemainingTime('death', this, game);
+			const getAnimIndex = (length, left, spritesLength) => {
+				const step = length / spritesLength;
+				return Math.floor(left / step);
+			};
 
 			if (spawnLeft >= 0) {
-				const index = Math.floor(spawnLeft);
-				const frame = game.sprites.tankDeathAnimation[index];
+				const sprites = game.sprites.tankSpawnAnimation;
+				const index = getAnimIndex(1, spawnLeft, sprites.length - 1);
+				const frame = sprites[index];
 				frame.sprite(this.x, this.y, this.side);
 				return;
 			} else if (deathLeft >= 0) {
@@ -94,7 +108,9 @@ export function player(id, game) {
 			sprites[index](this.x, this.y, this.side);
 
 			if (getStateRemainingTime('invincible', this, game) >= 0 && spawnLeft < 0) {
-				// TODO: Draw invincible border
+				const invincibleSprites = game.sprites.invincible;
+				const index = Math.floor(game.elapsedTime / 0.1) % sprites.length;
+				invincibleSprites[index](this.x, this.y, this.side);
 			}
 		},
 
@@ -105,16 +121,16 @@ export function player(id, game) {
 
 			if (key === Keys.ArrowUp) {
 				this.direction = Direction.top;
-				this.move(game);
+				this.move(velocityScale[this.power], game);
 			} else if (key === Keys.ArrowDown) {
 				this.direction = Direction.bottom;
-				this.move(game);
+				this.move(velocityScale[this.power], game);
 			} else if (key === Keys.ArrowLeft) {
 				this.direction = Direction.left;
-				this.move(game);
+				this.move(velocityScale[this.power], game);
 			} else if (key === Keys.ArrowRight) {
 				this.direction = Direction.right;
-				this.move(game);
+				this.move(velocityScale[this.power], game);
 			} else if (key === Keys.Space) {
 				this.shot(game);
 			}
@@ -138,14 +154,10 @@ export function player(id, game) {
 			if (other.type === 'bullet') {
 				if (getStateRemainingTime('invincible', this, game) >= 0) return;
 
-				if (this.power === Power.Default) {
-					this.state.death = game.elapsedTime;
-					this.lives -= 1;
-					if (this.lives === 0) {
-						entityManager.toRemove(this.id);
-					}
-				} else {
-					this.power -= 1;
+				this.state.death = game.elapsedTime;
+				this.lives -= 1;
+				if (this.lives === 0) {
+					entityManager.toRemove(this.id);
 				}
 			} else {
 				this.goBack();
@@ -154,6 +166,8 @@ export function player(id, game) {
 
 		respawn(game) {
 			this.state.spawn = game.elapsedTime;
+			this.state.invincible = game.elapsedTime;
+			this.power = Power.Default;
 			this.x = PLAYER_SPAWN_POSITION.x;
 			this.y = PLAYER_SPAWN_POSITION.y;
 		},

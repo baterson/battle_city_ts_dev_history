@@ -1,18 +1,18 @@
 import { Direction } from './constants';
 
-function move(game) {
+function move(scale, game) {
 	const { deltaTime } = game;
 	this.prevY = this.y;
 	this.prevX = this.x;
 
 	if (this.direction === Direction.top) {
-		this.y -= this.velocity * deltaTime;
+		this.y -= this.velocity * scale * deltaTime;
 	} else if (this.direction === Direction.bottom) {
-		this.y += this.velocity * deltaTime;
+		this.y += this.velocity * scale * deltaTime;
 	} else if (this.direction === Direction.left) {
-		this.x -= this.velocity * deltaTime;
+		this.x -= this.velocity * scale * deltaTime;
 	} else if (this.direction === Direction.right) {
-		this.x += this.velocity * deltaTime;
+		this.x += this.velocity * scale * deltaTime;
 	}
 }
 

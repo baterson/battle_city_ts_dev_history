@@ -19,16 +19,16 @@ const setupSprites = image => {
 			[Direction.left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
 		},
 		[`player${PlayerPower.First}`]: {
-			[Direction.top]: [mainSprite(0, 0, 16, 15), mainSprite(16, 0, 16, 15)],
-			[Direction.bottom]: [mainSprite(64, 0, 16, 15), mainSprite(80, 0, 16, 15)],
-			[Direction.right]: [mainSprite(96, 0, 16, 15), mainSprite(112, 0, 16, 15)],
-			[Direction.left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
+			[Direction.top]: [mainSprite(0, 16, 16, 15), mainSprite(16, 16, 16, 15)],
+			[Direction.bottom]: [mainSprite(64, 16, 16, 15), mainSprite(80, 16, 16, 15)],
+			[Direction.right]: [mainSprite(96, 16, 16, 15), mainSprite(112, 16, 16, 15)],
+			[Direction.left]: [mainSprite(32, 16, 16, 15), mainSprite(48, 16, 16, 15)],
 		},
 		[`player${PlayerPower.Second}`]: {
-			[Direction.top]: [mainSprite(0, 0, 16, 15), mainSprite(16, 0, 16, 15)],
-			[Direction.bottom]: [mainSprite(64, 0, 16, 15), mainSprite(80, 0, 16, 15)],
-			[Direction.right]: [mainSprite(96, 0, 16, 15), mainSprite(112, 0, 16, 15)],
-			[Direction.left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
+			[Direction.top]: [mainSprite(0, 32, 16, 15), mainSprite(16, 32, 16, 15)],
+			[Direction.bottom]: [mainSprite(64, 32, 16, 15), mainSprite(80, 32, 16, 15)],
+			[Direction.right]: [mainSprite(96, 32, 16, 15), mainSprite(112, 32, 16, 15)],
+			[Direction.left]: [mainSprite(32, 32, 16, 15), mainSprite(48, 32, 16, 15)],
 		},
 		bullet: {
 			[Direction.top]: [mainSprite(322.25, 101.5, 5, 5.7)],
@@ -67,19 +67,28 @@ const setupSprites = image => {
 			[Direction.left]: [mainSprite(159, 175.75, 16, 16), mainSprite(174.75, 175.75, 16, 16)],
 		},
 		tankDeathAnimation: [
+			{ sprite: mainSprite(336, 128.75, 32, 32), side: 80 },
+			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), side: 80 },
+			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), side: 40 },
+			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), side: 37 },
+			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), side: 35 },
+			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), side: 35 },
+		],
+		tankSpawnAnimation: [
 			{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
 			{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
 			{ sprite: mainSprite(288, 97, 15, 14), side: 35 },
 			{ sprite: mainSprite(273, 97, 15, 14), side: 35 },
 			{ sprite: mainSprite(257, 97, 15, 14), side: 35 },
+			{ sprite: mainSprite(257, 97, 15, 14), side: 35 },
 		],
-		tankSpawnAnimation: [
-			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), side: 35 },
-			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), side: 37 },
-			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), side: 40 },
-			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), side: 80 },
-			{ sprite: mainSprite(336, 128.75, 32, 32), side: 80 },
-		],
+		// tankSpawnAnimation: [
+		// 	{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
+		// 	{ sprite: mainSprite(303, 97, 15, 14), side: 35 },
+		// 	{ sprite: mainSprite(288, 97, 15, 14), side: 35 },
+		// 	{ sprite: mainSprite(273, 97, 15, 14), side: 35 },
+		// 	{ sprite: mainSprite(257, 97, 15, 14), side: 35 },
+		// ],
 		flag: mainSprite(304.5, 33, 16, 15.25),
 		flagDeath: mainSprite(304, 33, 16, 15.25),
 		tankIcon: dashboardSprite(320.25, 192.75, 8.5, 7.75),
@@ -109,11 +118,11 @@ const setupSprites = image => {
 		powerup: {
 			[Powerups.helmet]: mainSprite(255.5, 112, 16, 14),
 			[Powerups.stopwatch]: mainSprite(271.5, 112, 16, 14),
-			[Powerups.shovel]: mainSprite(287.5, 112, 16, 14),
 			[Powerups.star]: mainSprite(303.5, 112, 16, 14),
 			[Powerups.grenade]: mainSprite(319.5, 112, 16, 14),
 			[Powerups.tank]: mainSprite(335.5, 112, 16, 14),
 		},
+		invincible: [mainSprite(256, 144, 15.7, 16), mainSprite(272.2, 144, 15.7, 16)],
 	};
 };
 
