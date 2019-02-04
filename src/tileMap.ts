@@ -1,3 +1,6 @@
+import { Powerups } from './entities/common';
+import { powerupEvents } from './entities/powerup';
+
 const TILE_SIDE = 20;
 
 enum Tiles {

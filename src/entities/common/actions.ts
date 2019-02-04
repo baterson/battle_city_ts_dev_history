@@ -26,6 +26,8 @@ const stateToTimeMap = {
 	death: 2,
 	spawn: 2,
 	shotCD: 2,
+	freeze: 2,
+	invincible: 2,
 };
 
 function getStateRemainingTime(stateName, entity, game) {

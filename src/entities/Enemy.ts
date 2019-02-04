@@ -12,8 +12,19 @@ import {
 	shot,
 	Direction,
 	getStateRemainingTime,
+	Powerups,
 } from './common';
 import entityManager from '../entityManager';
+import { powerupEvents } from './powerup';
+
+function powerupObserver(game, powerupType) {
+	if (powerupType === Powerups.stopwatch) {
+		this.state.freeze = game.elapsedTime;
+	} else if (powerupType === Powerups.grenade) {
+		this.state.death = game.elapsedTime;
+		entityManager.toRemove(this.id);
+	}
+}
 
 export function enemy(id, game, x, y, direction, enemyType) {
 	const entity = {
@@ -123,5 +134,7 @@ export function enemy(id, game, x, y, direction, enemyType) {
 			}
 		},
 	};
+
+	powerupEvents.subscribe(entity.id, powerupObserver.bind(entity, game));
 	return entity;
 }

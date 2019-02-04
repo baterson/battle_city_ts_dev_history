@@ -1,5 +1,6 @@
 import { main, dashboard } from '../screens';
 import { Direction, TankTypes, Powerups } from '../entities/common';
+import { Power as PlayerPower } from '../entities/player';
 import { Tiles } from '../tileMap';
 
 const createSprite = (image, context) => (dx, dy, dWidth, dHeight) => (x, y, side) => {
@@ -11,7 +12,19 @@ const setupSprites = image => {
 	const dashboardSprite = createSprite(image, dashboard.context);
 
 	return {
-		player: {
+		[`player${PlayerPower.Default}`]: {
+			[Direction.top]: [mainSprite(0, 0, 16, 15), mainSprite(16, 0, 16, 15)],
+			[Direction.bottom]: [mainSprite(64, 0, 16, 15), mainSprite(80, 0, 16, 15)],
+			[Direction.right]: [mainSprite(96, 0, 16, 15), mainSprite(112, 0, 16, 15)],
+			[Direction.left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
+		},
+		[`player${PlayerPower.First}`]: {
+			[Direction.top]: [mainSprite(0, 0, 16, 15), mainSprite(16, 0, 16, 15)],
+			[Direction.bottom]: [mainSprite(64, 0, 16, 15), mainSprite(80, 0, 16, 15)],
+			[Direction.right]: [mainSprite(96, 0, 16, 15), mainSprite(112, 0, 16, 15)],
+			[Direction.left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
+		},
+		[`player${PlayerPower.Second}`]: {
 			[Direction.top]: [mainSprite(0, 0, 16, 15), mainSprite(16, 0, 16, 15)],
 			[Direction.bottom]: [mainSprite(64, 0, 16, 15), mainSprite(80, 0, 16, 15)],
 			[Direction.right]: [mainSprite(96, 0, 16, 15), mainSprite(112, 0, 16, 15)],

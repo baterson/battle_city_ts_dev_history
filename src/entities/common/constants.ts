@@ -14,9 +14,9 @@ export enum TankTypes {
 
 export enum Powerups {
 	helmet,
-	stopwatch,
-	shovel,
 	star,
+	shovel,
+	stopwatch,
 	grenade,
 	tank,
 }
