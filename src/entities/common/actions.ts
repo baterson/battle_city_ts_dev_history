@@ -28,8 +28,10 @@ const stateToTimeMap = {
 	spawn: 1,
 	shotCD: 1,
 	freeze: 2,
-	invincible: 10,
-	stageStarting: 5,
+	invincible: 0.1,
+	stageStarting: 0.5,
+	gameOver: 0.5,
+	enemySpawnCD: 0.1,
 };
 
 function getStateRemainingTime(stateName, entity, game) {

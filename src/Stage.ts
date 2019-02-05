@@ -2,6 +2,7 @@ import { Direction, TANK_SIDE, Powerups } from './entities/common/constants';
 import { Layers } from './tileMap';
 import { randomInt } from './utils/random';
 import entityManager from './entityManager';
+import { getStateRemainingTime } from './entities/common/actions';
 
 const START_TICKS = 10;
 // const START_TICKS = 300;
@@ -17,6 +18,7 @@ class Stage {
 	public lastSpawnTick; // TODO: tank spawn tick
 	public lastPowerupTick;
 	public powerupsAvailable;
+	public state: { enemySpawnCD?: number } = {};
 
 	constructor(map, tanks, number, startTime) {
 		this.tanks = [...tanks];
@@ -28,18 +30,21 @@ class Stage {
 	}
 
 	spawnEnemy(game) {
-		const { ticks } = game;
-		// if (!this.tanks.length || ticks - this.startTick < START_TICKS || !this.canSpawn(ticks)) return;
-		// const index = randomInt(2);
-		// let [x, y] = ENEMY_SPAWN_POSITION[index];
-		// if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-		// 	[x, y] = ENEMY_SPAWN_POSITION[1 - index];
-		// 	if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-		// 		return;
-		// 	}
-		// }
-		// entityManager.spawnEntity('enemy', game, x, y, Direction.bottom, this.tanks.pop());
-		// this.lastSpawnTick = ticks;
+		// TODO: move stage state to stage
+		const spartingLeft = getStateRemainingTime('stageStarting', game, game);
+		const enemySpawnCDLeft = getStateRemainingTime('enemySpawnCD', this, game);
+		if (!this.tanks.length || spartingLeft >= 0 || enemySpawnCDLeft >= 0) return;
+
+		const index = randomInt(2);
+		let [x, y] = ENEMY_SPAWN_POSITION[index];
+		if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+			[x, y] = ENEMY_SPAWN_POSITION[1 - index];
+			if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+				return;
+			}
+		}
+		this.state.enemySpawnCD = game.elapsedTime;
+		entityManager.spawnEntity('enemy', game, x, y, Direction.bottom, this.tanks.pop());
 	}
 
 	spawnPowerup(game) {
@@ -55,14 +60,6 @@ class Stage {
 		this.map.renderLayer(Layers.main);
 		entityManager.render(game);
 		this.map.renderLayer(Layers.over);
-	}
-
-	canSpawn(ticks) {
-		if (!this.lastSpawnTick) {
-			return true;
-		} else {
-			return this.lastSpawnTick + STAGE_SPAWN_DELAY < ticks;
-		}
 	}
 }
 export { START_TICKS, STAGE_SPAWN_DELAY, ENEMY_SPAWN_POSITION };

@@ -55,7 +55,7 @@ export function player(id, game) {
 		},
 		canInitCollision: true,
 		prevTile: { x: 0, y: 0 },
-		lives: 2,
+		lives: 1,
 		power: Power.Default,
 
 		goBack,
@@ -118,7 +118,6 @@ export function player(id, game) {
 			this.prevY = this.y;
 			this.prevX = this.x;
 			const key = keyboard.getKey();
-
 			if (key === Keys.ArrowUp) {
 				this.direction = Direction.top;
 				this.move(velocityScale[this.power], game);

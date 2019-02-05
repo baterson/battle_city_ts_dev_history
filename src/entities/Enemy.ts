@@ -73,13 +73,20 @@ export function enemy(id, game, x, y, direction, enemyType) {
 		render(game) {
 			const spawnLeft = getStateRemainingTime('spawn', this, game);
 			const deathLeft = getStateRemainingTime('death', this, game);
+			const getAnimIndex = (length, left, spritesLength) => {
+				const step = length / spritesLength;
+				return Math.floor(left / step);
+			};
 
-			if (spawnLeft > 0) {
-				const frame = game.sprites.tankSpawnAnimation[spawnLeft];
+			if (spawnLeft >= 0) {
+				const sprites = game.sprites.tankSpawnAnimation;
+				const index = getAnimIndex(1, spawnLeft, sprites.length - 1);
+				const frame = sprites[index];
 				frame.sprite(this.x, this.y, this.side);
 				return;
-			} else if (deathLeft > 0) {
-				const frame = game.sprites.tankDeathAnimation[deathLeft];
+			} else if (deathLeft >= 0) {
+				const index = Math.floor(spawnLeft);
+				const frame = game.sprites.tankSpawnAnimation[index];
 				frame.sprite(this.x, this.y, this.side);
 				return;
 			}
@@ -91,10 +98,10 @@ export function enemy(id, game, x, y, direction, enemyType) {
 			} else {
 				distance = this.y;
 			}
-			// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
-			//     this.sprites[this.direction][0](this.x, this.y, this.side);
 			const index = Math.floor(distance / 2) % sprites.length;
 			sprites[index](this.x, this.y, this.side);
+			// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
+			//     this.sprites[this.direction][0](this.x, this.y, this.side);
 		},
 
 		move(game) {
@@ -104,9 +111,9 @@ export function enemy(id, game, x, y, direction, enemyType) {
 			) {
 				this.prevTile = { x: this.x, y: this.y };
 				// this.shot(ticks);
-				this.setRandomDirection();
+				// this.setRandomDirection();
 			} else {
-				move.call(this, velocityScale[this.type], game);
+				move.call(this, 1, game);
 			}
 		},
 
@@ -117,11 +124,11 @@ export function enemy(id, game, x, y, direction, enemyType) {
 
 		resolveTileCollision(tiles, game) {
 			this.goBack();
-			if (!this.canShoot) {
-				this.setOpositeDirection();
-			} else {
-				this.shot(game.ticks);
-			}
+			// if (!this.canShoot) { TODO: canshoot
+			this.setOpositeDirection();
+			// } else {
+			// this.shot(game.ticks);
+			// }
 		},
 
 		resolveEntityCollision(other, game, initiator) {
@@ -137,7 +144,7 @@ export function enemy(id, game, x, y, direction, enemyType) {
 				this.setOpositeDirection();
 			} else if (other.type === 'player') {
 				this.goBack();
-				this.shot(game.ticks);
+				// this.shot(game.ticks);
 			}
 		},
 	};

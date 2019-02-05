@@ -38,7 +38,7 @@ class Keyboard {
 		if (code === 'KeyK') {
 			const p = entityManager.getPlayer();
 			if (p && p.lives) {
-				p.resolveEntityCollision({ type: 'bullet' });
+				p.resolveEntityCollision({ type: 'bullet', state: {} }, game);
 			}
 		}
 		if (!Keys[code]) return;

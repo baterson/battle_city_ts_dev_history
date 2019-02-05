@@ -15,7 +15,7 @@ export default {
 		context.beginPath();
 	},
 	renderStageStarting(left) {
-		const index = getAnimIndex(5, left, 300);
+		const index = getAnimIndex(0.5, left, 300);
 
 		context.fillRect(0, 0, 600, index);
 		context.fillRect(0, 600 - index, 600, index);
@@ -24,5 +24,11 @@ export default {
 
 		// context.fillRect(0, 0, 600, 300 - ticks);
 		// context.fillRect(0, START_TICKS + ticks, 600, START_TICKS - ticks);
+	},
+
+	renderGameOver(left) {
+		const index = getAnimIndex(0.5, left, 300);
+		context.fillRect(0, 0, 600, 300 - index); // GAMEOVER ANIM
+		context.fillRect(0, 300 + index, 600, 300 - index);
 	},
 };

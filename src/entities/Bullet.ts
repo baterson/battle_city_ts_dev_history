@@ -20,6 +20,7 @@ export function bullet(id, x, y, direction, shooter) {
 		side: BULLET_SIDE,
 		shooter,
 		canInitCollision: true,
+		state: {},
 
 		getCollisionPoints,
 		isOutOfScreen,
