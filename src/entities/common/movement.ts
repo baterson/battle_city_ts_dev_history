@@ -1,6 +1,6 @@
 import { Direction } from './constants';
 
-function move(scale, deltaTime) {
+function move(deltaTime, scale = 1) {
 	this.prevPosition = this.position;
 
 	if (this.direction === Direction.top) {

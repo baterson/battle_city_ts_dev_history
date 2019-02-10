@@ -87,6 +87,7 @@ export function player(id, game) {
 			const { spawning, death, invincible } = this.state;
 
 			if (spawning) {
+				// TODO: Refactor animIndex
 				const sprites = game.sprites.tankSpawnAnimation;
 				const index = getAnimIndex(1, this.timers.spawning, sprites.length - 1);
 				sprites[index](this.x, this.y, this.side);

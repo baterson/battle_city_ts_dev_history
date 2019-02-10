@@ -1,77 +1,142 @@
-import {
-	Direction,
-	goBack,
-	getCollisionPoints,
-	isOutOfScreen,
-	shot,
-	move,
-	PLAYER_SPAWN_POSITION,
-	PLAYER_VELOCITY,
-	TANK_SIDE,
-	Powerups,
-	getStateRemainingTime,
-} from './common';
+import { Entity } from './Entity';
+import { Vector } from '../utils/vector';
+import { TimerManager } from '../utils/TimerManager';
+import { Direction, getAnimIndex, animateMovement, move } from './common';
 import keyboard, { Keys } from '../keyboard';
 import { powerupEvents } from './powerup';
 import entityManager from '../entityManager';
 
-class Vector {
-	public default: string[];
+const PLAYER_SPAWN_POSITION = [20, 50];
 
-	constructor(public x, public y) {
-		this.x = x;
-		this.y = y;
-		this.default = [x, y];
+export enum Power {
+	Default,
+	First,
+	Second,
+}
+
+class Player extends Entity {
+	public prevPosition: Vector;
+	public direction: Direction;
+	public lives: number;
+	public power: Power;
+	public timers: TimerManager;
+
+	constructor() {
+		super(new Vector(20, 50), new Vector(35, 35));
+		this.prevPosition = new Vector(35, 35);
+		this.direction = Direction.top;
+		this.lives = 1;
+		this.power = Power.Default;
+		this.timers = new TimerManager();
 	}
 
-	toDefault() {
-		[this.x, this.y] = this.default;
+	update() {
+		const spawn = this.timers.getTimer('spawn');
+		const death = this.timers.getTimer('death');
+		if (spawn || death) return;
+	}
+
+	render(game) {
+		const spawn = this.timers.getTimer('spawn');
+		const death = this.timers.getTimer('death');
+		const invincible = this.timers.getTimer('invincible');
+
+		if (spawn) {
+			// TODO: Refactor animIndex
+			const sprites = game.sprites.tankSpawnAnimation;
+			const index = getAnimIndex(1, spawn, sprites.length - 1);
+			sprites[index](this.position, this.size);
+			return;
+		} else if (death) {
+			const sprites = game.sprites.tankDeathAnimation;
+			const index = getAnimIndex(1, death, sprites.length - 1);
+			sprites[index](this.position, this.size);
+			return;
+		}
+
+		if (invincible) {
+			const invincibleSprites = game.sprites.invincible;
+			const index = Math.floor(game.elapsedTime / 0.1) % invincibleSprites.length;
+			invincibleSprites[index](this.position, this.size);
+		}
+
+		this.animateMovement(game.sprites[`player${this.power}`][this.direction]);
+	}
+
+	processInput(game) {
+		const key = keyboard.getKey();
+		let isMoving = true;
+
+		if (key === Keys.ArrowUp) {
+			this.direction = Direction.top;
+		} else if (key === Keys.ArrowDown) {
+			this.direction = Direction.bottom;
+		} else if (key === Keys.ArrowLeft) {
+			this.direction = Direction.left;
+		} else if (key === Keys.ArrowRight) {
+			this.direction = Direction.right;
+		} else {
+			isMoving = false;
+		}
+
+		if (key === Keys.Space) {
+			// this.shot(game);
+		}
+
+		if (isMoving) {
+			this.move(game.deltaTime);
+		}
+	}
+
+	resolveEdgeCollision() {
+		this.position = this.prevPosition;
+	}
+
+	resolveTileCollision() {
+		this.position = this.prevPosition;
+	}
+
+	resolveEntityCollision(other, game) {
+		// TODO: check for spawn
+		// const spawn = this.timers.getTimer('spawn');
+		const death = this.timers.getTimer('death');
+
+		if (other.type === 'powerup') {
+			// TODO: typeof
+			return;
+		} else if (death) {
+			return;
+		}
+
+		if (other.type === 'bullet') {
+			const invincible = this.timers.getTimer('invincible');
+
+			if (invincible) return;
+
+			this.timers.setTimer('death');
+			this.lives -= 1;
+			if (this.lives === 0) {
+				entityManager.toRemove(this.id);
+			}
+		} else {
+			this.position = this.prevPosition;
+		}
+	}
+
+	respawn(game) {
+		this.timers.setTimer('spawn');
+		this.timers.setTimer('invincible');
+		this.power = Power.Default;
+		const [x, y] = PLAYER_SPAWN_POSITION;
+		this.position = new Vector(x, y);
 	}
 }
 
-function move() {
-	this.position.x = this.velocity.x * this.acceleration;
-	this.position.y = this.velocity.y * this.acceleration;
+interface Player {
+	// TODO: Types
+	animateMovement(sprites): void;
+	move(deltaTime): void;
 }
 
-function handleInput() {
-	this.prevPosition = this.position;
-	this.velocity.toDefault();
-	const key = keyboard.getKey();
-
-	if (key === Keys.ArrowUp) {
-		this.velocity.y = -1;
-	} else if (key === Keys.ArrowDown) {
-		this.velocity.y = 1;
-	} else if (key === Keys.ArrowLeft) {
-		this.velocity.x = -1;
-	} else if (key === Keys.ArrowRight) {
-		this.velocity.x = 1;
-	} else if (key === Keys.Space) {
-		// this.shot(game);
-	}
-}
-
-export function player(id, game) {
-	// TODO: getstate/setstate bind inside constructor
-	const entity = {
-		type: 'player',
-		id,
-		position: new Vector(20, 30),
-		prevPosition: new Vector(20, 30),
-		velocity: new Vector(0, 0),
-		acceleration: 120,
-		width: 35,
-		heigth: 35,
-
-		side: TANK_SIDE,
-		state: {
-			spawn: game.elapsedTime,
-			invincible: game.elapsedTime,
-		},
-		canInitCollision: true,
-		prevTile: { x: 0, y: 0 },
-		lives: 1,
-	};
-	return entity;
-}
+Player.prototype.animateMovement = animateMovement;
+Player.prototype.move = move;

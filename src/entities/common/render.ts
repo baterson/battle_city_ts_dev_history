@@ -25,4 +25,20 @@ function renderAnimated() {
 	}
 }
 
-export { renderMovable, renderAnimated };
+const getAnimIndex = (length, left, spritesLength) => {
+	const step = length / spritesLength;
+	return Math.floor(left / step);
+};
+
+function animateMovement(sprites) {
+	let distance;
+	if (this.direction === Direction.left || this.direction === Direction.right) {
+		distance = this.position.x;
+	} else {
+		distance = this.position.y;
+	}
+	const index = Math.floor(distance / 2) % sprites.length;
+	sprites[index](this.position, this.size);
+}
+
+export { renderMovable, renderAnimated, getAnimIndex, animateMovement };
