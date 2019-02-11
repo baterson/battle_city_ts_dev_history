@@ -44,7 +44,7 @@ class Stage {
 			}
 		}
 		this.state.enemySpawnCD = game.elapsedTime;
-		entityManager.spawnEntity('enemy', game, x, y, Direction.bottom, this.tanks.pop());
+		entityManager.spawnEntity('enemy', game, x, y, Direction.Bottom, this.tanks.pop());
 	}
 
 	spawnPowerup(game) {

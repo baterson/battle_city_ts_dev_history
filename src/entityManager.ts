@@ -1,5 +1,5 @@
 import * as entities from './entities';
-import { squareIntersection, idGen } from './utils';
+import { checkEntityCollision } from './utils';
 import { rigid } from './tileMap';
 import { Enemy, Player, Bullet, Flag } from './entities';
 
@@ -13,8 +13,8 @@ class EntityManager {
 	}
 
 	spawnEntity(type, game, ...args) {
-		const id = idGen.getId();
-		this.pool[id] = entities[type](id, game, ...args);
+		const entity = entities[type](game, ...args);
+		this.pool[entity.id] = entity;
 	}
 
 	toRemove = id => {
@@ -48,7 +48,7 @@ class EntityManager {
 	getByIntersection(entity) {
 		// Refactor name at least
 		return Object.values(this.pool).filter((el: any) => {
-			if ((el.type === 'enemy' || el.type === 'player') && squareIntersection(entity, el)) {
+			if ((el.type === 'enemy' || el.type === 'player') && checkEntityCollision(entity, el)) {
 				return el;
 			}
 		});
@@ -101,7 +101,7 @@ class EntityManager {
 			this.forEach(other => {
 				if (entity.id === other.id || seen.has(other.id)) return;
 
-				if (squareIntersection(entity, other)) {
+				if (checkEntityCollision(entity, other)) {
 					entity.resolveEntityCollision(other, game, entity);
 					other.resolveEntityCollision(entity, game, entity);
 				}

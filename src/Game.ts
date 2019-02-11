@@ -1,6 +1,6 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
 import { Powerups } from './entities/common';
-import { setupSprites, idGen } from './utils';
+import { setupSprites } from './utils';
 import TileMap from './tileMap';
 import entityManager from './entityManager';
 import Stage from './Stage';
@@ -138,7 +138,6 @@ class Game {
 		this.ticks = 0;
 		this.elapsedTime = 0;
 		entityManager.clear();
-		idGen.reset();
 		delete this.state.gameOver;
 		this.state.stageStarting = this.elapsedTime;
 		entityManager.spawnEntity('player', this);

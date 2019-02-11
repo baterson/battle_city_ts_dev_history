@@ -1,12 +1,28 @@
-class Entity {
-	public id: number;
-	static numberGen: number;
+import { Vector } from '../utils/vector';
 
-	constructor(public position, public size) {
+class Entity {
+	static numberGen: number;
+	public id: number;
+	public position: Vector;
+	public size: Vector;
+
+	constructor(position, size) {
 		this.id = Entity.numberGen;
 		this.position = position;
 		this.size = size;
 		Entity.numberGen += 1;
+	}
+
+	getBoundingBox() {
+		const { x, y } = this.position;
+		const { x: width, y: height } = this.size;
+
+		return {
+			left: x,
+			right: x + width,
+			top: y,
+			bottom: y + height,
+		};
 	}
 }
 
