@@ -1,61 +1,52 @@
-import {
-	renderMovable,
-	getCollisionPoints,
-	isOutOfScreen,
-	move,
-	BULLET_VELOCITY,
-	BULLET_SIDE,
-	Direction,
-} from './common';
+import { Entity } from './Entity';
+import { Vector } from '../utils/vector';
+import { Direction, animateMovement, move } from './common';
 import entityManager from '../entityManager';
 
-export function bullet(id, x, y, direction, shooter) {
-	return {
-		type: 'bullet',
-		id,
-		direction,
-		x,
-		y,
-		velocity: BULLET_VELOCITY,
-		side: BULLET_SIDE,
-		shooter,
-		canInitCollision: true,
-		state: {},
+const BULLET_VELOCITY = 200;
 
-		getCollisionPoints,
-		isOutOfScreen,
-		move,
+class Bullet extends Entity {
+	public direction: Direction;
+	public shooter: any;
 
-		update(game) {
-			this.move(1, game);
-		},
+	constructor(position: Vector, direction: Direction, shooter: any) {
+		// TODO: types to shooter
+		super(position, new Vector(35, 35));
+		this.direction = direction;
+		this.shooter = shooter;
+	}
 
-		render(game) {
-			let distance;
-			const sprites = game.sprites[this.type][this.direction];
-			if (this.direction === Direction.left || this.direction === Direction.right) {
-				distance = this.x;
-			} else {
-				distance = this.y;
-			}
-			const index = Math.floor(distance / 2) % sprites.length;
-			sprites[index](this.x, this.y, this.side);
-		},
+	update(game) {
+		this.move(game.deltaTime, BULLET_VELOCITY);
+	}
 
-		resolveEdgeCollision() {
-			entityManager.toRemove(this.id);
-		},
+	render(game) {
+		this.animateMovement(game.sprites.bullet[this.direction]);
+	}
 
-		resolveTileCollision(tiles, game) {
-			entityManager.toRemove(this.id);
-			tiles.forEach(tile => {
-				game.stage.map.destroy(tile);
-			});
-		},
+	resolveEdgeCollision() {
+		entityManager.toRemove(this.id);
+	}
 
-		resolveEntityCollision(other, game) {
-			if ((other.type === 'enemy' && this.shooter.type === 'enemy') || other.type === 'powerUp') return;
-			entityManager.toRemove(this.id);
-		},
-	};
+	resolveTileCollision(tiles, game) {
+		entityManager.toRemove(this.id);
+		tiles.forEach(tile => {
+			game.stage.map.destroy(tile);
+		});
+	}
+
+	resolveEntityCollision(other, game) {
+		// if(other instanceof PowerUp) return
+		entityManager.toRemove(this.id);
+	}
 }
+
+interface Bullet {
+	animateMovement(sprites): void;
+	move(deltaTime: number, scale?: number): void;
+}
+
+Bullet.prototype.move = move;
+Bullet.prototype.animateMovement = animateMovement;
+
+export { Bullet };

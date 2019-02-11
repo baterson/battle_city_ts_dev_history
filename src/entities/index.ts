@@ -1,5 +1,5 @@
-export * from './player';
-export * from './bullet';
-export * from './enemy';
-export * from './flag';
-export * from './powerup';
+export * from './Player';
+export * from './Bullet';
+export * from './Enemy';
+export * from './Flag';
+// export * from './powerup';

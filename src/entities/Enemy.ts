@@ -1,154 +1,154 @@
-import {
-	ENEMY_TANK_VELOCITY,
-	ENEMY_TANK_LIVES,
-	TANK_SIDE,
-	FREEZE_DELAY,
-	move,
-	goBack,
-	setRandomDirection,
-	setOpositeDirection,
-	getCollisionPoints,
-	isOutOfScreen,
-	shot,
-	Direction,
-	getStateRemainingTime,
-	Powerups,
-	TankTypes,
-} from './common';
+import { Entity } from './Entity';
+import { Vector } from '../utils/vector';
+import { TimerManager } from '../utils/TimerManager';
+import { Direction, getAnimIndex, animateMovement, move, shot, TankTypes, goBack } from './common';
 import entityManager from '../entityManager';
-import { powerupEvents } from './powerup';
+import { Player } from './Player';
+import { Bullet } from './Bullet';
 
-const velocityScale = {
-	[TankTypes.default]: 1,
-	[TankTypes.fast]: 2,
-	[TankTypes.armored]: 1.2,
+const statsByTankType = {
+	[TankTypes.Default]: {
+		velocity: 100,
+		shotCD: 150,
+		lives: 1,
+	},
+	[TankTypes.Fast]: {
+		velocity: 200,
+		shotCD: 120,
+		lives: 1,
+	},
+	[TankTypes.Armored]: {
+		velocity: 90,
+		shotCD: 100,
+		lives: 3,
+	},
 };
 
-function powerupObserver(game, powerupType) {
-	if (powerupType === Powerups.stopwatch) {
-		this.state.freeze = game.elapsedTime;
-	} else if (powerupType === Powerups.grenade) {
-		this.state.death = game.elapsedTime;
-		entityManager.toRemove(this.id);
+class Enemy extends Entity {
+	public prevPosition: Vector;
+	public type: TankTypes;
+	public direction: Direction;
+	public lives: number;
+	public timers: TimerManager;
+
+	constructor(type: TankTypes, position: Vector) {
+		super(position, new Vector(35, 35));
+		this.type = type;
+		this.lives = statsByTankType[this.type].lives;
+		this.prevPosition = new Vector(35, 35);
+		this.direction = Direction.Bottom;
+		this.timers = new TimerManager();
+	}
+
+	update(game) {
+		const spawn = this.timers.getTimer('spawn');
+		const death = this.timers.getTimer('death');
+
+		if (spawn || death) {
+			return;
+		} else {
+			this.move(game.deltaTime, statsByTankType[this.type].velocity);
+		}
+		// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
+		//     return;
+		// }
+	}
+
+	render(game) {
+		const spawn = this.timers.getTimer('spawn');
+		const death = this.timers.getTimer('death');
+
+		if (spawn) {
+			// TODO: Refactor animIndex
+			// TODO: move this part to function
+			const sprites = game.sprites.tankSpawnAnimation;
+			const index = getAnimIndex(1, spawn, sprites.length - 1);
+			sprites[index](this.position, this.size);
+			return;
+		} else if (death) {
+			const sprites = game.sprites.tankDeathAnimation;
+			const index = getAnimIndex(1, death, sprites.length - 1);
+			sprites[index](this.position, this.size);
+			return;
+		}
+		this.animateMovement(game.sprites[`enemy${this.type}${this.lives}`][this.direction]);
+	}
+
+	//Rename
+	aiMove(game) {
+		const { shotCD, velocity } = statsByTankType[this.type];
+
+		if (
+			Math.abs(Math.floor(this.prevPosition.x - this.position.x)) > 120 ||
+			Math.abs(Math.floor(this.prevPosition.y - this.position.y)) > 120
+		) {
+			this.shot(shotCD);
+			this.setRandomDirection();
+			this.move(game.deltaTime, velocity);
+		} else {
+			this.move(game.deltaTime, velocity);
+		}
+	}
+
+	resolveEdgeCollision() {
+		this.setOpositeDirection();
+	}
+
+	resolveTileCollision() {
+		const { shotCD } = statsByTankType[this.type];
+		this.goBack();
+		this.shot(shotCD);
+	}
+
+	resolveEntityCollision(other, game, initiator) {
+		if (other instanceof Bullet && other.shooter instanceof Player) {
+			if (this.lives === 1) {
+				this.timers.setTimer('death');
+				entityManager.toRemove(this.id);
+			} else {
+				this.lives -= 1;
+			}
+		} else if (other instanceof Enemy && initiator.id === this.id) {
+			this.goBack();
+			this.setOpositeDirection();
+		} else if (other.type === 'player') {
+			this.goBack();
+			this.shot();
+		}
+	}
+
+	setRandomDirection() {
+		const items = [Direction.Top, Direction.Right, Direction.Bottom, Direction.Left].filter(
+			direction => direction !== this.direction
+		);
+		const index = Math.floor(Math.random() * items.length);
+		this.direction = items[index];
+	}
+
+	setOpositeDirection() {
+		if (this.direction === Direction.Top) {
+			this.direction = Direction.Bottom;
+		} else if (this.direction === Direction.Bottom) {
+			this.direction = Direction.Top;
+		} else if (this.direction === Direction.Right) {
+			this.direction = Direction.Left;
+		} else {
+			this.direction = Direction.Right;
+		}
 	}
 }
 
-export function enemy(id, game, x, y, direction, enemyType) {
-	const entity = {
-		type: 'enemy',
-		id,
-		direction,
-		x,
-		y,
-		velocity: ENEMY_TANK_VELOCITY[enemyType],
-		side: TANK_SIDE,
-		state: {
-			spawn: game.elapsedTime,
-		},
-		canInitCollision: true,
-		prevTile: { x: 0, y: 0 },
-		lives: ENEMY_TANK_LIVES[enemyType],
-
-		goBack,
-		setRandomDirection,
-		setOpositeDirection,
-		getCollisionPoints,
-		isOutOfScreen,
-		shot,
-
-		update(game) {
-			const spawnLeft = getStateRemainingTime('spawn', this, game);
-			const deathLeft = getStateRemainingTime('death', this, game);
-
-			if (deathLeft > 0 || spawnLeft > 0) {
-				return;
-			} else {
-				this.move(game);
-			}
-			// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
-			//     return;
-			// }
-		},
-
-		render(game) {
-			const spawnLeft = getStateRemainingTime('spawn', this, game);
-			const deathLeft = getStateRemainingTime('death', this, game);
-			const getAnimIndex = (length, left, spritesLength) => {
-				const step = length / spritesLength;
-				return Math.floor(left / step);
-			};
-
-			if (spawnLeft >= 0) {
-				const sprites = game.sprites.tankSpawnAnimation;
-				const index = getAnimIndex(1, spawnLeft, sprites.length - 1);
-				const frame = sprites[index];
-				frame.sprite(this.x, this.y, this.side);
-				return;
-			} else if (deathLeft >= 0) {
-				const index = Math.floor(spawnLeft);
-				const frame = game.sprites.tankSpawnAnimation[index];
-				frame.sprite(this.x, this.y, this.side);
-				return;
-			}
-
-			let distance;
-			const sprites = game.sprites[`${enemyType}${this.lives}`][this.direction];
-			if (this.direction === Direction.left || this.direction === Direction.right) {
-				distance = this.x;
-			} else {
-				distance = this.y;
-			}
-			const index = Math.floor(distance / 2) % sprites.length;
-			sprites[index](this.x, this.y, this.side);
-			// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
-			//     this.sprites[this.direction][0](this.x, this.y, this.side);
-		},
-
-		move(game) {
-			if (
-				Math.abs(Math.floor(this.prevTile.x - this.x)) > 120 ||
-				Math.abs(Math.floor(this.prevTile.y - this.y)) > 120
-			) {
-				this.prevTile = { x: this.x, y: this.y };
-				// this.shot(ticks);
-				// this.setRandomDirection();
-			} else {
-				move.call(this, 1, game);
-			}
-		},
-
-		resolveEdgeCollision() {
-			this.goBack();
-			this.setRandomDirection();
-		},
-
-		resolveTileCollision(tiles, game) {
-			this.goBack();
-			// if (!this.canShoot) { TODO: canshoot
-			this.setOpositeDirection();
-			// } else {
-			// this.shot(game.ticks);
-			// }
-		},
-
-		resolveEntityCollision(other, game, initiator) {
-			if (other.type === 'bullet' && other.shooter.type === 'player') {
-				if (this.lives === 1) {
-					this.state.death = game.elapsedTime;
-					entityManager.toRemove(this.id);
-				} else {
-					this.lives -= 1;
-				}
-			} else if (other.type === 'enemy' && initiator.id === this.id) {
-				this.goBack();
-				this.setOpositeDirection();
-			} else if (other.type === 'player') {
-				this.goBack();
-				// this.shot(game.ticks);
-			}
-		},
-	};
-
-	powerupEvents.subscribe(entity.id, powerupObserver.bind(entity, game));
-	return entity;
+interface Enemy {
+	// TODO: Types
+	animateMovement(sprites): void;
+	move(deltaTime: number, velocity: number): void;
+	shot(cd?: number): void;
+	goBack(): void;
 }
+
+Enemy.prototype.animateMovement = animateMovement;
+Enemy.prototype.goBack = goBack;
+Enemy.prototype.move = move;
+Enemy.prototype.shot = shot;
+
+export { Enemy };

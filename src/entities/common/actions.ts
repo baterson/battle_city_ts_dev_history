@@ -1,24 +1,25 @@
 import { Direction, BULLET_SIDE } from './constants';
+import { Vector } from '../../utils/vector';
 import entityManager from '../../entityManager';
 
-function shot(game) {
+function shot(cd: number) {
 	// TODO: Firerate scale
-	const shotCD = getStateRemainingTime('shotCD', this, game);
-	if (shotCD >= 0) return;
+	const shotCD = this.timers.getTimer('shotCD');
+	if (shotCD) return;
 
 	let bulletArgs;
-	if (this.direction === Direction.top) {
-		bulletArgs = { x: this.x + this.side / 2 - BULLET_SIDE / 2, y: this.y - BULLET_SIDE };
-	} else if (this.direction === Direction.right) {
-		bulletArgs = { x: this.x + this.side, y: this.y + this.side / 2 - BULLET_SIDE / 2 };
-	} else if (this.direction === Direction.bottom) {
-		bulletArgs = { x: this.x + this.side / 2 - BULLET_SIDE / 2, y: this.y + this.side };
+	if (this.direction === Direction.Top) {
+		bulletArgs = { x: this.position.x + this.size.width / 2 - BULLET_SIDE / 2, y: this.position.y - BULLET_SIDE };
+	} else if (this.direction === Direction.Right) {
+		bulletArgs = { x: this.position.x + this.size.width, y: this.position.y + this.size.width / 2 - BULLET_SIDE / 2 };
+	} else if (this.direction === Direction.Bottom) {
+		bulletArgs = { x: this.position.x + this.size.width / 2 - BULLET_SIDE / 2, y: this.position.y + this.size.width };
 	} else {
-		bulletArgs = { x: this.x - BULLET_SIDE, y: this.y + this.side / 2 - BULLET_SIDE / 2 };
+		bulletArgs = { x: this.position.x - BULLET_SIDE, y: this.position.y + this.size.width / 2 - BULLET_SIDE / 2 };
 	}
 
-	entityManager.spawnEntity('bullet', bulletArgs.x, bulletArgs.y, this.direction, this);
-	this.state.shotCD = game.elapsedTime;
+	entityManager.spawnEntity('bullet', new Vector(bulletArgs.x, bulletArgs.y), this.direction, this);
+	this.timers.setTimer('shotCD', cd);
 }
 
 // interface states available

@@ -1,6 +1,7 @@
 import * as entities from './entities';
 import { squareIntersection, idGen } from './utils';
 import { rigid } from './tileMap';
+import { Enemy, Player, Bullet, Flag } from './entities';
 
 class EntityManager {
 	public pool;
@@ -63,7 +64,12 @@ class EntityManager {
 
 	checkTileCollision(game) {
 		this.forEach(entity => {
-			if (!entity.canInitCollision || entity.isDeath) return;
+			if (entity instanceof Flag) return;
+			if (entity.timers) {
+				const spawn = entity.timers.getTimer('spawn');
+				const death = entity.timers.getTimer('death');
+				if (spawn || death) return;
+			}
 
 			if (entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
@@ -80,12 +86,21 @@ class EntityManager {
 	}
 
 	checkEntitiesCollision(game) {
+		// TODO check for spawn and death
 		const seen = new Set();
 		this.forEach(entity => {
-			if (!entity.canInitCollision || entity.isDeath) return;
+			if (entity instanceof Flag) return;
+			// if(entity instanceof Flag || entity instanceof Powerup )
+			if (entity.timers) {
+				const spawn = entity.timers.getTimer('spawn');
+				const death = entity.timers.getTimer('death');
+				if (spawn || death) return;
+			}
+
 			seen.add(entity.id);
 			this.forEach(other => {
 				if (entity.id === other.id || seen.has(other.id)) return;
+
 				if (squareIntersection(entity, other)) {
 					entity.resolveEntityCollision(other, game, entity);
 					other.resolveEntityCollision(entity, game, entity);

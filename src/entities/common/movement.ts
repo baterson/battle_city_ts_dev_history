@@ -1,16 +1,16 @@
 import { Direction } from './constants';
 
-function move(deltaTime, scale = 1) {
+function move(deltaTime, velocity) {
 	this.prevPosition = this.position;
 
-	if (this.direction === Direction.top) {
-		this.y -= this.velocity * scale * deltaTime;
-	} else if (this.direction === Direction.bottom) {
-		this.y += this.velocity * scale * deltaTime;
-	} else if (this.direction === Direction.left) {
-		this.x -= this.velocity * scale * deltaTime;
-	} else if (this.direction === Direction.right) {
-		this.x += this.velocity * scale * deltaTime;
+	if (this.direction === Direction.Top) {
+		this.position.y -= velocity * deltaTime;
+	} else if (this.direction === Direction.Bottom) {
+		this.position.y += velocity * deltaTime;
+	} else if (this.direction === Direction.Left) {
+		this.position.x -= velocity * deltaTime;
+	} else if (this.direction === Direction.Right) {
+		this.position.x += velocity * deltaTime;
 	}
 }
 
@@ -20,7 +20,7 @@ function goBack() {
 }
 
 function setRandomDirection() {
-	const items = [Direction.top, Direction.right, Direction.bottom, Direction.left].filter(
+	const items = [Direction.Top, Direction.Right, Direction.Bottom, Direction.Left].filter(
 		direction => direction !== this.direction
 	);
 	const index = Math.floor(Math.random() * items.length);
@@ -28,14 +28,14 @@ function setRandomDirection() {
 }
 
 function setOpositeDirection() {
-	if (this.direction === Direction.top) {
-		this.direction = Direction.bottom;
-	} else if (this.direction === Direction.bottom) {
-		this.direction = Direction.top;
-	} else if (this.direction === Direction.right) {
-		this.direction = Direction.left;
+	if (this.direction === Direction.Top) {
+		this.direction = Direction.Bottom;
+	} else if (this.direction === Direction.Bottom) {
+		this.direction = Direction.Top;
+	} else if (this.direction === Direction.Right) {
+		this.direction = Direction.Left;
 	} else {
-		this.direction = Direction.right;
+		this.direction = Direction.Right;
 	}
 }
 
