@@ -138,7 +138,7 @@ class Player extends Entity {
 		}
 	}
 
-	respawn(game) {
+	respawn() {
 		this.timers.setTimer('spawn');
 		this.timers.setTimer('invincible');
 		this.power = Power.Default;

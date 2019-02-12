@@ -74,10 +74,9 @@ class EntityManager {
 			if (entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
 			} else {
-				const points = entity.getCollisionPoints();
-				const tiles = game.stage.map.lookupMany(points);
+				const { top, bottom, left, right } = entity.getBoundingBox();
+				const tiles = game.stage.map.lookupMany([top, bottom, left, right]);
 				const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
-
 				if (collided) {
 					entity.resolveTileCollision(tiles, game);
 				}
