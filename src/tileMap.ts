@@ -1,6 +1,3 @@
-import { Powerups } from './entities/common';
-import { powerupEvents } from './entities/powerup';
-
 const TILE_SIDE = 20;
 
 enum Tiles {
@@ -37,20 +34,20 @@ class TileMap {
 		this.sprites = sprites;
 	}
 
-	destroy({ x, y }) {
+	destroy(x, y) {
 		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
 		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
 		this.tiles[yIndex][xIndex] = Tiles.none;
 	}
 
-	lookup({ x, y }) {
-		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
-		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
+	lookup(x, y) {
+		const xIndex = Math.min(Math.max(0, Math.floor(x / TILE_SIDE)), 29);
+		const yIndex = Math.min(Math.max(0, Math.floor(y / TILE_SIDE)), 29);
 		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
 	}
 
 	lookupMany(points) {
-		return points.map(point => this.lookup(point));
+		return points.map(point => this.lookup(point[0], point[1]));
 	}
 
 	renderLayer(name) {
@@ -58,7 +55,7 @@ class TileMap {
 			row.forEach((tile, x) => {
 				if (!layesrMap[name].includes(tile)) return;
 
-				this.sprites[tile](x * TILE_SIDE, y * TILE_SIDE, TILE_SIDE);
+				this.sprites[tile]({ x: x * TILE_SIDE, y: y * TILE_SIDE }, { x: TILE_SIDE, y: TILE_SIDE });
 			});
 		});
 	}

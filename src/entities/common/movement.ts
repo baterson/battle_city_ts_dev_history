@@ -1,7 +1,8 @@
 import { Direction } from './constants';
+import c from '../../utils/console';
 
 function move(deltaTime, velocity) {
-	this.prevPosition = this.position;
+	this.prevPosition.set(this.position);
 
 	if (this.direction === Direction.Top) {
 		this.position.y -= velocity * deltaTime;
@@ -15,8 +16,7 @@ function move(deltaTime, velocity) {
 }
 
 function goBack() {
-	this.x = this.prevX;
-	this.y = this.prevY;
+	this.position.set(this.prevPosition);
 }
 
 function setRandomDirection() {

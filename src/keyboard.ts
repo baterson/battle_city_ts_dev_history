@@ -28,15 +28,15 @@ class Keyboard {
 		}
 
 		if (code === 'KeyP') {
-			const p = entityManager.getPlayer();
+			const p: any = entityManager.getPlayer();
 			console.log(p);
 		}
 		if (code === 'KeyR') {
-			const p = entityManager.getPlayer();
+			const p: any = entityManager.getPlayer();
 			p.respawn(game);
 		}
 		if (code === 'KeyK') {
-			const p = entityManager.getPlayer();
+			const p: any = entityManager.getPlayer();
 			if (p && p.lives) {
 				p.resolveEntityCollision({ type: 'bullet', state: {} }, game);
 			}

@@ -1,7 +1,7 @@
 import { Vector } from '../utils/vector';
 
 class Entity {
-	static numberGen: number;
+	static numberGen: number = 0;
 	public id: number;
 	public position: Vector;
 	public size: Vector;

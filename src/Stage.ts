@@ -1,8 +1,8 @@
 import { Direction, TANK_SIDE, Powerups } from './entities/common/constants';
+import { Vector } from './utils/vector';
 import { Layers } from './tileMap';
 import { randomInt } from './utils/random';
 import entityManager from './entityManager';
-import { getStateRemainingTime } from './entities/common/actions';
 
 const START_TICKS = 10;
 // const START_TICKS = 300;
@@ -30,10 +30,10 @@ class Stage {
 	}
 
 	spawnEnemy(game) {
+		// TODO: parametrize it in TS
 		// TODO: move stage state to stage
-		const spartingLeft = getStateRemainingTime('stageStarting', game, game);
-		const enemySpawnCDLeft = getStateRemainingTime('enemySpawnCD', this, game);
-		if (!this.tanks.length || spartingLeft >= 0 || enemySpawnCDLeft >= 0) return;
+		if (!this.tanks.length) return;
+		// if (!this.tanks.length || spartingLeft >= 0 || enemySpawnCDLeft >= 0) return;
 
 		const index = randomInt(2);
 		let [x, y] = ENEMY_SPAWN_POSITION[index];
@@ -43,8 +43,8 @@ class Stage {
 				return;
 			}
 		}
-		this.state.enemySpawnCD = game.elapsedTime;
-		entityManager.spawnEntity('enemy', game, x, y, Direction.Bottom, this.tanks.pop());
+		// this.state.enemySpawnCD = game.elapsedTime;
+		entityManager.spawnEntity('Enemy', this.tanks.pop(), new Vector(x, y));
 	}
 
 	spawnPowerup(game) {

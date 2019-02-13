@@ -1,17 +1,19 @@
 import { Entity } from './Entity';
 import { Vector } from '../utils/vector';
-import { Direction, animateMovement, move } from './common';
+import { Direction, animateMovement, move, isOutOfScreen } from './common';
 import entityManager from '../entityManager';
 
 const BULLET_VELOCITY = 200;
 
 class Bullet extends Entity {
+	public prevPosition: Vector;
 	public direction: Direction;
 	public shooter: any;
 
 	constructor(position: Vector, direction: Direction, shooter: any) {
 		// TODO: types to shooter
-		super(position, new Vector(35, 35));
+		super(position, new Vector(10, 10));
+		this.prevPosition = new Vector(position.x, position.y);
 		this.direction = direction;
 		this.shooter = shooter;
 	}
@@ -31,7 +33,7 @@ class Bullet extends Entity {
 	resolveTileCollision(tiles, game) {
 		entityManager.toRemove(this.id);
 		tiles.forEach(tile => {
-			game.stage.map.destroy(tile);
+			game.stage.map.destroy(tile.x, tile.y);
 		});
 	}
 
@@ -44,9 +46,11 @@ class Bullet extends Entity {
 interface Bullet {
 	animateMovement(sprites): void;
 	move(deltaTime: number, scale?: number): void;
+	isOutOfScreen(): void;
 }
 
 Bullet.prototype.move = move;
 Bullet.prototype.animateMovement = animateMovement;
+Bullet.prototype.isOutOfScreen = isOutOfScreen;
 
 export { Bullet };

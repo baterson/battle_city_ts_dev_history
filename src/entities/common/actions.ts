@@ -7,18 +7,19 @@ function shot(cd: number) {
 	const shotCD = this.timers.getTimer('shotCD');
 	if (shotCD) return;
 
-	let bulletArgs;
+	let bulletPosition;
+	// TODO: refactor to bullet height/width and to shooter
 	if (this.direction === Direction.Top) {
-		bulletArgs = { x: this.position.x + this.size.width / 2 - BULLET_SIDE / 2, y: this.position.y - BULLET_SIDE };
+		bulletPosition = new Vector(this.position.x + this.size.x / 2 - BULLET_SIDE / 2, this.position.y - BULLET_SIDE);
 	} else if (this.direction === Direction.Right) {
-		bulletArgs = { x: this.position.x + this.size.width, y: this.position.y + this.size.width / 2 - BULLET_SIDE / 2 };
+		bulletPosition = new Vector(this.position.x + this.size.x, this.position.y + this.size.x / 2 - BULLET_SIDE / 2);
 	} else if (this.direction === Direction.Bottom) {
-		bulletArgs = { x: this.position.x + this.size.width / 2 - BULLET_SIDE / 2, y: this.position.y + this.size.width };
+		bulletPosition = new Vector(this.position.x + this.size.x / 2 - BULLET_SIDE / 2, this.position.y + this.size.x);
 	} else {
-		bulletArgs = { x: this.position.x - BULLET_SIDE, y: this.position.y + this.size.width / 2 - BULLET_SIDE / 2 };
+		bulletPosition = new Vector(this.position.x - BULLET_SIDE, this.position.y + this.size.x / 2 - BULLET_SIDE / 2);
 	}
 
-	entityManager.spawnEntity('bullet', new Vector(bulletArgs.x, bulletArgs.y), this.direction, this);
+	entityManager.spawnEntity('Bullet', bulletPosition, this.direction, this);
 	this.timers.setTimer('shotCD', cd);
 }
 

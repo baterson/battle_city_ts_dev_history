@@ -1,10 +1,11 @@
 import { main, dashboard } from '../screens';
 import { Direction, TankTypes, Powerups } from '../entities/common';
 import { Power as PlayerPower } from '../entities/player';
+import { Vector } from './vector';
 import { Tiles } from '../tileMap';
 
-const createSprite = (image, context) => (dx, dy, dWidth, dHeight) => (x, y, side) => {
-	context.drawImage(image, dx, dy, dWidth, dHeight, x, y, side, side);
+const createSprite = (image, context) => (dx, dy, dWidth, dHeight) => (position: Vector, size: Vector) => {
+	context.drawImage(image, dx, dy, dWidth, dHeight, position.x, position.y, size.x, size.y);
 };
 
 const setupSprites = image => {

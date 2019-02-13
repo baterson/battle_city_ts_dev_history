@@ -33,8 +33,9 @@ class Enemy extends Entity {
 
 	constructor(type: TankTypes, position: Vector) {
 		super(position, new Vector(35, 35));
+		console.log('type', type);
 		this.type = type;
-		this.lives = statsByTankType[this.type].lives;
+		this.lives = statsByTankType[type].lives;
 		this.prevPosition = new Vector(35, 35);
 		this.direction = Direction.Bottom;
 		this.timers = new TimerManager();

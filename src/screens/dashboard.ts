@@ -33,7 +33,7 @@ export default {
 			sprites: { numberIcons, flagIcon, playerIcon, tankIcon },
 			stage,
 		} = game;
-		const player = entityManager.getPlayer();
+		const player: any = entityManager.getPlayer();
 		drawTanks(stage.tanks, tankIcon);
 		flagIcon(670, 450, 40);
 		playerIcon(670, 380, 20);

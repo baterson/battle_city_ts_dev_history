@@ -1,7 +1,7 @@
 import * as entities from './entities';
 import { checkEntityCollision } from './utils';
 import { rigid } from './tileMap';
-import { Enemy, Player, Bullet, Flag } from './entities';
+import c from './utils/console';
 
 class EntityManager {
 	public pool;
@@ -12,8 +12,8 @@ class EntityManager {
 		this.toRemoveQueue = new Set();
 	}
 
-	spawnEntity(type, game, ...args) {
-		const entity = entities[type](game, ...args);
+	spawnEntity(type, ...args) {
+		const entity = new entities[type](...args);
 		this.pool[entity.id] = entity;
 	}
 
@@ -42,7 +42,7 @@ class EntityManager {
 	}
 
 	getPlayer() {
-		return this.pool[1];
+		return Object.values(this.pool).find(entity => entity instanceof entities.Player);
 	}
 
 	getByIntersection(entity) {
@@ -64,18 +64,30 @@ class EntityManager {
 
 	checkTileCollision(game) {
 		this.forEach(entity => {
-			if (entity instanceof Flag) return;
+			if (entity instanceof entities.Flag) return;
 			if (entity.timers) {
 				const spawn = entity.timers.getTimer('spawn');
 				const death = entity.timers.getTimer('death');
 				if (spawn || death) return;
 			}
 
-			if (entity.isOutOfScreen()) {
+			if (entity.isOutOfScreen && entity.isOutOfScreen()) {
 				entity.resolveEdgeCollision();
 			} else {
 				const { top, bottom, left, right } = entity.getBoundingBox();
-				const tiles = game.stage.map.lookupMany([top, bottom, left, right]);
+				// if (!(entity instanceof entities.Player)) {
+				// 	console.log('top, bottom, left, right', top, bottom, left, right);
+				// 	const tiles = game.stage.map.lookupMany([[left, top], [right, top], [left, bottom], [right, bottom]]);
+				// }
+				// TODO: to collision points again
+				const tiles = game.stage.map.lookupMany([
+					[left, top],
+					[right / 2, top],
+					[right, top],
+					[left, bottom],
+					[left / 2, bottom],
+					[right, bottom],
+				]);
 				const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
 				if (collided) {
 					entity.resolveTileCollision(tiles, game);
@@ -88,7 +100,7 @@ class EntityManager {
 		// TODO check for spawn and death
 		const seen = new Set();
 		this.forEach(entity => {
-			if (entity instanceof Flag) return;
+			if (entity instanceof entities.Flag) return;
 			// if(entity instanceof Flag || entity instanceof Powerup )
 			if (entity.timers) {
 				const spawn = entity.timers.getTimer('spawn');

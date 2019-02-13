@@ -1,7 +1,7 @@
 import { Entity } from './Entity';
 import { Vector } from '../utils/vector';
 import { TimerManager } from '../utils/TimerManager';
-import { Direction, getAnimIndex, animateMovement, move, shot, goBack } from './common';
+import { Direction, getAnimIndex, animateMovement, move, shot, goBack, isOutOfScreen } from './common';
 import keyboard, { Keys } from '../keyboard';
 import { powerupEvents } from './powerup';
 import entityManager from '../entityManager';
@@ -37,34 +37,37 @@ class Player extends Entity {
 	public timers: TimerManager;
 
 	constructor() {
-		super(new Vector(20, 50), new Vector(35, 35));
+		super(new Vector(20, 550), new Vector(35, 35));
 		this.prevPosition = new Vector(35, 35);
 		this.direction = Direction.Top;
 		this.lives = 1;
 		this.power = Power.Default;
 		this.timers = new TimerManager();
+		// rename to timeManager
+		this.timers.setTimer('spawn');
 	}
 
-	update() {
+	update(game) {
+		this.timers.decrementTimers();
 		const spawn = this.timers.getTimer('spawn');
 		const death = this.timers.getTimer('death');
 		if (spawn || death) return;
+		this.processInput(game);
 	}
 
 	render(game) {
 		const spawn = this.timers.getTimer('spawn');
 		const death = this.timers.getTimer('death');
 		const invincible = this.timers.getTimer('invincible');
-
 		if (spawn) {
 			// TODO: Refactor animIndex
 			const sprites = game.sprites.tankSpawnAnimation;
-			const index = getAnimIndex(1, spawn, sprites.length - 1);
+			const index = getAnimIndex(40, spawn, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		} else if (death) {
 			const sprites = game.sprites.tankDeathAnimation;
-			const index = getAnimIndex(1, death, sprites.length - 1);
+			const index = getAnimIndex(40, death, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		}
@@ -153,11 +156,13 @@ interface Player {
 	move(deltaTime: number, velocity: number): void;
 	goBack(): void;
 	shot(cd?: number): void;
+	isOutOfScreen(): void;
 }
 
 Player.prototype.animateMovement = animateMovement;
 Player.prototype.move = move;
 Player.prototype.goBack = goBack;
 Player.prototype.shot = shot;
+Player.prototype.isOutOfScreen = isOutOfScreen;
 
 export { Player };
