@@ -19,7 +19,7 @@ const frameTime = {
 	enemySpawnCD: 100,
 };
 
-class TimerManager {
+class TimeManager {
 	public timers = {};
 
 	setTimer(timerName, frameLength?) {
@@ -45,4 +45,4 @@ class TimerManager {
 	}
 }
 
-export { TimerManager, timerNames, frameTime };
+export { TimeManager, timerNames, frameTime };

@@ -37,31 +37,31 @@ const setupSprites = image => {
 			[Direction.Right]: [mainSprite(345.75, 101.5, 5, 5.7)],
 			[Direction.Left]: [mainSprite(329.5, 101.5, 5, 5.7)],
 		},
-		[`${TankTypes.Default}1`]: {
+		[`enemy${TankTypes.Default}1`]: {
 			[Direction.Top]: [mainSprite(128, 0, 16, 15), mainSprite(144, 0, 16, 15)],
 			[Direction.Bottom]: [mainSprite(192, 0, 16, 15), mainSprite(208, 0, 16, 15)],
 			[Direction.Right]: [mainSprite(224, 0, 16, 15), mainSprite(240, 0, 16, 15)],
 			[Direction.Left]: [mainSprite(160, 0, 16, 15), mainSprite(176, 0, 16, 15)],
 		},
-		[`${TankTypes.Fast}1`]: {
+		[`enemy${TankTypes.Fast}1`]: {
 			[Direction.Top]: [mainSprite(128, 80, 16, 15), mainSprite(144, 80, 16, 15)],
 			[Direction.Bottom]: [mainSprite(192, 80, 16, 15), mainSprite(208, 80, 16, 15)],
 			[Direction.Right]: [mainSprite(224, 80, 16, 15), mainSprite(240, 80, 16, 15)],
 			[Direction.Left]: [mainSprite(160, 80, 16, 15), mainSprite(176, 80, 16, 15)],
 		},
-		[`${TankTypes.Armored}1`]: {
+		[`enemy${TankTypes.Armored}1`]: {
 			[Direction.Top]: [mainSprite(128.5, 111.75, 14.75, 16), mainSprite(144.25, 111.75, 14.75, 16)],
 			[Direction.Bottom]: [mainSprite(191.75, 111.75, 15.25, 16), mainSprite(207.5, 111.75, 15.25, 16)],
 			[Direction.Right]: [mainSprite(222.75, 111.75, 16, 16), mainSprite(239, 111.75, 14.75, 16)],
 			[Direction.Left]: [mainSprite(159, 111.75, 16, 16), mainSprite(174.75, 111.75, 16, 16)],
 		},
-		[`${TankTypes.Armored}2`]: {
+		[`enemy${TankTypes.Armored}2`]: {
 			[Direction.Top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
 			[Direction.Bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
 			[Direction.Right]: [mainSprite(223.75, 175.75, 16, 16), mainSprite(239.75, 175.75, 14.75, 16)],
 			[Direction.Left]: [mainSprite(159, 175.75, 16, 16), mainSprite(174.75, 175.75, 16, 16)],
 		},
-		[`${TankTypes.Armored}3`]: {
+		[`enemy${TankTypes.Armored}3`]: {
 			[Direction.Top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
 			[Direction.Bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
 			[Direction.Right]: [mainSprite(223.75, 175.75, 16, 16), mainSprite(239.75, 175.75, 14.75, 16)],
@@ -104,16 +104,16 @@ const setupSprites = image => {
 		flagIcon: dashboardSprite(375.5, 184, 17, 15),
 		playerIcon: dashboardSprite(376.5, 144.5, 8, 8.5),
 		numberIcons: [
-			dashboardSprite(328, 184, 8, 7),
-			dashboardSprite(336, 184, 8, 7),
-			dashboardSprite(344, 184, 8, 7),
-			dashboardSprite(352, 184, 8, 7),
-			dashboardSprite(360, 184, 8, 7),
-			dashboardSprite(328, 191, 8, 7),
-			dashboardSprite(336, 191, 8, 7),
-			dashboardSprite(344, 191, 8, 7),
-			dashboardSprite(352, 191, 8, 7),
-			dashboardSprite(360, 191, 8, 7),
+			dashboardSprite(328.5, 184, 8, 7),
+			dashboardSprite(336.5, 184, 8, 7),
+			dashboardSprite(344.5, 184, 8, 7),
+			dashboardSprite(352.5, 184, 8, 7),
+			dashboardSprite(360.5, 184, 8, 7),
+			dashboardSprite(328.5, 192, 8, 7),
+			dashboardSprite(336.5, 192, 8, 7),
+			dashboardSprite(344.5, 192, 8, 7),
+			dashboardSprite(352.5, 192, 8, 7),
+			dashboardSprite(360.5, 192, 8, 7),
 		],
 		tiles: {
 			[Tiles.brick1]: mainSprite(256, 0, 8, 7),

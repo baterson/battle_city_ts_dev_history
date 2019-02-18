@@ -1,11 +1,7 @@
-import { START_TICKS } from '../Stage';
+import { getAnimIndex } from '../entities/common';
 
 const canvas: any = document.getElementById('root');
 const context = canvas.getContext('2d');
-const getAnimIndex = (animLength, left, spritesLength) => {
-	const step = animLength / spritesLength;
-	return Math.floor(left / step);
-};
 
 export default {
 	canvas,
@@ -14,21 +10,20 @@ export default {
 		context.clearRect(0, 0, 600, 600);
 		context.beginPath();
 	},
-	renderStageStarting(left) {
-		const index = getAnimIndex(0.5, left, 300);
 
+	renderChaingingStage(left) {
+		// TODO: change 300 to const
+		const index = getAnimIndex(200, left, 300);
 		context.fillRect(0, 0, 600, index);
 		context.fillRect(0, 600 - index, 600, index);
-		// context.fillRect(0, 0, 600, 300 - index); // GAMEOVER ANIM
-		// context.fillRect(0, 300 + index, 600, 300 - index);
-
-		// context.fillRect(0, 0, 600, 300 - ticks);
-		// context.fillRect(0, START_TICKS + ticks, 600, START_TICKS - ticks);
 	},
 
-	renderGameOver(left) {
-		const index = getAnimIndex(0.5, left, 300);
-		context.fillRect(0, 0, 600, 300 - index); // GAMEOVER ANIM
+	renderGameOver(left = 0, textSprites) {
+		const index = getAnimIndex(200, left, 300);
+		context.fillRect(0, 0, 600, 300 - index);
 		context.fillRect(0, 300 + index, 600, 300 - index);
+		if (!left) {
+			textSprites({ x: 200, y: 200 }, { x: 200, y: 150 });
+		}
 	},
 };

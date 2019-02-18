@@ -4,35 +4,38 @@ import { setupSprites } from './utils';
 import TileMap from './tileMap';
 import entityManager from './entityManager';
 import Stage from './Stage';
-import { main as mainScreen, dashboard } from './screens';
+import { TimeManager } from './utils/TimeManager';
+import { main as mainScreen, dashboard, main } from './screens';
 
-const GAME_OVER_TICKS = 301;
+// RENAME TO ANIM
+const CHANGING_STAGE_TIME = 200;
+const GAME_OVER_ANIM_TIME = 200;
 
 class Game {
 	public stage;
 	public sprites;
 	public effects;
 	public ticks;
-	public elapsedTime;
-	// public state: { stageStarting?: number; gameOver?: number } = {};
+	public timeManager: TimeManager;
+	public isLost: boolean;
 	public deltaTime = 1 / 60; // TODO: Do something with it
 
 	constructor(image) {
 		this.sprites = setupSprites(image);
 		this.ticks = 0;
-		this.elapsedTime = 0;
-		// this.state = {
-		// 	stageStarting: 0,
-		// };
-
+		// TODO: parametrize with manager by generic
+		this.timeManager = new TimeManager();
+		this.isLost = false;
 		entityManager.spawnEntity('Player');
 
 		// entityManager.spawnEntity('powerup', this, 20, 500, Powerups.star);
 		// entityManager.spawnEntity('powerup', this, 20, 300, Powerups.helmet);
 		// entityManager.spawnEntity('powerup', this, 20, 200, Powerups.stopwatch);
 
-		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.ticks);
-		entityManager.spawnEntity('Flag', this);
+		this.stage = new Stage(0, new TileMap(maps[0], this.sprites.tiles), tanksConfig[0]);
+		this.stage.spawnEnemy(this);
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		// entityManager.spawnEntity('Flag', this);
 	}
 
 	createLoop() {
@@ -45,7 +48,6 @@ class Game {
 			while (accumulatedTime > deltaTime) {
 				this.update();
 				accumulatedTime -= deltaTime;
-				this.elapsedTime += deltaTime;
 			}
 			this.render();
 			lastTime = time;
@@ -55,48 +57,42 @@ class Game {
 	}
 
 	update() {
-		// if (this.state.gameOver) return;
+		this.timeManager.decrementTimers();
+		if (this.isLost) return;
+
+		this.stage.update();
 		entityManager.update(this);
-		entityManager.checkTileCollision(this);
-		entityManager.checkEntitiesCollision(this);
-		entityManager.removeFromQueue();
-	}
+		entityManager.checkCollisions(this);
 
-	checkCurrentState() {
-		// if (this.state.gameOver) return;
-		const { tanks, number } = this.stage;
-		const player = entityManager.getPlayer();
+		if (!entityManager.getPlayer()) {
+			return this.gameOver();
+		}
 
-		// if (entityManager.getEnemies().length < 3) {
-		// 	// TODO: Remove
-		// 	this.stage.spawnEnemy(this);
-		// }
-
-		// if (!tanks.length && !entityManager.getEnemies().length) {
-		// 	// TODO: assemble stage
-		// 	const stageNum = this.getNextStageNum();
-		// 	this.stage = new Stage(
-		// 		new TileMap(maps[stageNum], this.sprites.tiles),
-		// 		tanksConfig[stageNum],
-		// 		stageNum,
-		// 		this.elapsedTime
-		// 	);
-		// 	player.respawn(this);
-		// } else {
-		// 	// this.stage.spawnEnemy(game);
-		// 	// this.stage.spawnPowerup(this);
-		// 	entityManager.removeFromQueue();
-		// }
-		// if (!player) {
-		// 	return this.gameOver();
-		// }
+		if (this.stage.isFinish()) {
+			this.toNextStage();
+		} else {
+			this.stage.spawnEnemy();
+			// this.stage.spawnPowerup(this);
+			entityManager.removeFromQueue();
+		}
 	}
 
 	render() {
+		const changingStageTime = this.timeManager.getTimer('changingStage');
+
 		mainScreen.clearScreen();
-		dashboard.clearScreen();
+		// dashboard.clearScreen();
 		this.stage.render(this);
-		dashboard.render(this);
+		// dashboard.render(this);
+		if (changingStageTime) {
+			mainScreen.renderChaingingStage(changingStageTime);
+		} else if (this.isLost) {
+			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'), this.sprites.gameOver);
+		} else {
+			const player: any = entityManager.getPlayer();
+			dashboard.clearScreen();
+			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks, this.sprites);
+		}
 	}
 
 	// render() {
@@ -122,13 +118,13 @@ class Game {
 	// }
 
 	gameOver() {
-		// this.state.gameOver = this.elapsedTime;
+		this.timeManager.setTimer('gameOverAnim', GAME_OVER_ANIM_TIME);
+		this.isLost = true;
 	}
 
-	isLost() {
-		// const gameOverLeft = getStateRemainingTime('gameOver', this, this);
-		// return gameOverLeft < -1;
-		return false;
+	isWaitingForRestart() {
+		const gameOverTime = this.timeManager.getTimer('gameOverAnim');
+		return !gameOverTime && this.isLost;
 	}
 
 	getNextStageNum() {
@@ -139,15 +135,22 @@ class Game {
 		return newNum;
 	}
 
+	toNextStage() {
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		const stageNum = this.getNextStageNum();
+		const player: any = entityManager.getPlayer();
+		this.stage = new Stage(stageNum, new TileMap(maps[stageNum], this.sprites.tiles), tanksConfig[stageNum]);
+		player.respawn();
+	}
+
 	restart() {
 		this.ticks = 0;
-		this.elapsedTime = 0;
+		this.isLost = false;
 		entityManager.clear();
-		// delete this.state.gameOver;
-		// this.state.stageStarting = this.elapsedTime;
-		// entityManager.spawnEntity('player', this);
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		entityManager.spawnEntity('Player');
 		// entityManager.spawnEntity('flag', this);
-		this.stage = new Stage(new TileMap(maps[0], this.sprites.tiles), tanksConfig[0], 0, this.elapsedTime);
+		this.stage = new Stage(0, new TileMap(maps[0], this.sprites.tiles), tanksConfig[0]);
 	}
 }
 

@@ -26,8 +26,6 @@ async function main() {
 			y: p.y,
 			// prevX: p.prevX,
 			// prevY: p.prevY,
-			point1: p.getCollisionPoints()[0],
-			point2: p.getCollisionPoints()[1],
 		});
 	};
 	myWindow.ent = entityManager.pool;

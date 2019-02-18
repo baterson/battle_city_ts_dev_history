@@ -18,7 +18,7 @@ class Keyboard {
 
 	handleEvent(event, game) {
 		const { code, type } = event;
-		if (game.isLost()) {
+		if (game.isWaitingForRestart()) {
 			return game.restart();
 		}
 
@@ -30,6 +30,9 @@ class Keyboard {
 		if (code === 'KeyP') {
 			const p: any = entityManager.getPlayer();
 			console.log(p);
+		}
+		if (code === 'KeyG') {
+			console.log(game);
 		}
 		if (code === 'KeyR') {
 			const p: any = entityManager.getPlayer();

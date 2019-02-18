@@ -24,12 +24,18 @@ class EntityManager {
 	removeFromQueue = () => {
 		this.toRemoveQueue.forEach(entityId => {
 			const entity = this.pool[entityId];
-			if (!entity.deathTick) {
+			const deathLeft = entity.timeManager.getTimer('death');
+			if (!deathLeft) {
 				delete this.pool[entityId];
 				this.toRemoveQueue.delete(entityId);
 			}
 		});
 	};
+
+	get entities() {
+		// TODO:
+		return Object.values(this.pool);
+	}
 
 	forEach = cb => {
 		return Object.values(this.pool).forEach(entity => {
@@ -38,7 +44,7 @@ class EntityManager {
 	};
 
 	getEnemies() {
-		return Object.values(this.pool).filter((el: any) => el.type === 'enemy');
+		return Object.values(this.pool).filter(entity => entity instanceof entities.Enemy);
 	}
 
 	getPlayer() {
@@ -62,61 +68,44 @@ class EntityManager {
 		this.forEach(entity => entity.update(game));
 	}
 
-	checkTileCollision(game) {
+	checkCollisions(game) {
+		const seen = new Set();
 		this.forEach(entity => {
+			const spawn = entity.timeManager.getTimer('spawn');
+			const death = entity.timeManager.getTimer('death');
+			// if(entity instanceof Flag || entity instanceof Powerup )
 			if (entity instanceof entities.Flag) return;
-			if (entity.timers) {
-				const spawn = entity.timers.getTimer('spawn');
-				const death = entity.timers.getTimer('death');
-				if (spawn || death) return;
-			}
+			if (spawn || death) return;
 
-			if (entity.isOutOfScreen && entity.isOutOfScreen()) {
-				entity.resolveEdgeCollision();
-			} else {
-				const { top, bottom, left, right } = entity.getBoundingBox();
-				// if (!(entity instanceof entities.Player)) {
-				// 	console.log('top, bottom, left, right', top, bottom, left, right);
-				// 	const tiles = game.stage.map.lookupMany([[left, top], [right, top], [left, bottom], [right, bottom]]);
-				// }
-				// TODO: to collision points again
-				const tiles = game.stage.map.lookupMany([
-					[left, top],
-					[right / 2, top],
-					[right, top],
-					[left, bottom],
-					[left / 2, bottom],
-					[right, bottom],
-				]);
-				const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
-				if (collided) {
-					entity.resolveTileCollision(tiles, game);
-				}
-			}
+			this.checkTileCollision(entity, game);
+			this.checkEntitiesCollision(entity, seen, game);
+			seen.add(entity.id);
 		});
 	}
 
-	checkEntitiesCollision(game) {
-		// TODO check for spawn and death
-		const seen = new Set();
-		this.forEach(entity => {
-			if (entity instanceof entities.Flag) return;
-			// if(entity instanceof Flag || entity instanceof Powerup )
-			if (entity.timers) {
-				const spawn = entity.timers.getTimer('spawn');
-				const death = entity.timers.getTimer('death');
-				if (spawn || death) return;
+	checkTileCollision(entity, game) {
+		if (entity.isOutOfScreen()) {
+			entity.resolveEdgeCollision();
+		} else {
+			const [first, second] = entity.getFrontCollisionPoints();
+			const tiles = game.stage.map.lookupRange(first, second);
+			const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
+			if (collided) {
+				entity.resolveTileCollision(tiles, game);
 			}
+		}
+	}
 
-			seen.add(entity.id);
-			this.forEach(other => {
-				if (entity.id === other.id || seen.has(other.id)) return;
+	checkEntitiesCollision(entity, seen, game) {
+		this.forEach(other => {
+			if (entity.id === other.id || seen.has(other.id)) return;
+			const spawn = other.timeManager.getTimer('spawn');
+			const death = other.timeManager.getTimer('death');
 
-				if (checkEntityCollision(entity, other)) {
-					entity.resolveEntityCollision(other, game, entity);
-					other.resolveEntityCollision(entity, game, entity);
-				}
-			});
+			if (!spawn && !death && checkEntityCollision(entity, other)) {
+				entity.resolveEntityCollision(other, game, entity);
+				other.resolveEntityCollision(entity, game, entity);
+			}
 		});
 	}
 

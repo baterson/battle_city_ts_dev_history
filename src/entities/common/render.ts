@@ -12,7 +12,7 @@ function animateMovement(sprites) {
 	} else {
 		distance = this.position.y;
 	}
-	const index = Math.floor(distance / 2) % sprites.length;
+	const index = Math.floor(distance) % sprites.length;
 	sprites[index](this.position, this.size);
 }
 

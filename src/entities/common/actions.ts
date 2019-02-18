@@ -4,7 +4,7 @@ import entityManager from '../../entityManager';
 
 function shot(cd: number) {
 	// TODO: Firerate scale
-	const shotCD = this.timers.getTimer('shotCD');
+	const shotCD = this.timeManager.getTimer('shotCD');
 	if (shotCD) return;
 
 	let bulletPosition;
@@ -20,14 +20,14 @@ function shot(cd: number) {
 	}
 
 	entityManager.spawnEntity('Bullet', bulletPosition, this.direction, this);
-	this.timers.setTimer('shotCD', cd);
+	this.timeManager.setTimer('shotCD', cd);
 }
 
 // interface states available
 
 const stateToTimeMap = {
-	death: 2,
-	spawn: 1,
+	death: 20,
+	spawn: 20,
 	shotCD: 1,
 	freeze: 2,
 	invincible: 0.1,

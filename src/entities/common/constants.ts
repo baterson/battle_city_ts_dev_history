@@ -38,8 +38,8 @@ export const ENEMY_TANK_LIVES = {
 	[TankTypes.Fast]: 1,
 	[TankTypes.Armored]: 3,
 };
-export const TANK_DEATH_ANIMATION = 2;
-export const TANK_SPAWN_ANIMATION = 2;
+export const TANK_DEATH_ANIMATION = 50;
+export const TANK_SPAWN_ANIMATION = 50;
 // export const TANK_DEATH_ANIMATION = 12;
 // export const TANK_SPAWN_ANIMATION = 12;
 

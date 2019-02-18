@@ -1,6 +1,3 @@
-import entityManager from '../entityManager';
-import c from '../utils/console';
-
 const canvas: any = document.getElementById('dashboard');
 const context = canvas.getContext('2d');
 
@@ -8,12 +5,11 @@ const drawTanks = (tanks, tankSprite) => {
 	if (!tanks.length) return;
 	let y = 70;
 	let counter = 0;
-	c.c(tanks);
 	tanks.forEach((_, idx) => {
 		if (idx % 2 === 0) {
-			tankSprite(695, y, 15);
+			tankSprite({ x: 695, y }, { x: 15, y: 15 });
 		} else {
-			tankSprite(670, y, 15);
+			tankSprite({ x: 670, y }, { x: 15, y: 15 });
 		}
 
 		if (counter === 2) {
@@ -28,19 +24,16 @@ const drawTanks = (tanks, tankSprite) => {
 export default {
 	canvas,
 	context,
-	render(game) {
-		const {
-			sprites: { numberIcons, flagIcon, playerIcon, tankIcon },
-			stage,
-		} = game;
-		const player: any = entityManager.getPlayer();
-		drawTanks(stage.tanks, tankIcon);
-		flagIcon(670, 450, 40);
-		playerIcon(670, 380, 20);
-		numberIcons[stage.number + 1](690, 485, 20);
-		numberIcons[player ? player.lives : 0](700, 380, 20);
+	render(playerLives, stageNum, tanksCount, gameSprites) {
+		const { numberIcons, flagIcon, playerIcon, tankIcon } = gameSprites;
+		drawTanks(tanksCount, tankIcon);
+		flagIcon({ x: 670, y: 450 }, { x: 50, y: 40 });
+		playerIcon({ x: 670, y: 380 }, { x: 20, y: 20 });
+		numberIcons[stageNum]({ x: 690, y: 485 }, { x: 20, y: 20 });
+		numberIcons[playerLives]({ x: 700, y: 380 }, { x: 20, y: 20 });
 	},
 	clearScreen() {
+		// TODO: get from canvas
 		context.clearRect(0, 0, 750, 700);
 		context.beginPath();
 	},

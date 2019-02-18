@@ -1,9 +1,9 @@
 import { Entity } from './Entity';
 import { Vector } from '../utils/vector';
-import { Direction, animateMovement, move, isOutOfScreen } from './common';
+import { Direction, animateMovement, move, isOutOfScreen, getFrontCollisionPoints } from './common';
 import entityManager from '../entityManager';
 
-const BULLET_VELOCITY = 200;
+const BULLET_VELOCITY = 300;
 
 class Bullet extends Entity {
 	public prevPosition: Vector;
@@ -47,10 +47,12 @@ interface Bullet {
 	animateMovement(sprites): void;
 	move(deltaTime: number, scale?: number): void;
 	isOutOfScreen(): void;
+	getFrontCollisionPoints(): void;
 }
 
 Bullet.prototype.move = move;
 Bullet.prototype.animateMovement = animateMovement;
 Bullet.prototype.isOutOfScreen = isOutOfScreen;
+Bullet.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
 
 export { Bullet };

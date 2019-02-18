@@ -1,3 +1,5 @@
+import c from './utils/console';
+
 const TILE_SIDE = 20;
 
 enum Tiles {
@@ -43,11 +45,24 @@ class TileMap {
 	lookup(x, y) {
 		const xIndex = Math.min(Math.max(0, Math.floor(x / TILE_SIDE)), 29);
 		const yIndex = Math.min(Math.max(0, Math.floor(y / TILE_SIDE)), 29);
-		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
+		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE, xIndex, yIndex };
 	}
 
-	lookupMany(points) {
-		return points.map(point => this.lookup(point[0], point[1]));
+	lookupRange(point1, point2) {
+		let inBetweenPoint = [];
+		const [x1, y1] = point1;
+		const [x2, y2] = point2;
+		const rangeX = Math.abs(x1 - x2);
+		const rangeY = Math.abs(y1 - y2);
+
+		if (rangeX > 0 && rangeX > TILE_SIDE) {
+			// TODO: comment about tank
+			inBetweenPoint.push([x1 + TILE_SIDE, y1]);
+		} else if (rangeY > 0 && rangeY > TILE_SIDE) {
+			inBetweenPoint.push([x1, y1 + TILE_SIDE]);
+		}
+
+		return [point1, ...inBetweenPoint, point2].map(point => this.lookup(point[0], point[1]));
 	}
 
 	renderLayer(name) {
@@ -61,5 +76,5 @@ class TileMap {
 	}
 }
 
-export { bricks, rigid, Tiles, Layers };
+export { bricks, rigid, Tiles, Layers, TILE_SIDE };
 export default TileMap;

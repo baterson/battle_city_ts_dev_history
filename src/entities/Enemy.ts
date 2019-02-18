@@ -1,7 +1,18 @@
 import { Entity } from './Entity';
 import { Vector } from '../utils/vector';
-import { TimerManager } from '../utils/TimerManager';
-import { Direction, getAnimIndex, animateMovement, move, shot, TankTypes, goBack } from './common';
+import {
+	Direction,
+	getAnimIndex,
+	animateMovement,
+	move,
+	shot,
+	TankTypes,
+	goBack,
+	getFrontCollisionPoints,
+	isOutOfScreen,
+	TANK_DEATH_ANIMATION,
+	TANK_SPAWN_ANIMATION,
+} from './common';
 import entityManager from '../entityManager';
 import { Player } from './Player';
 import { Bullet } from './Bullet';
@@ -29,26 +40,25 @@ class Enemy extends Entity {
 	public type: TankTypes;
 	public direction: Direction;
 	public lives: number;
-	public timers: TimerManager;
 
 	constructor(type: TankTypes, position: Vector) {
 		super(position, new Vector(35, 35));
-		console.log('type', type);
 		this.type = type;
 		this.lives = statsByTankType[type].lives;
 		this.prevPosition = new Vector(35, 35);
 		this.direction = Direction.Bottom;
-		this.timers = new TimerManager();
+		this.timeManager.setTimer('spawn', TANK_SPAWN_ANIMATION);
 	}
 
 	update(game) {
-		const spawn = this.timers.getTimer('spawn');
-		const death = this.timers.getTimer('death');
+		const spawn = this.timeManager.getTimer('spawn');
+		const death = this.timeManager.getTimer('death');
+		this.timeManager.decrementTimers();
 
 		if (spawn || death) {
 			return;
 		} else {
-			this.move(game.deltaTime, statsByTankType[this.type].velocity);
+			this.aiMove(game);
 		}
 		// else if (this.freezeTick && this.freezeTick + FREEZE_DELAY > game.ticks) {
 		//     return;
@@ -56,19 +66,18 @@ class Enemy extends Entity {
 	}
 
 	render(game) {
-		const spawn = this.timers.getTimer('spawn');
-		const death = this.timers.getTimer('death');
+		const spawn = this.timeManager.getTimer('spawn');
+		const death = this.timeManager.getTimer('death');
 
 		if (spawn) {
 			// TODO: Refactor animIndex
-			// TODO: move this part to function
 			const sprites = game.sprites.tankSpawnAnimation;
-			const index = getAnimIndex(1, spawn, sprites.length - 1);
+			const index = getAnimIndex(TANK_SPAWN_ANIMATION, spawn, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		} else if (death) {
 			const sprites = game.sprites.tankDeathAnimation;
-			const index = getAnimIndex(1, death, sprites.length - 1);
+			const index = getAnimIndex(TANK_DEATH_ANIMATION, death, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		}
@@ -92,6 +101,7 @@ class Enemy extends Entity {
 	}
 
 	resolveEdgeCollision() {
+		this.goBack();
 		this.setOpositeDirection();
 	}
 
@@ -104,7 +114,7 @@ class Enemy extends Entity {
 	resolveEntityCollision(other, game, initiator) {
 		if (other instanceof Bullet && other.shooter instanceof Player) {
 			if (this.lives === 1) {
-				this.timers.setTimer('death');
+				this.timeManager.setTimer('death', TANK_DEATH_ANIMATION);
 				entityManager.toRemove(this.id);
 			} else {
 				this.lives -= 1;
@@ -145,11 +155,15 @@ interface Enemy {
 	move(deltaTime: number, velocity: number): void;
 	shot(cd?: number): void;
 	goBack(): void;
+	isOutOfScreen(): void;
+	getFrontCollisionPoints(): void;
 }
 
 Enemy.prototype.animateMovement = animateMovement;
 Enemy.prototype.goBack = goBack;
+Enemy.prototype.isOutOfScreen = isOutOfScreen;
 Enemy.prototype.move = move;
 Enemy.prototype.shot = shot;
+Enemy.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
 
 export { Enemy };

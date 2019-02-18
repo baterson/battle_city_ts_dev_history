@@ -1,7 +1,18 @@
 import { Entity } from './Entity';
 import { Vector } from '../utils/vector';
-import { TimerManager } from '../utils/TimerManager';
-import { Direction, getAnimIndex, animateMovement, move, shot, goBack, isOutOfScreen } from './common';
+import { TimeManager } from '../utils/TimeManager';
+import {
+	Direction,
+	getAnimIndex,
+	animateMovement,
+	move,
+	shot,
+	goBack,
+	isOutOfScreen,
+	getFrontCollisionPoints,
+	TANK_DEATH_ANIMATION,
+	TANK_SPAWN_ANIMATION,
+} from './common';
 import keyboard, { Keys } from '../keyboard';
 import { powerupEvents } from './powerup';
 import entityManager from '../entityManager';
@@ -17,15 +28,15 @@ export enum Power {
 const statsByPower = {
 	[Power.Default]: {
 		velocity: 100,
-		shotCD: 150,
+		shotCD: 50,
 	},
 	[Power.First]: {
 		velocity: 120,
-		shotCD: 100,
+		shotCD: 40,
 	},
 	[Power.Second]: {
 		velocity: 150,
-		shotCD: 70,
+		shotCD: 30,
 	},
 };
 
@@ -34,7 +45,6 @@ class Player extends Entity {
 	public direction: Direction;
 	public lives: number;
 	public power: Power;
-	public timers: TimerManager;
 
 	constructor() {
 		super(new Vector(20, 550), new Vector(35, 35));
@@ -42,39 +52,38 @@ class Player extends Entity {
 		this.direction = Direction.Top;
 		this.lives = 1;
 		this.power = Power.Default;
-		this.timers = new TimerManager();
-		// rename to timeManager
-		this.timers.setTimer('spawn');
+		this.timeManager.setTimer('spawn', TANK_SPAWN_ANIMATION);
+		this.timeManager.setTimer('invincible');
 	}
 
 	update(game) {
-		this.timers.decrementTimers();
-		const spawn = this.timers.getTimer('spawn');
-		const death = this.timers.getTimer('death');
+		this.timeManager.decrementTimers();
+		const spawn = this.timeManager.getTimer('spawn');
+		const death = this.timeManager.getTimer('death');
 		if (spawn || death) return;
 		this.processInput(game);
 	}
 
 	render(game) {
-		const spawn = this.timers.getTimer('spawn');
-		const death = this.timers.getTimer('death');
-		const invincible = this.timers.getTimer('invincible');
+		const spawn = this.timeManager.getTimer('spawn');
+		const death = this.timeManager.getTimer('death');
+		const invincible = this.timeManager.getTimer('invincible');
 		if (spawn) {
 			// TODO: Refactor animIndex
 			const sprites = game.sprites.tankSpawnAnimation;
-			const index = getAnimIndex(40, spawn, sprites.length - 1);
+			const index = getAnimIndex(TANK_SPAWN_ANIMATION, spawn, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		} else if (death) {
 			const sprites = game.sprites.tankDeathAnimation;
-			const index = getAnimIndex(40, death, sprites.length - 1);
+			const index = getAnimIndex(TANK_DEATH_ANIMATION, death, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		}
 
 		if (invincible) {
 			const invincibleSprites = game.sprites.invincible;
-			const index = Math.floor(game.elapsedTime / 0.1) % invincibleSprites.length;
+			const index = 0.1 % invincibleSprites.length;
 			invincibleSprites[index](this.position, this.size);
 		}
 
@@ -116,8 +125,8 @@ class Player extends Entity {
 
 	resolveEntityCollision(other, game) {
 		// TODO: check for spawn
-		// const spawn = this.timers.getTimer('spawn');
-		const death = this.timers.getTimer('death');
+		// const spawn = this.timeManager.getTimer('spawn');
+		const death = this.timeManager.getTimer('death');
 
 		if (other.type === 'powerup') {
 			// TODO: typeof
@@ -127,11 +136,11 @@ class Player extends Entity {
 		}
 
 		if (other.type === 'bullet') {
-			const invincible = this.timers.getTimer('invincible');
+			const invincible = this.timeManager.getTimer('invincible');
 
 			if (invincible) return;
 
-			this.timers.setTimer('death');
+			this.timeManager.setTimer('death', TANK_DEATH_ANIMATION);
 			this.lives -= 1;
 			if (this.lives === 0) {
 				entityManager.toRemove(this.id);
@@ -142,8 +151,8 @@ class Player extends Entity {
 	}
 
 	respawn() {
-		this.timers.setTimer('spawn');
-		this.timers.setTimer('invincible');
+		this.timeManager.setTimer('spawn', TANK_SPAWN_ANIMATION);
+		this.timeManager.setTimer('invincible');
 		this.power = Power.Default;
 		const [x, y] = PLAYER_SPAWN_POSITION;
 		this.position = new Vector(x, y);
@@ -157,6 +166,7 @@ interface Player {
 	goBack(): void;
 	shot(cd?: number): void;
 	isOutOfScreen(): void;
+	getFrontCollisionPoints(): void;
 }
 
 Player.prototype.animateMovement = animateMovement;
@@ -164,5 +174,6 @@ Player.prototype.move = move;
 Player.prototype.goBack = goBack;
 Player.prototype.shot = shot;
 Player.prototype.isOutOfScreen = isOutOfScreen;
+Player.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
 
 export { Player };
