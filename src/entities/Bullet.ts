@@ -1,25 +1,30 @@
 import { Entity } from './Entity';
-import { Vector } from '../utils/vector';
-import { Direction, animateMovement, move, isOutOfScreen, getFrontCollisionPoints } from './common';
+import { Vector } from '../utils';
+import { animateMovement, move, isOutOfScreen, getFrontCollisionPoints } from './commonMethods';
+import { Direction, Bullet as IBullet } from '../types';
+import { BULLET_VELOCITY, BULLET_SIZE } from '../constants';
+import { Powerup } from './Powerup';
+import { Player } from './Player';
+import { Enemy } from './Enemy';
+import { audioManager } from '../utils/audioManager';
 import entityManager from '../entityManager';
 
-const BULLET_VELOCITY = 300;
+interface Bullet extends IBullet {}
 
 class Bullet extends Entity {
 	public prevPosition: Vector;
 	public direction: Direction;
 	public shooter: any;
 
-	constructor(position: Vector, direction: Direction, shooter: any) {
-		// TODO: types to shooter
-		super(position, new Vector(10, 10));
+	constructor(position: Vector, direction: Direction, shooter: Player | Enemy) {
+		super(position, new Vector(...BULLET_SIZE));
 		this.prevPosition = new Vector(position.x, position.y);
 		this.direction = direction;
 		this.shooter = shooter;
 	}
 
 	update(game) {
-		this.move(game.deltaTime, BULLET_VELOCITY);
+		this.move(BULLET_VELOCITY);
 	}
 
 	render(game) {
@@ -35,19 +40,15 @@ class Bullet extends Entity {
 		tiles.forEach(tile => {
 			game.stage.map.destroy(tile.x, tile.y);
 		});
+		audioManager.play('hit');
+		// audioManager.play('hit')
+		// audioManager.play('hit')
 	}
 
 	resolveEntityCollision(other, game) {
-		// if(other instanceof PowerUp) return
+		if (other instanceof Powerup) return;
 		entityManager.toRemove(this.id);
 	}
-}
-
-interface Bullet {
-	animateMovement(sprites): void;
-	move(deltaTime: number, scale?: number): void;
-	isOutOfScreen(): void;
-	getFrontCollisionPoints(): void;
 }
 
 Bullet.prototype.move = move;

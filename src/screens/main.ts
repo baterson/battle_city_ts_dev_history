@@ -1,4 +1,4 @@
-import { getAnimIndex } from '../entities/common';
+import { getAnimIndex } from '../utils';
 
 const canvas: any = document.getElementById('root');
 const context = canvas.getContext('2d');

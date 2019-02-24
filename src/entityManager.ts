@@ -73,9 +73,7 @@ class EntityManager {
 		this.forEach(entity => {
 			const spawn = entity.timeManager.getTimer('spawn');
 			const death = entity.timeManager.getTimer('death');
-			// if(entity instanceof Flag || entity instanceof Powerup )
-			if (entity instanceof entities.Flag) return;
-			if (spawn || death) return;
+			if (entity instanceof entities.Flag || entity instanceof entities.Powerup || spawn || death) return;
 
 			this.checkTileCollision(entity, game);
 			this.checkEntitiesCollision(entity, seen, game);

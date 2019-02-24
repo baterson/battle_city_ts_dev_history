@@ -1,3 +1,5 @@
+// REMOVE timerNames, DEFAUTL
+
 type timerNames =
 	| 'death'
 	| 'spawn'
@@ -8,7 +10,7 @@ type timerNames =
 	| 'gameOver'
 	| 'enemySpawnCD';
 
-const frameTime = {
+const DEFAULT_FRAME_LENGTH = {
 	death: 50,
 	spawn: 40,
 	shotCD: 30,
@@ -20,11 +22,11 @@ const frameTime = {
 };
 
 class TimeManager {
+	// TODO: Parametrize it
 	public timers = {};
 
-	setTimer(timerName, frameLength?) {
-		let length = frameLength ? frameLength : frameTime[timerName];
-		this.timers[timerName] = length;
+	setTimer(timerName, frameLength) {
+		this.timers[timerName] = frameLength;
 	}
 
 	getTimer(timerName) {
@@ -45,4 +47,4 @@ class TimeManager {
 	}
 }
 
-export { TimeManager, timerNames, frameTime };
+export { TimeManager, timerNames, DEFAULT_FRAME_LENGTH };

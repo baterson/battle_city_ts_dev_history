@@ -1,19 +1,15 @@
-import { Direction, TANK_SIDE, Powerups } from './entities/common/constants';
+import { PowerupTypes } from './types';
+import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
 import { TimeManager } from './utils/TimeManager';
-import { Vector } from './utils/vector';
-import { Layers } from './tileMap';
-import { randomInt } from './utils/random';
+import { Vector, randomInt } from './utils';
+import TileMap, { Layers } from './tileMap';
 import entityManager from './entityManager';
 
-// const START_TICKS = 300;
-const ENEMY_SPAWN_CD = 500;
-const ENEMY_SPAWN_POSITION = [[0, 0], [560, 0]];
-
 class Stage {
-	public number;
-	public map;
-	public tanks;
-	public powerupsAvailable;
+	public number: number;
+	public map: TileMap;
+	public tanks: number[][];
+	public powerupsAvailable: number;
 	public timeManager: TimeManager;
 
 	constructor(number, map, tanks) {
@@ -22,10 +18,13 @@ class Stage {
 		this.tanks = [...tanks];
 		this.powerupsAvailable = 5;
 		this.timeManager = new TimeManager();
+		entityManager.spawnEntity('Flag');
 	}
 
 	update() {
 		this.timeManager.decrementTimers();
+		this.spawnEnemy();
+		this.spawnPowerup();
 	}
 
 	isFinish() {
@@ -40,25 +39,29 @@ class Stage {
 		if (!this.tanks.length || enemySpawnCD) return;
 
 		const index = randomInt(1);
+		// TODO: uncoment
 		// const index = randomInt(2);
 		let [x, y] = ENEMY_SPAWN_POSITION[index];
-		if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-			// if spot is not available, try on the next frame
-			[x, y] = ENEMY_SPAWN_POSITION[1 - index];
-			if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-				return;
-			}
-		}
+		// TODO: Fix it
+		// if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+		// 	// if spot is not available, try on the next frame
+		// 	[x, y] = ENEMY_SPAWN_POSITION[1 - index];
+		// 	if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
+		// 		return;
+		// 	}
+		// }
 		this.timeManager.setTimer('enemySpawnCD', ENEMY_SPAWN_CD);
 		entityManager.spawnEntity('Enemy', this.tanks.pop(), new Vector(x, y));
 	}
 
-	spawnPowerup(game) {
-		// if (!this.powerupsAvailable || this.lastPowerupTick + POWERUP_SPAWN_DELAY > game.ticks) return;
-		// const index = randomInt(Object.keys(Powerups).length / 2);
-		// // entityManager.spawnPowerup(randomInt(600), randomInt(600), Powerups[Powerups[index]]); // TODO: looks odd
-		// this.powerupsAvailable -= 1;
-		// this.lastPowerupTick = game.ticks;
+	spawnPowerup() {
+		const powerupSpawnCD = this.timeManager.getTimer('powerupSpawnCD');
+		if (!powerupSpawnCD || !this.powerupsAvailable) return;
+
+		const index = randomInt(Object.keys(PowerupTypes).length / 2);
+		entityManager.spawnEntity(PowerupTypes[PowerupTypes[index]], new Vector(randomInt(600), randomInt(600))); // TODO: looks odd
+		this.timeManager.setTimer('powerupSpawnCD', POWERUP_SPAWN_CD);
+		this.powerupsAvailable -= 1;
 	}
 
 	render(game) {

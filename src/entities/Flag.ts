@@ -7,8 +7,6 @@ class Flag extends Entity {
 		super(new Vector(280, 560), new Vector(40, 40));
 	}
 
-	update() {}
-
 	render(game) {
 		// if game.over()
 		// TODO: Death

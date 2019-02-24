@@ -1,5 +1,8 @@
+import { Entity } from './Entity';
+import { Vector } from '../utils';
+import { PowerupTypes } from '../types';
+import { Player } from './Player';
 import entityManager from '../entityManager';
-import { Powerups } from './common/constants';
 
 class PowerupEvents {
 	public observers = {};
@@ -13,27 +16,33 @@ class PowerupEvents {
 	}
 
 	notify(eventType) {
+		console.log(Object.values(this.observers));
 		Object.values(this.observers).forEach((observer: any): any => observer(eventType));
 	}
 }
 
 export const powerupEvents = new PowerupEvents();
 
-export function powerup(id, game, x, y, powerupType) {
-	return {
-		type: 'powerup',
-		id,
-		x,
-		y,
-		side: 40,
+class Powerup extends Entity {
+	public type;
 
-		update() {},
-		render(game) {
-			game.sprites[this.type][powerupType](this.x, this.y, this.side);
-		},
-		resolveEntityCollision(other, game) {
+	constructor(type: PowerupTypes, position: Vector) {
+		super(position, new Vector(40, 40));
+		this.type = type;
+	}
+
+	update() {}
+
+	render(game) {
+		game.sprites.powerup[this.type](this.position, this.size);
+	}
+
+	resolveEntityCollision(other, game) {
+		if (other instanceof Player) {
 			entityManager.toRemove(this.id);
-			powerupEvents.notify(powerupType);
-		},
-	};
+			powerupEvents.notify(this.type);
+		}
+	}
 }
+
+export { Powerup };
