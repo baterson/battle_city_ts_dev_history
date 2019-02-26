@@ -4,7 +4,10 @@ import { Vector } from './Vector';
 import { Tiles } from '../tileMap';
 
 // TODO: Types
-export const createSprite = (image, context) => (dx, dy, dWidth, dHeight) => (position: Vector, size: Vector) => {
+export const createSprite = (image: string, context) => (dx: number, dy: number, dWidth: number, dHeight: number) => (
+	position: Vector,
+	size: Vector
+) => {
 	context.drawImage(image, dx, dy, dWidth, dHeight, position.x, position.y, size.x, size.y);
 };
 
@@ -123,11 +126,4 @@ export const setupSprites = image => {
 export const getAnimIndex = (animationLength: number, framesLeft: number, spritesLength: number) => {
 	const step = animationLength / spritesLength;
 	return Math.floor(framesLeft / step);
-};
-
-export const setupAudio = (audio: { [key: string]: string }): { [key: string]: typeof Audio } => {
-	return Object.keys(audio).reduce((acc, current) => {
-		acc[current] = new Audio(audio[current]);
-		return acc;
-	}, {});
 };

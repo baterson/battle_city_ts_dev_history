@@ -1,12 +1,13 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
 import { DELTA_TIME } from './constants';
 import { PowerupTypes } from './types';
-import { Vector } from './utils';
+import { Vector, assetsHolder } from './utils';
 import TileMap from './tileMap';
 import entityManager from './entityManager';
 import Stage from './Stage';
-import { TimeManager } from './utils/TimeManager';
+import { TimeManager } from './managers/TimeManager';
 import { main as mainScreen, dashboard, main } from './screens';
+import { SoundManager } from './managers';
 
 // RENAME TO ANIM
 const CHANGING_STAGE_TIME = 200;
@@ -14,20 +15,22 @@ const GAME_OVER_ANIM_TIME = 200;
 
 class Game {
 	public stage;
-	public sprites;
-	public audio;
 	public effects;
-	public timeManager: TimeManager;
 	public isLost: boolean;
+	public timeManager: TimeManager;
+	public soundManager: SoundManager;
 
-	constructor(sprites, audio) {
-		this.sprites = sprites;
-		this.audio = audio;
+	constructor() {
 		this.isLost = false;
-		// TODO: parametrize with manager by generic
 		this.timeManager = new TimeManager();
-		this.stage = new Stage(0, new TileMap(maps[0], this.sprites.tiles), tanksConfig[0]);
+		this.soundManager = new SoundManager({
+			start: assetsHolder.audio.start,
+		});
+
+		this.stage = new Stage(0, new TileMap(maps[0], assetsHolder.sprites.tiles), tanksConfig[0]);
 		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		requestAnimationFrame(() => this.soundManager.play('start').catch(e => console.log('E', e, e.message)));
+
 		entityManager.spawnEntity('Player');
 	}
 
@@ -76,11 +79,11 @@ class Game {
 		if (changingStageTime) {
 			mainScreen.renderChaingingStage(changingStageTime);
 		} else if (this.isLost) {
-			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'), this.sprites.gameOver);
+			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'), assetsHolder.sprites.gameOver);
 		} else {
 			const player: any = entityManager.getPlayer();
 			dashboard.clearScreen();
-			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks, this.sprites);
+			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks, assetsHolder.sprites);
 		}
 	}
 
@@ -106,7 +109,7 @@ class Game {
 		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
 		const stageNum = this.getNextStageNum();
 		const player: any = entityManager.getPlayer();
-		this.stage = new Stage(stageNum, new TileMap(maps[stageNum], this.sprites.tiles), tanksConfig[stageNum]);
+		this.stage = new Stage(stageNum, new TileMap(maps[stageNum], assetsHolder.sprites.tiles), tanksConfig[stageNum]);
 		player.respawn();
 	}
 
@@ -115,7 +118,8 @@ class Game {
 		entityManager.clear();
 		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
 		entityManager.spawnEntity('Player');
-		this.stage = new Stage(0, new TileMap(maps[0], this.sprites.tiles), tanksConfig[0]);
+		this.stage = new Stage(0, new TileMap(maps[0], assetsHolder.sprites.tiles), tanksConfig[0]);
+		this.soundManager.play('start');
 	}
 }
 

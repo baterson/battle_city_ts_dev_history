@@ -1,5 +1,5 @@
 import { Entity } from './Entity';
-import { Vector } from '../utils/vector';
+import { Vector, assetsHolder } from '../utils';
 import { Bullet } from './Bullet';
 
 class Flag extends Entity {
@@ -13,7 +13,7 @@ class Flag extends Entity {
 		// if (this.isDeath) {
 		//     game.sprites[`${this.type}Death`](this.x, this.y, this.side);
 		// } else {
-		game.sprites.flag(this.position, this.size);
+		assetsHolder.sprites.flag(this.position, this.size);
 	}
 
 	resolveEntityCollision(other, game) {

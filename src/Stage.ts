@@ -1,6 +1,6 @@
 import { PowerupTypes } from './types';
 import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
-import { TimeManager } from './utils/TimeManager';
+import { TimeManager } from './managers/TimeManager';
 import { Vector, randomInt } from './utils';
 import TileMap, { Layers } from './tileMap';
 import entityManager from './entityManager';

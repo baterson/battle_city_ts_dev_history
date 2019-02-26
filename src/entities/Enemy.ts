@@ -1,9 +1,10 @@
 import { Entity } from './Entity';
-import { Vector } from '../utils/Vector';
+import { Vector, assetsHolder } from '../utils';
 import { Direction, PowerupTypes, TankTypes, Enemy as IEnemy } from '../types';
 import { TANK_SIZE, SPAWN_FRAMES, DEATH_FRAMES, FREEZE_FRAMES, ENEMY_STATS } from '../constants';
 import { animateMovement, move, goBack, shot, isOutOfScreen, getFrontCollisionPoints, destroy } from './commonMethods';
 import { getAnimIndex } from '../utils';
+import { SoundManager } from '../managers';
 import entityManager from '../entityManager';
 import { Player } from './Player';
 import { Bullet } from './Bullet';
@@ -24,6 +25,7 @@ class Enemy extends Entity {
 	public type: TankTypes;
 	public direction: Direction;
 	public lives: number;
+	public soundManager: SoundManager;
 
 	constructor(type: TankTypes, position: Vector) {
 		super(position, new Vector(...TANK_SIZE));
@@ -31,6 +33,10 @@ class Enemy extends Entity {
 		this.lives = ENEMY_STATS[type].lives;
 		this.prevPosition = new Vector(35, 35);
 		this.direction = Direction.Bottom;
+		this.soundManager = new SoundManager({
+			destroy: assetsHolder.audio.destroy,
+		});
+
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		powerupEvents.subscribe(this.id, powerupObserver.bind(this));
 	}
@@ -54,17 +60,22 @@ class Enemy extends Entity {
 
 		if (spawn) {
 			// TODO: Refactor animIndex
-			const sprites = game.sprites.tankSpawnAnimation;
+			const sprites = assetsHolder.sprites.tankSpawnAnimation;
 			const index = getAnimIndex(SPAWN_FRAMES, spawn, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		} else if (death) {
-			const sprites = game.sprites.tankDeathAnimation;
+			const sprites = assetsHolder.sprites.tankDeathAnimation;
 			const index = getAnimIndex(DEATH_FRAMES, death, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		}
-		this.animateMovement(game.sprites[`enemy${this.type}${this.lives}`][this.direction]);
+
+		if (this.type === TankTypes.Armored) {
+			this.animateMovement(assetsHolder.sprites.enemy[this.type][this.lives][this.direction]);
+		} else {
+			this.animateMovement(assetsHolder.sprites.enemy[this.type][this.direction]);
+		}
 	}
 
 	//Rename

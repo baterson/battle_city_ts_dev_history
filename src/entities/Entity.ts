@@ -1,5 +1,5 @@
 import { Vector } from '../utils/Vector';
-import { TimeManager } from '../utils/TimeManager';
+import { TimeManager } from '../managers/TimeManager';
 import { Entity as IEntity } from '../types';
 
 class Entity implements IEntity {

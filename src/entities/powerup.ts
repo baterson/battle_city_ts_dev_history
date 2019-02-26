@@ -2,6 +2,8 @@ import { Entity } from './Entity';
 import { Vector } from '../utils';
 import { PowerupTypes } from '../types';
 import { Player } from './Player';
+import { SoundManager } from '../managers';
+import { assetsHolder } from '../utils';
 import entityManager from '../entityManager';
 
 class PowerupEvents {
@@ -24,23 +26,26 @@ class PowerupEvents {
 export const powerupEvents = new PowerupEvents();
 
 class Powerup extends Entity {
-	public type;
+	public type: PowerupTypes;
+	public soundManager: SoundManager;
 
 	constructor(type: PowerupTypes, position: Vector) {
 		super(position, new Vector(40, 40));
 		this.type = type;
+		this.soundManager = new SoundManager({ powerup: assetsHolder.audio.powerup });
 	}
 
 	update() {}
 
 	render(game) {
-		game.sprites.powerup[this.type](this.position, this.size);
+		assetsHolder.sprites.powerup[this.type](this.position, this.size);
 	}
 
 	resolveEntityCollision(other, game) {
 		if (other instanceof Player) {
 			entityManager.toRemove(this.id);
 			powerupEvents.notify(this.type);
+			this.soundManager.play('powerup');
 		}
 	}
 }

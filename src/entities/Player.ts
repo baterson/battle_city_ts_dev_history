@@ -1,6 +1,6 @@
 import { Entity } from './Entity';
-import { Vector, getAnimIndex } from '../utils';
-import { TimeManager } from '../utils/TimeManager';
+import { Vector, getAnimIndex, assetsHolder } from '../utils';
+import { TimeManager } from '../managers/TimeManager';
 import { Direction, PowerupTypes, PlayerPower, Player as IPlayer } from '../types';
 import {
 	PLAYER_SPAWN_POSITION,
@@ -14,6 +14,7 @@ import { animateMovement, move, goBack, shot, isOutOfScreen, getFrontCollisionPo
 import { powerupEvents, Powerup } from './Powerup';
 import keyboard, { Keys } from '../keyboard';
 import { Bullet } from './Bullet';
+import { SoundManager } from '../managers';
 
 function powerupObserver(powerupType: PowerupTypes) {
 	if (powerupType === PowerupTypes.Tank) {
@@ -32,6 +33,7 @@ class Player extends Entity {
 	public direction: Direction;
 	public lives: number;
 	public power: PlayerPower;
+	public soundManager: SoundManager;
 
 	constructor() {
 		super(new Vector(...PLAYER_SPAWN_POSITION), new Vector(...TANK_SIZE));
@@ -39,6 +41,12 @@ class Player extends Entity {
 		this.direction = Direction.Top;
 		this.lives = 1;
 		this.power = PlayerPower.Default;
+		this.soundManager = new SoundManager({
+			neutral: assetsHolder.audio.neutral,
+			move: assetsHolder.audio.move,
+			destroy: assetsHolder.audio.destroy,
+		});
+
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		this.timeManager.setTimer('invincible', INVINCIBLE_FRAMES);
 		powerupEvents.subscribe(this.id, powerupObserver.bind(this));
@@ -49,6 +57,7 @@ class Player extends Entity {
 		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
 		if (spawn || death) return;
+		this.soundManager.play('neutral');
 		this.processInput(game);
 	}
 
@@ -59,12 +68,12 @@ class Player extends Entity {
 
 		if (spawn) {
 			// TODO: Refactor animIndex
-			const sprites = game.sprites.tankSpawnAnimation;
+			const sprites = assetsHolder.sprites.tankSpawnAnimation;
 			const index = getAnimIndex(SPAWN_FRAMES, spawn, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
 		} else if (death) {
-			const sprites = game.sprites.tankDeathAnimation;
+			const sprites = assetsHolder.sprites.tankDeathAnimation;
 			const index = getAnimIndex(DEATH_FRAMES, death, sprites.length - 1);
 			sprites[index](this.position, this.size);
 			return;
@@ -74,8 +83,7 @@ class Player extends Entity {
 			// const index = Math.floor(game.elapsedTime / 0.1) % invincibleSprites.length;
 			invincibleSprites[index](this.position, this.size);
 		}
-
-		this.animateMovement(game.sprites[`player${this.power}`][this.direction]);
+		this.animateMovement(assetsHolder.sprites.player[this.power][this.direction]);
 	}
 
 	processInput(game) {
@@ -91,6 +99,7 @@ class Player extends Entity {
 		} else if (key === Keys.ArrowRight) {
 			this.direction = Direction.Right;
 		} else {
+			this.soundManager.pause('move');
 			isMoving = false;
 		}
 
@@ -99,6 +108,8 @@ class Player extends Entity {
 		}
 
 		if (isMoving) {
+			this.soundManager.pause('neutral');
+			// this.soundManager.play('move');
 			this.move(PLAYER_STATS[this.power].velocity);
 		}
 	}

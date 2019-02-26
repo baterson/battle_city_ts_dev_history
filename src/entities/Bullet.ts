@@ -6,7 +6,8 @@ import { BULLET_VELOCITY, BULLET_SIZE } from '../constants';
 import { Powerup } from './Powerup';
 import { Player } from './Player';
 import { Enemy } from './Enemy';
-import { audioManager } from '../utils/audioManager';
+import { SoundManager } from '../managers/';
+import { assetsHolder } from '../utils';
 import entityManager from '../entityManager';
 
 interface Bullet extends IBullet {}
@@ -14,13 +15,17 @@ interface Bullet extends IBullet {}
 class Bullet extends Entity {
 	public prevPosition: Vector;
 	public direction: Direction;
-	public shooter: any;
+	public shooter: Player | Enemy;
+	public soundManager: SoundManager;
 
 	constructor(position: Vector, direction: Direction, shooter: Player | Enemy) {
 		super(position, new Vector(...BULLET_SIZE));
 		this.prevPosition = new Vector(position.x, position.y);
 		this.direction = direction;
 		this.shooter = shooter;
+		this.soundManager = new SoundManager({
+			hit: assetsHolder.audio.hit,
+		});
 	}
 
 	update(game) {
@@ -28,7 +33,7 @@ class Bullet extends Entity {
 	}
 
 	render(game) {
-		this.animateMovement(game.sprites.bullet[this.direction]);
+		this.animateMovement(assetsHolder.sprites.bullet[this.direction]);
 	}
 
 	resolveEdgeCollision() {
@@ -40,9 +45,7 @@ class Bullet extends Entity {
 		tiles.forEach(tile => {
 			game.stage.map.destroy(tile.x, tile.y);
 		});
-		audioManager.play('hit');
-		// audioManager.play('hit')
-		// audioManager.play('hit')
+		this.soundManager.play('hit');
 	}
 
 	resolveEntityCollision(other, game) {

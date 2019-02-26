@@ -80,6 +80,7 @@ export function getFrontCollisionPoints() {
 
 export function destroy() {
 	this.timeManager.setTimer('death', DEATH_FRAMES);
+	this.soundManager.play('destroy');
 	entityManager.toRemove(this.id);
 	powerupEvents.unsubscribe(this.id);
 }
