@@ -1,29 +1,34 @@
-import { getAnimIndex } from '../utils';
+import { getAnimationIndex, Vector } from '../utils';
+import { assetsHolder } from '../utils';
 
-const canvas: any = document.getElementById('root');
+const canvas = <HTMLCanvasElement>document.getElementById('root');
 const context = canvas.getContext('2d');
+export const getAnimIndex = (animationLength: number, framesLeft: number, spritesLength: number) => {
+	const step = animationLength / spritesLength;
+	return Math.floor(framesLeft / step);
+};
 
-export default {
+export const main = {
 	canvas,
 	context,
 	clearScreen() {
-		context.clearRect(0, 0, 600, 600);
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
 	},
 
 	renderChaingingStage(left) {
 		// TODO: change 300 to const
-		const index = getAnimIndex(200, left, 300);
+		const index = getAnimationIndex(200, left, 300);
 		context.fillRect(0, 0, 600, index);
 		context.fillRect(0, 600 - index, 600, index);
 	},
 
 	renderGameOver(left = 0, textSprites) {
-		const index = getAnimIndex(200, left, 300);
+		const index = getAnimationIndex(200, left, 300);
 		context.fillRect(0, 0, 600, 300 - index);
 		context.fillRect(0, 300 + index, 600, 300 - index);
 		if (!left) {
-			textSprites({ x: 200, y: 200 }, { x: 200, y: 150 });
+			assetsHolder.sprites.gameOver({ x: 200, y: 200 }, { x: 200, y: 150 });
 		}
 	},
 };

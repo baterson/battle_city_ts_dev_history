@@ -56,7 +56,7 @@ class Game {
 		if (this.isLost) return;
 
 		this.stage.update();
-		entityManager.update(this);
+		entityManager.update();
 		entityManager.checkCollisions(this);
 		entityManager.removeFromQueue();
 
@@ -73,9 +73,7 @@ class Game {
 		const changingStageTime = this.timeManager.getTimer('changingStage');
 
 		mainScreen.clearScreen();
-		// dashboard.clearScreen();
-		this.stage.render(this);
-		// dashboard.render(this);
+		this.stage.render();
 		if (changingStageTime) {
 			mainScreen.renderChaingingStage(changingStageTime);
 		} else if (this.isLost) {
@@ -83,7 +81,8 @@ class Game {
 		} else {
 			const player: any = entityManager.getPlayer();
 			dashboard.clearScreen();
-			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks, assetsHolder.sprites);
+			// Number + 1 to getter?
+			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks);
 		}
 	}
 

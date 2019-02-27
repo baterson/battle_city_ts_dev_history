@@ -1,4 +1,6 @@
-const canvas: any = document.getElementById('dashboard');
+import { assetsHolder } from '../utils';
+
+const canvas = <HTMLCanvasElement>document.getElementById('dashboard');
 const context = canvas.getContext('2d');
 
 const drawTanks = (tanks, tankSprite) => {
@@ -21,11 +23,11 @@ const drawTanks = (tanks, tankSprite) => {
 	});
 };
 
-export default {
+export const dashboard = {
 	canvas,
 	context,
-	render(playerLives, stageNum, tanksCount, gameSprites) {
-		const { numberIcons, flagIcon, playerIcon, tankIcon } = gameSprites;
+	render(playerLives, stageNum, tanksCount) {
+		const { numberIcons, flagIcon, playerIcon, tankIcon } = assetsHolder.sprites;
 		drawTanks(tanksCount, tankIcon);
 		flagIcon({ x: 670, y: 450 }, { x: 50, y: 40 });
 		playerIcon({ x: 670, y: 380 }, { x: 20, y: 20 });
@@ -34,7 +36,7 @@ export default {
 	},
 	clearScreen() {
 		// TODO: get from canvas
-		context.clearRect(0, 0, 750, 700);
+		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
 	},
 };

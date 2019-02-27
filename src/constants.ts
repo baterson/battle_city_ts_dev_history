@@ -41,12 +41,12 @@ export const ENEMY_STATS = {
 };
 
 // Timers
-export const DEATH_FRAMES = 200;
-export const SPAWN_FRAMES = 200;
-export const INVINCIBLE_FRAMES = 200;
+export const DEATH_FRAMES = 50;
+export const SPAWN_FRAMES = 50;
+export const INVINCIBLE_FRAMES = 100;
 export const FREEZE_FRAMES = 100;
 export const POWERUP_SPAWN_CD = 30;
-export const ENEMY_SPAWN_CD = 500;
+export const ENEMY_SPAWN_CD = 400;
 
 // Stage
 export const ENEMY_SPAWN_POSITION: types.VectorArgs[] = [[0, 0], [560, 0]];

@@ -1,4 +1,2 @@
-import dashboard from './dashboard';
-import main from './main';
-
-export { main, dashboard };
+export * from './main';
+export * from './dashboard';

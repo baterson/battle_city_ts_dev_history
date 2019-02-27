@@ -6,7 +6,7 @@ import { SoundManager } from '../managers';
 import { assetsHolder } from '../utils';
 import entityManager from '../entityManager';
 
-class PowerupEvents {
+export class PowerupEvents {
 	public observers = {};
 
 	subscribe(entityId, observer) {
@@ -25,7 +25,7 @@ class PowerupEvents {
 
 export const powerupEvents = new PowerupEvents();
 
-class Powerup extends Entity {
+export class Powerup extends Entity {
 	public type: PowerupTypes;
 	public soundManager: SoundManager;
 
@@ -37,7 +37,7 @@ class Powerup extends Entity {
 
 	update() {}
 
-	render(game) {
+	render() {
 		assetsHolder.sprites.powerup[this.type](this.position, this.size);
 	}
 
@@ -49,5 +49,3 @@ class Powerup extends Entity {
 		}
 	}
 }
-
-export { Powerup };

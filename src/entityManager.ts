@@ -54,18 +54,21 @@ class EntityManager {
 	getByIntersection(entity) {
 		// Refactor name at least
 		return Object.values(this.pool).filter((el: any) => {
-			if ((el.type === 'enemy' || el.type === 'player') && checkEntityCollision(entity, el)) {
+			if (
+				(el.type === 'enemy' || el.type === 'player') &&
+				checkEntityCollision(entity.getBoundingBox(), el.getBoundingBox())
+			) {
 				return el;
 			}
 		});
 	}
 
-	render(game) {
-		this.forEach(entity => entity.render(game));
+	render() {
+		this.forEach(entity => entity.render());
 	}
 
-	update(game) {
-		this.forEach(entity => entity.update(game));
+	update() {
+		this.forEach(entity => entity.update());
 	}
 
 	checkCollisions(game) {
@@ -100,7 +103,7 @@ class EntityManager {
 			const spawn = other.timeManager.getTimer('spawn');
 			const death = other.timeManager.getTimer('death');
 
-			if (!spawn && !death && checkEntityCollision(entity, other)) {
+			if (!spawn && !death && checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())) {
 				entity.resolveEntityCollision(other, game, entity);
 				other.resolveEntityCollision(entity, game, entity);
 			}

@@ -2,12 +2,12 @@ import { Entity } from './Entity';
 import { Vector, assetsHolder } from '../utils';
 import { Bullet } from './Bullet';
 
-class Flag extends Entity {
+export class Flag extends Entity {
 	constructor() {
 		super(new Vector(280, 560), new Vector(40, 40));
 	}
 
-	render(game) {
+	render() {
 		// if game.over()
 		// TODO: Death
 		// if (this.isDeath) {
@@ -22,5 +22,3 @@ class Flag extends Entity {
 		}
 	}
 }
-
-export { Flag };

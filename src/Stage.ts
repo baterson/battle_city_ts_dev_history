@@ -64,10 +64,10 @@ class Stage {
 		this.powerupsAvailable -= 1;
 	}
 
-	render(game) {
+	render() {
 		this.map.renderLayer(Layers.under);
 		this.map.renderLayer(Layers.main);
-		entityManager.render(game);
+		entityManager.render();
 		this.map.renderLayer(Layers.over);
 	}
 }

@@ -1,6 +1,6 @@
-const coin = () => Math.round(Math.random()) === 1;
+const coin = (): boolean => Math.round(Math.random()) === 1;
 
-const randomInt = limit => {
+const randomInt = (limit: number): number => {
 	return Math.floor(Math.random() * limit);
 };
 

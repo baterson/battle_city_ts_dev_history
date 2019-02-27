@@ -1,16 +1,18 @@
 import { main, dashboard } from '../screens';
-import { PlayerPower, Direction, TankTypes, PowerupTypes, Sprites } from '../types';
+import { PlayerPower, Direction, TankTypes, PowerupTypes, Sprites, VariableSprites } from '../types';
 import { Vector } from './Vector';
 import { Tiles } from '../tileMap';
 
-const createSprite = (image: string, context) => (dx: number, dy: number, dWidth: number, dHeight: number) => (
-	position: Vector,
-	size: Vector
-) => {
+const createSprite = (image: HTMLImageElement, context: CanvasRenderingContext2D) => (
+	dx: number,
+	dy: number,
+	dWidth: number,
+	dHeight: number
+) => (position: Vector, size: Vector) => {
 	context.drawImage(image, dx, dy, dWidth, dHeight, position.x, position.y, size.x, size.y);
 };
 
-const setupSprites = (image): Sprites => {
+const setupSprites = (image: HTMLImageElement): Sprites => {
 	const mainSprite = createSprite(image, main.context);
 	const dashboardSprite = createSprite(image, dashboard.context);
 
@@ -75,22 +77,6 @@ const setupSprites = (image): Sprites => {
 			[Direction.Right]: [mainSprite(345.75, 101.5, 5, 5.7)],
 			[Direction.Left]: [mainSprite(329.5, 101.5, 5, 5.7)],
 		},
-		tankDeathAnimation: [
-			mainSprite(336, 128.75, 32, 32),
-			mainSprite(304.5, 128.75, 30.5, 31.25),
-			mainSprite(288.25, 128.75, 16, 15.5),
-			mainSprite(272.25, 128.75, 15.75, 14.25),
-			mainSprite(258, 128.75, 13.75, 13.25),
-			mainSprite(258, 128.75, 13.75, 13.25),
-		],
-		tankSpawnAnimation: [
-			mainSprite(303, 97, 15, 14),
-			mainSprite(303, 97, 15, 14),
-			mainSprite(288, 97, 15, 14),
-			mainSprite(273, 97, 15, 14),
-			mainSprite(257, 97, 15, 14),
-			mainSprite(257, 97, 15, 14),
-		],
 		flag: mainSprite(304.5, 33, 16, 15.25),
 		flagDeath: mainSprite(304, 33, 16, 15.25),
 		tankIcon: dashboardSprite(320.25, 192.75, 8.5, 7.75),
@@ -128,10 +114,32 @@ const setupSprites = (image): Sprites => {
 	};
 };
 
+const setupVariableSprites = (image: HTMLImageElement): VariableSprites => {
+	const mainSprite = createSprite(image, main.context);
+
+	return {
+		tankSpawn: [
+			{ sprite: mainSprite(303, 97, 15, 14), size: new Vector(35, 35) },
+			{ sprite: mainSprite(303, 97, 15, 14), size: new Vector(35, 35) },
+			{ sprite: mainSprite(288, 97, 15, 14), size: new Vector(35, 35) },
+			{ sprite: mainSprite(273, 97, 15, 14), size: new Vector(35, 35) },
+			{ sprite: mainSprite(257, 97, 15, 14), size: new Vector(35, 35) },
+		],
+		tankDestruction: [
+			{ sprite: mainSprite(336, 128.75, 32, 32), size: new Vector(80, 80) },
+			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), size: new Vector(80, 80) },
+			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), size: new Vector(40, 40) },
+			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), size: new Vector(37, 37) },
+			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), size: new Vector(35, 35) },
+		],
+	};
+};
+
 class AssetsHolder {
-	public image;
+	public image: HTMLImageElement;
 	public audio;
 	public sprites: Sprites;
+	public variableSprites: VariableSprites;
 
 	loadSprite(src) {
 		return new Promise((resolve, reject) => {
@@ -139,6 +147,7 @@ class AssetsHolder {
 			image.addEventListener('load', () => {
 				this.image = image;
 				this.sprites = setupSprites(image);
+				this.variableSprites = setupVariableSprites(image);
 				resolve();
 			});
 			image.src = src;

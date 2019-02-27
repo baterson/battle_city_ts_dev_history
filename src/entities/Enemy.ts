@@ -1,9 +1,8 @@
 import { Entity } from './Entity';
-import { Vector, assetsHolder } from '../utils';
+import { Vector, assetsHolder, animateVariableSprites } from '../utils';
 import { Direction, PowerupTypes, TankTypes, Enemy as IEnemy } from '../types';
 import { TANK_SIZE, SPAWN_FRAMES, DEATH_FRAMES, FREEZE_FRAMES, ENEMY_STATS } from '../constants';
 import { animateMovement, move, goBack, shot, isOutOfScreen, getFrontCollisionPoints, destroy } from './commonMethods';
-import { getAnimIndex } from '../utils';
 import { SoundManager } from '../managers';
 import entityManager from '../entityManager';
 import { Player } from './Player';
@@ -18,9 +17,9 @@ function powerupObserver(powerupType) {
 	}
 }
 
-interface Enemy extends IEnemy {}
+export interface Enemy extends IEnemy {}
 
-class Enemy extends Entity {
+export class Enemy extends Entity {
 	public prevPosition: Vector;
 	public type: TankTypes;
 	public direction: Direction;
@@ -41,7 +40,7 @@ class Enemy extends Entity {
 		powerupEvents.subscribe(this.id, powerupObserver.bind(this));
 	}
 
-	update(game) {
+	update() {
 		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
 		const freeze = this.timeManager.getTimer('freeze');
@@ -50,25 +49,18 @@ class Enemy extends Entity {
 		if (spawn || death || freeze) {
 			return;
 		} else {
-			this.aiMove(game);
+			this.aiMove();
 		}
 	}
 
-	render(game) {
+	render() {
 		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
 
 		if (spawn) {
-			// TODO: Refactor animIndex
-			const sprites = assetsHolder.sprites.tankSpawnAnimation;
-			const index = getAnimIndex(SPAWN_FRAMES, spawn, sprites.length - 1);
-			sprites[index](this.position, this.size);
-			return;
+			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankSpawn, SPAWN_FRAMES, spawn);
 		} else if (death) {
-			const sprites = assetsHolder.sprites.tankDeathAnimation;
-			const index = getAnimIndex(DEATH_FRAMES, death, sprites.length - 1);
-			sprites[index](this.position, this.size);
-			return;
+			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankDestruction, DEATH_FRAMES, death);
 		}
 
 		if (this.type === TankTypes.Armored) {
@@ -79,7 +71,7 @@ class Enemy extends Entity {
 	}
 
 	//Rename
-	aiMove(game) {
+	aiMove() {
 		const { shotCD, velocity } = ENEMY_STATS[this.type];
 
 		if (
@@ -157,5 +149,3 @@ Enemy.prototype.move = move;
 Enemy.prototype.shot = shot;
 Enemy.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
 Enemy.prototype.destroy = destroy;
-
-export { Enemy };

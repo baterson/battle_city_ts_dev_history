@@ -1,5 +1,5 @@
 import { Entity } from './Entity';
-import { Vector, getAnimIndex, assetsHolder } from '../utils';
+import { Vector, assetsHolder, animateVariableSprites, getAnimationIndex } from '../utils';
 import { TimeManager } from '../managers/TimeManager';
 import { Direction, PowerupTypes, PlayerPower, Player as IPlayer } from '../types';
 import {
@@ -26,9 +26,10 @@ function powerupObserver(powerupType: PowerupTypes) {
 	}
 }
 
-interface Player extends IPlayer {}
+export interface Player extends IPlayer {}
 
-class Player extends Entity {
+export class Player extends Entity {
+	// Экспортировать только интерфейсы методов и описать все типы внутри класса, расширить Player этими интерфейсами
 	public prevPosition: Vector;
 	public direction: Direction;
 	public lives: number;
@@ -52,33 +53,27 @@ class Player extends Entity {
 		powerupEvents.subscribe(this.id, powerupObserver.bind(this));
 	}
 
-	update(game) {
+	update() {
 		this.timeManager.decrementTimers();
 		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
 		if (spawn || death) return;
 		this.soundManager.play('neutral');
-		this.processInput(game);
+		this.processInput();
 	}
 
-	render(game) {
+	render() {
 		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
 		const invincible = this.timeManager.getTimer('invincible');
 
 		if (spawn) {
-			// TODO: Refactor animIndex
-			const sprites = assetsHolder.sprites.tankSpawnAnimation;
-			const index = getAnimIndex(SPAWN_FRAMES, spawn, sprites.length - 1);
-			sprites[index](this.position, this.size);
-			return;
+			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankSpawn, SPAWN_FRAMES, spawn);
 		} else if (death) {
-			const sprites = assetsHolder.sprites.tankDeathAnimation;
-			const index = getAnimIndex(DEATH_FRAMES, death, sprites.length - 1);
-			sprites[index](this.position, this.size);
-			return;
+			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankDestruction, DEATH_FRAMES, death);
 		} else if (invincible) {
-			const invincibleSprites = game.sprites.invincible;
+			// TODO: REFACTOR to animate in loop, animate
+			const invincibleSprites = assetsHolder.sprites.invincible;
 			const index = invincible % invincibleSprites.length;
 			// const index = Math.floor(game.elapsedTime / 0.1) % invincibleSprites.length;
 			invincibleSprites[index](this.position, this.size);
@@ -86,7 +81,7 @@ class Player extends Entity {
 		this.animateMovement(assetsHolder.sprites.player[this.power][this.direction]);
 	}
 
-	processInput(game) {
+	processInput() {
 		const key = keyboard.getKey();
 		let isMoving = true;
 
@@ -155,5 +150,3 @@ Player.prototype.shot = shot;
 Player.prototype.isOutOfScreen = isOutOfScreen;
 Player.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
 Player.prototype.destroy = destroy;
-
-export { Player };

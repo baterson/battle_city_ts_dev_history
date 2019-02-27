@@ -2,7 +2,7 @@ import { Vector } from '../utils/Vector';
 import { TimeManager } from '../managers/TimeManager';
 import { Entity as IEntity } from '../types';
 
-class Entity implements IEntity {
+export class Entity implements IEntity {
 	static numberGen: number = 0;
 	public id: number;
 	public position: Vector;
@@ -18,9 +18,9 @@ class Entity implements IEntity {
 		Entity.numberGen += 1;
 	}
 
-	update(game) {}
+	update() {}
 
-	render(game) {}
+	render() {}
 
 	resolveEntityCollision(other, game) {}
 
@@ -36,5 +36,3 @@ class Entity implements IEntity {
 		};
 	}
 }
-
-export { Entity };

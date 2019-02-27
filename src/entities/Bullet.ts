@@ -10,9 +10,9 @@ import { SoundManager } from '../managers/';
 import { assetsHolder } from '../utils';
 import entityManager from '../entityManager';
 
-interface Bullet extends IBullet {}
+export interface Bullet extends IBullet {}
 
-class Bullet extends Entity {
+export class Bullet extends Entity {
 	public prevPosition: Vector;
 	public direction: Direction;
 	public shooter: Player | Enemy;
@@ -28,11 +28,11 @@ class Bullet extends Entity {
 		});
 	}
 
-	update(game) {
+	update() {
 		this.move(BULLET_VELOCITY);
 	}
 
-	render(game) {
+	render() {
 		this.animateMovement(assetsHolder.sprites.bullet[this.direction]);
 	}
 
@@ -58,5 +58,3 @@ Bullet.prototype.move = move;
 Bullet.prototype.animateMovement = animateMovement;
 Bullet.prototype.isOutOfScreen = isOutOfScreen;
 Bullet.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
-
-export { Bullet };

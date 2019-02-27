@@ -1,5 +1,8 @@
-class Vector {
-	constructor(public x, public y) {
+export class Vector {
+	public x;
+	public y;
+
+	constructor(x: number, y: number) {
 		this.x = x;
 		this.y = y;
 	}
@@ -9,5 +12,3 @@ class Vector {
 		this.y = vector.y;
 	}
 }
-
-export { Vector };

@@ -1,27 +1,4 @@
-// REMOVE timerNames, DEFAUTL
-
-type timerNames =
-	| 'death'
-	| 'spawn'
-	| 'shotCD'
-	| 'freeze'
-	| 'invincible'
-	| 'stageStarting'
-	| 'gameOver'
-	| 'enemySpawnCD';
-
-const DEFAULT_FRAME_LENGTH = {
-	death: 50,
-	spawn: 40,
-	shotCD: 30,
-	freeze: 50,
-	invincible: 50,
-	stageStarting: 100,
-	gameOver: 100,
-	enemySpawnCD: 100,
-};
-
-class TimeManager {
+export class TimeManager {
 	// TODO: Parametrize it
 	public timers = {};
 
@@ -46,5 +23,3 @@ class TimeManager {
 		});
 	}
 }
-
-export { TimeManager, timerNames, DEFAULT_FRAME_LENGTH };

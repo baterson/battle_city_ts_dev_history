@@ -47,10 +47,17 @@ export type PlayerStats = { [key in PlayerPower]: { velocity: number; shotCD: nu
 
 export type EnemyStats = { [key in TankTypes]: { velocity: number; shotCD: number; lives: number } };
 
+export interface BoundingBox {
+	x1: number;
+	x2: number;
+	y1: number;
+	y2: number;
+}
+
 export interface Entity {
-	update(game: Game): void;
-	render(game: Game): void;
-	getBoundingBox(): void;
+	update(): void;
+	render(): void;
+	getBoundingBox(): BoundingBox;
 	resolveEntityCollision(other, game: Game): void;
 }
 
@@ -83,8 +90,8 @@ export interface Enemy extends Movable, Tank {
 	setOpositeDirection(): void;
 }
 
-// Sprites
-type sprite = (position: Vector, size: Vector) => void;
+// Assets
+type sprite = (position: Vector | { x: number; y: number }, size: Vector | { x: number; y: number }) => void;
 type directionSprites = { [key in Direction]: sprite[] };
 
 export interface Sprites {
@@ -112,7 +119,10 @@ export interface Sprites {
 	tiles: Partial<{ [key in Tiles]: sprite }>;
 	gameOver: sprite;
 	powerup: { [key in PowerupTypes]: sprite };
-	tankDeathAnimation: sprite[];
-	tankSpawnAnimation: sprite[];
 	invincible: sprite[];
+}
+
+export interface VariableSprites {
+	tankDestruction: { sprite: sprite; size: Vector }[];
+	tankSpawn: { sprite: sprite; size: Vector }[];
 }
