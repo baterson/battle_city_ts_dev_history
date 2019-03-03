@@ -1,7 +1,7 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
 import { DELTA_TIME, CHANGING_STAGE_FRAMES, GAME_OVER_FRAMES } from './constants';
 import { PowerupTypes } from './types';
-import { Vector, assetsHolder } from './utils';
+import { assetsHolder } from './utils';
 import { TileMap } from './TileMap';
 import { Stage } from './Stage';
 import { main as mainScreen, dashboard } from './screens';

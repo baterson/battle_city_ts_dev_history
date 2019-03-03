@@ -1,7 +1,6 @@
 import { Entity } from './Entity';
-import { Vector } from '../utils';
 import { DELTA_TIME } from '../constants';
-import { Direction, Sprite } from '../types';
+import { Direction, Sprite, Vector } from '../types';
 
 export class Movable extends Entity {
 	public direction: Direction;
@@ -10,11 +9,11 @@ export class Movable extends Entity {
 	constructor(position: Vector, size: Vector, direction: Direction) {
 		super(position, size);
 		this.direction = direction;
-		this.prevPosition = new Vector(position.x, position.y);
+		this.prevPosition = { ...position };
 	}
 
 	move(velocity: number): void {
-		this.prevPosition.set(this.position);
+		this.prevPosition = { ...this.position };
 
 		if (this.direction === Direction.Top) {
 			this.position.y -= velocity * DELTA_TIME;
@@ -28,7 +27,7 @@ export class Movable extends Entity {
 	}
 
 	goBack(): void {
-		this.position.set(this.prevPosition);
+		this.position = { ...this.prevPosition };
 	}
 
 	animateMovement(sprite: Sprite[]): void {
@@ -47,16 +46,16 @@ export class Movable extends Entity {
 		return box.y1 < 0 || box.y2 > 600 || box.x1 < 0 || box.x2 > 600;
 	}
 
-	getFrontCollisionPoints(): [number, number][] {
+	getFrontCollisionPoints(): Vector[] {
 		const { x1, x2, y1, y2 } = this.getBoundingBox();
 		if (this.direction === Direction.Top) {
-			return [[x1, y1], [x2, y1]];
+			return [{ x: x1, y: y1 }, { x: x2, y: y1 }];
 		} else if (this.direction === Direction.Right) {
-			return [[x2, y1], [x2, y2]];
+			return [{ x: x2, y: y1 }, { x: x2, y: y2 }];
 		} else if (this.direction === Direction.Bottom) {
-			return [[x1, y2], [x2, y2]];
+			return [{ x: x1, y: y2 }, { x: x2, y: y2 }];
 		} else if (this.direction === Direction.Left) {
-			return [[x1, y1], [x1, y2]];
+			return [{ x: x1, y: y1 }, { x: x1, y: y2 }];
 		}
 	}
 }

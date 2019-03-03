@@ -1,8 +1,8 @@
 import { Tank } from './Tank';
-import { Vector, assetsHolder, animateVariableSprites } from '../utils';
-import { Direction, PowerupTypes, TankTypes } from '../types';
+import { assetsHolder, animateVariableSprites } from '../utils';
+import { Direction, PowerupTypes, TankTypes, Vector } from '../types';
 import { TANK_SIZE, SPAWN_FRAMES, DEATH_FRAMES, FREEZE_FRAMES, ENEMY_STATS } from '../constants';
-import { SoundManager, TimeManager, entityManager } from '../managers';
+import { SoundManager, TimeManager } from '../managers';
 import { Player } from './Player';
 import { Bullet } from './Bullet';
 import { Powerup, powerupEvents } from './Powerup';
@@ -16,15 +16,13 @@ function powerupObserver(powerupType) {
 }
 
 export class Enemy extends Tank {
-	public prevPosition: Vector;
 	public type: TankTypes;
-	public direction: Direction;
 	public lives: number;
 	public timeManager: TimeManager<'spawn' | 'death' | 'freeze' | 'shotCD'>;
 	public soundManager: SoundManager<'explode'>;
 
 	constructor(type: TankTypes, position: Vector) {
-		super(position, new Vector(...TANK_SIZE), Direction.Bottom);
+		super(position, { ...TANK_SIZE }, Direction.Bottom);
 		this.type = type;
 		this.lives = ENEMY_STATS[type].lives;
 		this.timeManager = new TimeManager();

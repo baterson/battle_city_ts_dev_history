@@ -1,6 +1,5 @@
 import { Movable } from './Movable';
-import { Vector } from '../utils';
-import { Direction, Tile } from '../types';
+import { Direction, Tile, Vector } from '../types';
 import { BULLET_VELOCITY, BULLET_SIZE } from '../constants';
 import { Powerup } from './Powerup';
 import { Player } from './Player';
@@ -16,8 +15,7 @@ export class Bullet extends Movable {
 	public soundManager: SoundManager<'hit'>;
 
 	constructor(position: Vector, direction: Direction, shooter: Player | Enemy) {
-		super(position, new Vector(...BULLET_SIZE), direction);
-		this.prevPosition = new Vector(position.x, position.y);
+		super(position, { ...BULLET_SIZE }, direction);
 		this.direction = direction;
 		this.shooter = shooter;
 		this.soundManager = new SoundManager(['hit']);
@@ -38,7 +36,7 @@ export class Bullet extends Movable {
 	resolveTileCollision(tiles: Tile[], tileMap: TileMap) {
 		entityManager.toRemove(this.id);
 		tiles.forEach(tile => {
-			tileMap.destroy(tile.x, tile.y);
+			tileMap.destroy(tile.position);
 		});
 		this.soundManager.play('hit');
 	}

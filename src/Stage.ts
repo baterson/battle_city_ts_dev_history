@@ -1,7 +1,7 @@
 import { PowerupTypes, Layers, Entities, TankTypes } from './types';
 import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
 import { TimeManager, entityManager } from './managers';
-import { Vector, randomInt } from './utils';
+import { randomInt } from './utils';
 import { TileMap } from './TileMap';
 
 export class Stage {
@@ -17,7 +17,7 @@ export class Stage {
 		this.tanks = [...tanks];
 		this.powerupsAvailable = 5;
 		this.timeManager = new TimeManager();
-		// entityManager.spawnEntity('Flag');
+		entityManager.spawnEntity('Flag');
 	}
 
 	update() {
@@ -40,7 +40,7 @@ export class Stage {
 		const index = randomInt(1);
 		// TODO: uncoment
 		// const index = randomInt(2);
-		let [x, y] = ENEMY_SPAWN_POSITION[index];
+		let { x, y } = ENEMY_SPAWN_POSITION[index];
 		// TODO: Fix it
 		// if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
 		// 	// if spot is not available, try on the next frame
@@ -50,7 +50,7 @@ export class Stage {
 		// 	}
 		// }
 		this.timeManager.setTimer('enemySpawnCD', ENEMY_SPAWN_CD);
-		entityManager.spawnEntity('Enemy', this.tanks.pop(), new Vector(x, y));
+		entityManager.spawnEntity('Enemy', this.tanks.pop(), { x, y });
 	}
 
 	spawnPowerup() {
@@ -58,7 +58,7 @@ export class Stage {
 		if (!powerupSpawnCD || !this.powerupsAvailable) return;
 
 		const index = randomInt(Object.keys(PowerupTypes).length / 2);
-		entityManager.spawnEntity('Powerup', PowerupTypes[PowerupTypes[index]], new Vector(randomInt(600), randomInt(600))); // TODO: looks odd
+		entityManager.spawnEntity('Powerup', PowerupTypes[PowerupTypes[index]], { x: randomInt(600), y: randomInt(600) }); // TODO: looks odd
 		this.timeManager.setTimer('powerupSpawnCD', POWERUP_SPAWN_CD);
 		this.powerupsAvailable -= 1;
 	}

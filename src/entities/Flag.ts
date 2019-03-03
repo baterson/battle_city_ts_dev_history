@@ -1,10 +1,10 @@
 import { Entity } from './Entity';
-import { Vector, assetsHolder } from '../utils';
+import { assetsHolder } from '../utils';
 import { Bullet } from './Bullet';
 
 export class Flag extends Entity {
 	constructor() {
-		super(new Vector(280, 560), new Vector(40, 40));
+		super({ x: 280, y: 560 }, { x: 40, y: 40 });
 	}
 
 	render() {

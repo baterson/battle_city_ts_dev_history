@@ -1,6 +1,6 @@
 import { Entity } from './Entity';
-import { Vector } from '../utils';
-import { PowerupTypes } from '../types';
+import { PowerupTypes, Vector } from '../types';
+import { POWERUP_SIZE } from '../constants';
 import { Player } from './Player';
 import { SoundManager, entityManager } from '../managers';
 import { assetsHolder } from '../utils';
@@ -28,7 +28,7 @@ export class Powerup extends Entity {
 	public soundManager: SoundManager<'powerup'>;
 
 	constructor(type: PowerupTypes, position: Vector) {
-		super(position, new Vector(40, 40));
+		super(position, { ...POWERUP_SIZE });
 		this.type = type;
 		this.soundManager = new SoundManager(['powerup']);
 	}

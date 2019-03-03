@@ -4,10 +4,11 @@ import * as types from './types';
 export const DELTA_TIME = 1 / 60;
 
 // Entities
-export const TANK_SIZE: types.VectorArgs = [35, 35];
-export const PLAYER_SPAWN_POSITION: types.VectorArgs = [20, 550];
-export const BULLET_SIZE: types.VectorArgs = [10, 10];
+export const TANK_SIZE = { x: 35, y: 35 };
+export const PLAYER_SPAWN_POSITION = { x: 20, y: 550 };
+export const BULLET_SIZE = { x: 10, y: 10 };
 export const BULLET_VELOCITY = 300;
+export const POWERUP_SIZE = { x: 35, y: 35 };
 export const PLAYER_STATS: types.PlayerStats = {
 	[types.PlayerPower.Default]: {
 		velocity: 100,
@@ -51,7 +52,7 @@ export const CHANGING_STAGE_FRAMES = 200;
 export const GAME_OVER_FRAMES = 200;
 
 // Stage
-export const ENEMY_SPAWN_POSITION: types.VectorArgs[] = [[0, 0], [560, 0]];
+export const ENEMY_SPAWN_POSITION = [{ x: 0, y: 0 }, { x: 560, y: 0 }];
 
 // Map
 export const TILE_SIDE = 20;

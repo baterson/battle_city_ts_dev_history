@@ -1,5 +1,4 @@
 import * as entities from './entities';
-import { Vector } from './utils';
 
 export enum Direction {
 	Top,
@@ -36,6 +35,7 @@ export enum Tiles {
 	brick2,
 	brick3,
 	brick4,
+	steel,
 	ice,
 	grass,
 }
@@ -56,7 +56,7 @@ export enum ControlKeys {
 
 export type Entities = entities.Player | entities.Enemy | entities.Bullet | entities.Flag | entities.Powerup;
 
-export type VectorArgs = [number, number];
+export type Vector = { x: number; y: number };
 
 export type PlayerStats = { [key in PlayerPower]: { velocity: number; shotCD: number } };
 
@@ -117,4 +117,4 @@ export interface AudioSrc {
 }
 
 export type RawTiles = number[][];
-export type Tile = { type: Tiles; x: number; y: number };
+export type Tile = { type: Tiles; position: Vector };

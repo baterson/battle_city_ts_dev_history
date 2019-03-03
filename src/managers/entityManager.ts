@@ -1,6 +1,6 @@
 import * as entities from '../entities';
-import { Entities, Direction, TankTypes, PowerupTypes } from '../types';
-import { checkEntityCollision, Vector } from '../utils';
+import { Entities, Direction, TankTypes, PowerupTypes, Vector } from '../types';
+import { checkEntityCollision } from '../utils';
 import { TileMap } from '../TileMap';
 import { rigid } from '../TileMap';
 

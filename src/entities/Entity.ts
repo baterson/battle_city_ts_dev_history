@@ -1,5 +1,4 @@
-import { Vector } from '../utils/Vector';
-import { BoundingBox } from '../types';
+import { BoundingBox, Vector } from '../types';
 
 export class Entity {
 	static numberGen: number = 0;

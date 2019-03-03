@@ -1,6 +1,15 @@
 import { main, dashboard } from '../screens';
-import { PlayerPower, Direction, TankTypes, PowerupTypes, Sprites, VariableSprites, Tiles, AudioSrc } from '../types';
-import { Vector } from './Vector';
+import {
+	PlayerPower,
+	Direction,
+	TankTypes,
+	PowerupTypes,
+	Sprites,
+	VariableSprites,
+	Tiles,
+	AudioSrc,
+	Vector,
+} from '../types';
 
 const createSprite = (image: HTMLImageElement, context: CanvasRenderingContext2D) => (
 	dx: number,
@@ -98,8 +107,9 @@ const setupSprites = (image: HTMLImageElement): Sprites => {
 			[Tiles.brick2]: mainSprite(264, 0, 8, 7),
 			[Tiles.brick3]: mainSprite(256, 8, 8, 7),
 			[Tiles.brick4]: mainSprite(264, 8, 8, 7),
-			[Tiles.ice]: mainSprite(288, 32, 16, 15),
-			[Tiles.grass]: mainSprite(272, 32, 16, 15),
+			[Tiles.steel]: mainSprite(256, 16, 8, 7),
+			[Tiles.ice]: mainSprite(288, 32, 8, 7),
+			[Tiles.grass]: mainSprite(272, 32, 8, 7),
 		},
 		gameOver: mainSprite(288.5, 184, 31.2, 16),
 		powerup: {
@@ -118,18 +128,18 @@ const setupVariableSprites = (image: HTMLImageElement): VariableSprites => {
 
 	return {
 		tankSpawn: [
-			{ sprite: mainSprite(303, 97, 15, 14), size: new Vector(35, 35) },
-			{ sprite: mainSprite(303, 97, 15, 14), size: new Vector(35, 35) },
-			{ sprite: mainSprite(288, 97, 15, 14), size: new Vector(35, 35) },
-			{ sprite: mainSprite(273, 97, 15, 14), size: new Vector(35, 35) },
-			{ sprite: mainSprite(257, 97, 15, 14), size: new Vector(35, 35) },
+			{ sprite: mainSprite(303, 97, 15, 14), size: { x: 35, y: 35 } },
+			{ sprite: mainSprite(303, 97, 15, 14), size: { x: 35, y: 35 } },
+			{ sprite: mainSprite(288, 97, 15, 14), size: { x: 35, y: 35 } },
+			{ sprite: mainSprite(273, 97, 15, 14), size: { x: 35, y: 35 } },
+			{ sprite: mainSprite(257, 97, 15, 14), size: { x: 35, y: 35 } },
 		],
 		tankDestruction: [
-			{ sprite: mainSprite(336, 128.75, 32, 32), size: new Vector(80, 80) },
-			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), size: new Vector(80, 80) },
-			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), size: new Vector(40, 40) },
-			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), size: new Vector(37, 37) },
-			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), size: new Vector(35, 35) },
+			{ sprite: mainSprite(336, 128.75, 32, 32), size: { x: 80, y: 80 } },
+			{ sprite: mainSprite(304.5, 128.75, 30.5, 31.25), size: { x: 80, y: 80 } },
+			{ sprite: mainSprite(288.25, 128.75, 16, 15.5), size: { x: 40, y: 40 } },
+			{ sprite: mainSprite(272.25, 128.75, 15.75, 14.25), size: { x: 37, y: 37 } },
+			{ sprite: mainSprite(258, 128.75, 13.75, 13.25), size: { x: 35, y: 35 } },
 		],
 	};
 };

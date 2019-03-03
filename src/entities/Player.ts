@@ -1,5 +1,5 @@
 import { Tank } from './Tank';
-import { Vector, assetsHolder, animateVariableSprites } from '../utils';
+import { assetsHolder, animateVariableSprites } from '../utils';
 import { Direction, PowerupTypes, PlayerPower, ControlKeys } from '../types';
 import {
 	PLAYER_SPAWN_POSITION,
@@ -25,15 +25,13 @@ function powerupObserver(powerupType: PowerupTypes) {
 }
 
 export class Player extends Tank {
-	public prevPosition: Vector;
-	public direction: Direction;
 	public lives: number;
 	public power: PlayerPower;
 	public timeManager: TimeManager<'spawn' | 'death' | 'invincible' | 'shotCD'>;
 	public soundManager: SoundManager<'explode' | 'neutral' | 'move'>;
 
 	constructor() {
-		super(new Vector(...PLAYER_SPAWN_POSITION), new Vector(...TANK_SIZE), Direction.Top);
+		super({ ...PLAYER_SPAWN_POSITION }, { ...TANK_SIZE }, Direction.Top);
 		this.lives = 1;
 		this.power = PlayerPower.Default;
 		this.timeManager = new TimeManager();
@@ -137,6 +135,6 @@ export class Player extends Tank {
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		this.timeManager.setTimer('invincible', INVINCIBLE_FRAMES);
 		this.power = PlayerPower.Default;
-		this.position = new Vector(...PLAYER_SPAWN_POSITION);
+		this.position = { ...PLAYER_SPAWN_POSITION };
 	}
 }
