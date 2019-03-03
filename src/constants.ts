@@ -47,6 +47,11 @@ export const INVINCIBLE_FRAMES = 100;
 export const FREEZE_FRAMES = 100;
 export const POWERUP_SPAWN_CD = 30;
 export const ENEMY_SPAWN_CD = 400;
+export const CHANGING_STAGE_FRAMES = 200;
+export const GAME_OVER_FRAMES = 200;
 
 // Stage
 export const ENEMY_SPAWN_POSITION: types.VectorArgs[] = [[0, 0], [560, 0]];
+
+// Map
+export const TILE_SIDE = 20;

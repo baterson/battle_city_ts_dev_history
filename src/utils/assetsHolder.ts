@@ -1,7 +1,6 @@
 import { main, dashboard } from '../screens';
-import { PlayerPower, Direction, TankTypes, PowerupTypes, Sprites, VariableSprites } from '../types';
+import { PlayerPower, Direction, TankTypes, PowerupTypes, Sprites, VariableSprites, Tiles, AudioSrc } from '../types';
 import { Vector } from './Vector';
-import { Tiles } from '../tileMap';
 
 const createSprite = (image: HTMLImageElement, context: CanvasRenderingContext2D) => (
 	dx: number,
@@ -137,11 +136,11 @@ const setupVariableSprites = (image: HTMLImageElement): VariableSprites => {
 
 class AssetsHolder {
 	public image: HTMLImageElement;
-	public audio;
+	public audio: AudioSrc;
 	public sprites: Sprites;
 	public variableSprites: VariableSprites;
 
-	loadSprite(src) {
+	loadSprite(src: string) {
 		return new Promise((resolve, reject) => {
 			const image: any = new Image();
 			image.addEventListener('load', () => {
@@ -154,7 +153,7 @@ class AssetsHolder {
 		});
 	}
 
-	loadAudio(audio) {
+	loadAudio(audio: AudioSrc) {
 		this.audio = audio;
 	}
 }

@@ -1,54 +1,35 @@
-import c from './utils/console';
+import { Tiles, Layers, RawTiles, Tile } from './types';
+import { TILE_SIDE } from './constants';
+import { assetsHolder } from './utils';
 
-const TILE_SIDE = 20;
-
-enum Tiles {
-	none,
-	brick1,
-	brick2,
-	brick3,
-	brick4,
-	ice,
-	grass,
-}
-
-enum Layers {
-	under,
-	main,
-	over,
-}
-
-const bricks = [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4];
-const rigid = [...bricks];
+export const rigid = [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4];
 
 const layesrMap = {
 	[Layers.under]: [Tiles.ice],
-	[Layers.main]: bricks,
+	[Layers.main]: [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4],
 	[Layers.over]: [Tiles.grass],
 };
 
-class TileMap {
-	public tiles;
-	public sprites;
+export class TileMap {
+	public tiles: RawTiles;
 
-	constructor(tiles, sprites) {
+	constructor(tiles: RawTiles) {
 		this.tiles = tiles.map(row => [...row]);
-		this.sprites = sprites;
 	}
 
-	destroy(x, y) {
+	destroy(x: number, y: number): void {
 		const xIndex = Math.max(0, Math.floor(x / TILE_SIDE));
 		const yIndex = Math.max(0, Math.floor(y / TILE_SIDE));
 		this.tiles[yIndex][xIndex] = Tiles.none;
 	}
 
-	lookup(x, y) {
+	lookup(x: number, y: number): Tile {
 		const xIndex = Math.min(Math.max(0, Math.floor(x / TILE_SIDE)), 29);
 		const yIndex = Math.min(Math.max(0, Math.floor(y / TILE_SIDE)), 29);
-		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE, xIndex, yIndex };
+		return { type: this.tiles[yIndex][xIndex], x: xIndex * TILE_SIDE, y: yIndex * TILE_SIDE };
 	}
 
-	lookupRange(point1, point2) {
+	lookupRange(point1: [number, number], point2: [number, number]): Tile[] {
 		let inBetweenPoint = [];
 		const [x1, y1] = point1;
 		const [x2, y2] = point2;
@@ -56,7 +37,7 @@ class TileMap {
 		const rangeY = Math.abs(y1 - y2);
 
 		if (rangeX > 0 && rangeX > TILE_SIDE) {
-			// TODO: comment about tank
+			// Checks tiles in between tank edges
 			inBetweenPoint.push([x1 + TILE_SIDE, y1]);
 		} else if (rangeY > 0 && rangeY > TILE_SIDE) {
 			inBetweenPoint.push([x1, y1 + TILE_SIDE]);
@@ -65,16 +46,12 @@ class TileMap {
 		return [point1, ...inBetweenPoint, point2].map(point => this.lookup(point[0], point[1]));
 	}
 
-	renderLayer(name) {
+	renderLayer(name: Layers): void {
 		this.tiles.forEach((row, y) => {
 			row.forEach((tile, x) => {
 				if (!layesrMap[name].includes(tile)) return;
-
-				this.sprites[tile]({ x: x * TILE_SIDE, y: y * TILE_SIDE }, { x: TILE_SIDE, y: TILE_SIDE });
+				assetsHolder.sprites.tiles[tile]({ x: x * TILE_SIDE, y: y * TILE_SIDE }, { x: TILE_SIDE, y: TILE_SIDE });
 			});
 		});
 	}
 }
-
-export { bricks, rigid, Tiles, Layers, TILE_SIDE };
-export default TileMap;

@@ -1,35 +1,27 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
-import { DELTA_TIME } from './constants';
+import { DELTA_TIME, CHANGING_STAGE_FRAMES, GAME_OVER_FRAMES } from './constants';
 import { PowerupTypes } from './types';
 import { Vector, assetsHolder } from './utils';
-import TileMap from './tileMap';
-import entityManager from './entityManager';
-import Stage from './Stage';
-import { TimeManager } from './managers/TimeManager';
-import { main as mainScreen, dashboard, main } from './screens';
-import { SoundManager } from './managers';
+import { TileMap } from './TileMap';
+import { Stage } from './Stage';
+import { main as mainScreen, dashboard } from './screens';
+import { SoundManager, TimeManager, entityManager } from './managers';
 
-// RENAME TO ANIM
-const CHANGING_STAGE_TIME = 200;
-const GAME_OVER_ANIM_TIME = 200;
-
-class Game {
-	public stage;
-	public effects;
+export class Game {
+	public stage: Stage;
 	public isLost: boolean;
-	public timeManager: TimeManager;
-	public soundManager: SoundManager;
+	public timeManager: TimeManager<'changingStage' | 'gameOverAnim'>;
+	public soundManager: SoundManager<'start'>;
 
 	constructor() {
 		this.isLost = false;
 		this.timeManager = new TimeManager();
-		this.soundManager = new SoundManager({
-			start: assetsHolder.audio.start,
-		});
+		this.soundManager = new SoundManager(['start']);
 
-		this.stage = new Stage(0, new TileMap(maps[0], assetsHolder.sprites.tiles), tanksConfig[0]);
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
-		requestAnimationFrame(() => this.soundManager.play('start').catch(e => console.log('E', e, e.message)));
+		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
+
+		// this.soundManager.play('start') TODO: run screen before game
 
 		entityManager.spawnEntity('Player');
 	}
@@ -57,16 +49,18 @@ class Game {
 
 		this.stage.update();
 		entityManager.update();
-		entityManager.checkCollisions(this);
+		entityManager.checkCollisions(this.stage.map);
 		entityManager.removeFromQueue();
 
 		if (!entityManager.getPlayer()) {
 			return this.gameOver();
 		}
 
-		if (this.stage.isFinish()) {
-			this.toNextStage();
-		}
+		// if (this.stage.isFinish()) {
+		// 	this.toNextStage();
+		// }
+
+		// TODO: if flag is gone
 	}
 
 	render() {
@@ -77,17 +71,16 @@ class Game {
 		if (changingStageTime) {
 			mainScreen.renderChaingingStage(changingStageTime);
 		} else if (this.isLost) {
-			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'), assetsHolder.sprites.gameOver);
+			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'));
 		} else {
 			const player: any = entityManager.getPlayer();
 			dashboard.clearScreen();
-			// Number + 1 to getter?
-			dashboard.render(player.lives, this.stage.number + 1, this.stage.tanks);
+			dashboard.render(player.lives, this.stage.screenNum, this.stage.tanks);
 		}
 	}
 
 	gameOver() {
-		this.timeManager.setTimer('gameOverAnim', GAME_OVER_ANIM_TIME);
+		this.timeManager.setTimer('gameOverAnim', GAME_OVER_FRAMES);
 		this.isLost = true;
 	}
 
@@ -105,21 +98,19 @@ class Game {
 	}
 
 	toNextStage() {
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
 		const stageNum = this.getNextStageNum();
 		const player: any = entityManager.getPlayer();
-		this.stage = new Stage(stageNum, new TileMap(maps[stageNum], assetsHolder.sprites.tiles), tanksConfig[stageNum]);
+		this.stage = new Stage(stageNum, new TileMap(maps[stageNum]), tanksConfig[stageNum]);
 		player.respawn();
 	}
 
 	restart() {
 		this.isLost = false;
 		entityManager.clear();
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_TIME);
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
 		entityManager.spawnEntity('Player');
-		this.stage = new Stage(0, new TileMap(maps[0], assetsHolder.sprites.tiles), tanksConfig[0]);
+		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
 		this.soundManager.play('start');
 	}
 }
-
-export default Game;

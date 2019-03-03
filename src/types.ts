@@ -1,3 +1,4 @@
+import * as entities from './entities';
 import { Vector } from './utils';
 
 export enum Direction {
@@ -29,7 +30,7 @@ export enum PlayerPower {
 	Second,
 }
 
-enum Tiles {
+export enum Tiles {
 	none,
 	brick1,
 	brick2,
@@ -39,7 +40,21 @@ enum Tiles {
 	grass,
 }
 
-interface Game {}
+export enum Layers {
+	under,
+	main,
+	over,
+}
+
+export enum ControlKeys {
+	ArrowUp = 'ArrowUp',
+	ArrowRight = 'ArrowRight',
+	ArrowDown = 'ArrowDown',
+	ArrowLeft = 'ArrowLeft',
+	Space = 'Space',
+}
+
+export type Entities = entities.Player | entities.Enemy | entities.Bullet | entities.Flag | entities.Powerup;
 
 export type VectorArgs = [number, number];
 
@@ -54,75 +69,52 @@ export interface BoundingBox {
 	y2: number;
 }
 
-export interface Entity {
-	update(): void;
-	render(): void;
-	getBoundingBox(): BoundingBox;
-	resolveEntityCollision(other, game: Game): void;
-}
-
-export interface Movable {
-	animateMovement(sprites): void;
-	move(velocity: number): void;
-	isOutOfScreen(): void;
-	getFrontCollisionPoints(): void;
-	resolveEdgeCollision(): void;
-	// TODO: Tile types
-	resolveTileCollision(tiles, game): void;
-}
-
-export interface Tank {
-	destroy(): void;
-	shot(cd: number): void;
-	goBack(): void;
-}
-
-export interface Bullet extends Movable {}
-
-export interface Player extends Movable, Tank {
-	processInput(game: Game): void;
-	respawn(): void;
-}
-
-export interface Enemy extends Movable, Tank {
-	aiMove(game: Game): void;
-	setRandomDirection(): void;
-	setOpositeDirection(): void;
-}
-
 // Assets
-type sprite = (position: Vector | { x: number; y: number }, size: Vector | { x: number; y: number }) => void;
-type directionSprites = { [key in Direction]: sprite[] };
+export type Sprite = (position: Vector | { x: number; y: number }, size: Vector | { x: number; y: number }) => void;
+
+type DirectionSprites = { [key in Direction]: Sprite[] };
 
 export interface Sprites {
 	player: {
-		[PlayerPower.Default]: directionSprites;
-		[PlayerPower.First]: directionSprites;
-		[PlayerPower.Second]: directionSprites;
+		[PlayerPower.Default]: DirectionSprites;
+		[PlayerPower.First]: DirectionSprites;
+		[PlayerPower.Second]: DirectionSprites;
 	};
 	enemy: {
-		[TankTypes.Default]: directionSprites;
-		[TankTypes.Fast]: directionSprites;
+		[TankTypes.Default]: DirectionSprites;
+		[TankTypes.Fast]: DirectionSprites;
 		[TankTypes.Armored]: {
-			'1': directionSprites;
-			'2': directionSprites;
-			'3': directionSprites;
+			'1': DirectionSprites;
+			'2': DirectionSprites;
+			'3': DirectionSprites;
 		};
 	};
-	bullet: directionSprites;
-	flag: sprite;
-	flagDeath: sprite;
-	tankIcon: sprite;
-	flagIcon: sprite;
-	playerIcon: sprite;
-	numberIcons: sprite[];
-	tiles: Partial<{ [key in Tiles]: sprite }>;
-	gameOver: sprite;
-	powerup: { [key in PowerupTypes]: sprite };
-	invincible: sprite[];
+	bullet: DirectionSprites;
+	flag: Sprite;
+	flagDeath: Sprite;
+	tankIcon: Sprite;
+	flagIcon: Sprite;
+	playerIcon: Sprite;
+	numberIcons: Sprite[];
+	tiles: Partial<{ [key in Tiles]: Sprite }>;
+	gameOver: Sprite;
+	powerup: { [key in PowerupTypes]: Sprite };
+	invincible: Sprite[];
 }
 
 export interface VariableSprites {
-	tankDestruction: { sprite: sprite; size: Vector }[];
-	tankSpawn: { sprite: sprite; size: Vector }[];
+	tankDestruction: { sprite: Sprite; size: Vector }[];
+	tankSpawn: { sprite: Sprite; size: Vector }[];
 }
+
+export interface AudioSrc {
+	explode: string;
+	hit: string;
+	neutral: string;
+	powerup: string;
+	move: string;
+	start: string;
+}
+
+export type RawTiles = number[][];
+export type Tile = { type: Tiles; x: number; y: number };

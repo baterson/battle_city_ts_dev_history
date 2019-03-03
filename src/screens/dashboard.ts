@@ -1,9 +1,10 @@
 import { assetsHolder } from '../utils';
+import { Sprite } from '../types';
 
 const canvas = <HTMLCanvasElement>document.getElementById('dashboard');
 const context = canvas.getContext('2d');
 
-const drawTanks = (tanks, tankSprite) => {
+const drawTanks = (tanks: number[], tankSprite: Sprite) => {
 	if (!tanks.length) return;
 	let y = 70;
 	let counter = 0;
@@ -26,9 +27,9 @@ const drawTanks = (tanks, tankSprite) => {
 export const dashboard = {
 	canvas,
 	context,
-	render(playerLives, stageNum, tanksCount) {
+	render(playerLives: number, stageNum: number, tanks: number[]) {
 		const { numberIcons, flagIcon, playerIcon, tankIcon } = assetsHolder.sprites;
-		drawTanks(tanksCount, tankIcon);
+		drawTanks(tanks, tankIcon);
 		flagIcon({ x: 670, y: 450 }, { x: 50, y: 40 });
 		playerIcon({ x: 670, y: 380 }, { x: 20, y: 20 });
 		numberIcons[stageNum]({ x: 690, y: 485 }, { x: 20, y: 20 });

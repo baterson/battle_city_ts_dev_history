@@ -1,31 +1,26 @@
-import { Entity } from './Entity';
+import { Movable } from './Movable';
 import { Vector } from '../utils';
-import { animateMovement, move, isOutOfScreen, getFrontCollisionPoints } from './commonMethods';
-import { Direction, Bullet as IBullet } from '../types';
+import { Direction, Tile } from '../types';
 import { BULLET_VELOCITY, BULLET_SIZE } from '../constants';
 import { Powerup } from './Powerup';
 import { Player } from './Player';
 import { Enemy } from './Enemy';
-import { SoundManager } from '../managers/';
+import { SoundManager, entityManager } from '../managers/';
+import { TileMap } from '../TileMap';
 import { assetsHolder } from '../utils';
-import entityManager from '../entityManager';
 
-export interface Bullet extends IBullet {}
-
-export class Bullet extends Entity {
+export class Bullet extends Movable {
 	public prevPosition: Vector;
 	public direction: Direction;
 	public shooter: Player | Enemy;
-	public soundManager: SoundManager;
+	public soundManager: SoundManager<'hit'>;
 
 	constructor(position: Vector, direction: Direction, shooter: Player | Enemy) {
-		super(position, new Vector(...BULLET_SIZE));
+		super(position, new Vector(...BULLET_SIZE), direction);
 		this.prevPosition = new Vector(position.x, position.y);
 		this.direction = direction;
 		this.shooter = shooter;
-		this.soundManager = new SoundManager({
-			hit: assetsHolder.audio.hit,
-		});
+		this.soundManager = new SoundManager(['hit']);
 	}
 
 	update() {
@@ -40,21 +35,16 @@ export class Bullet extends Entity {
 		entityManager.toRemove(this.id);
 	}
 
-	resolveTileCollision(tiles, game) {
+	resolveTileCollision(tiles: Tile[], tileMap: TileMap) {
 		entityManager.toRemove(this.id);
 		tiles.forEach(tile => {
-			game.stage.map.destroy(tile.x, tile.y);
+			tileMap.destroy(tile.x, tile.y);
 		});
 		this.soundManager.play('hit');
 	}
 
-	resolveEntityCollision(other, game) {
+	resolveEntityCollision(other) {
 		if (other instanceof Powerup) return;
 		entityManager.toRemove(this.id);
 	}
 }
-
-Bullet.prototype.move = move;
-Bullet.prototype.animateMovement = animateMovement;
-Bullet.prototype.isOutOfScreen = isOutOfScreen;
-Bullet.prototype.getFrontCollisionPoints = getFrontCollisionPoints;

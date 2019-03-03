@@ -1,4 +1,4 @@
-import { getAnimationIndex, Vector } from '../utils';
+import { getAnimationIndex } from '../utils';
 import { assetsHolder } from '../utils';
 
 const canvas = <HTMLCanvasElement>document.getElementById('root');
@@ -16,14 +16,14 @@ export const main = {
 		context.beginPath();
 	},
 
-	renderChaingingStage(left) {
+	renderChaingingStage(left: number) {
 		// TODO: change 300 to const
 		const index = getAnimationIndex(200, left, 300);
 		context.fillRect(0, 0, 600, index);
 		context.fillRect(0, 600 - index, 600, index);
 	},
 
-	renderGameOver(left = 0, textSprites) {
+	renderGameOver(left = 0) {
 		const index = getAnimationIndex(200, left, 300);
 		context.fillRect(0, 0, 600, 300 - index);
 		context.fillRect(0, 300 + index, 600, 300 - index);

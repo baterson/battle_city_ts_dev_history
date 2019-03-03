@@ -1,12 +1,11 @@
-export class TimeManager {
-	// TODO: Parametrize it
-	public timers = {};
+export class TimeManager<T extends string> {
+	public timers: { [key in T]?: number } = {};
 
-	setTimer(timerName, frameLength) {
+	setTimer(timerName: T, frameLength) {
 		this.timers[timerName] = frameLength;
 	}
 
-	getTimer(timerName) {
+	getTimer(timerName: T) {
 		return this.timers[timerName];
 	}
 

@@ -1,10 +1,8 @@
-import { Entity } from './Entity';
+import { Tank } from './Tank';
 import { Vector, assetsHolder, animateVariableSprites } from '../utils';
-import { Direction, PowerupTypes, TankTypes, Enemy as IEnemy } from '../types';
+import { Direction, PowerupTypes, TankTypes } from '../types';
 import { TANK_SIZE, SPAWN_FRAMES, DEATH_FRAMES, FREEZE_FRAMES, ENEMY_STATS } from '../constants';
-import { animateMovement, move, goBack, shot, isOutOfScreen, getFrontCollisionPoints, destroy } from './commonMethods';
-import { SoundManager } from '../managers';
-import entityManager from '../entityManager';
+import { SoundManager, TimeManager, entityManager } from '../managers';
 import { Player } from './Player';
 import { Bullet } from './Bullet';
 import { Powerup, powerupEvents } from './Powerup';
@@ -17,24 +15,20 @@ function powerupObserver(powerupType) {
 	}
 }
 
-export interface Enemy extends IEnemy {}
-
-export class Enemy extends Entity {
+export class Enemy extends Tank {
 	public prevPosition: Vector;
 	public type: TankTypes;
 	public direction: Direction;
 	public lives: number;
-	public soundManager: SoundManager;
+	public timeManager: TimeManager<'spawn' | 'death' | 'freeze' | 'shotCD'>;
+	public soundManager: SoundManager<'explode'>;
 
 	constructor(type: TankTypes, position: Vector) {
-		super(position, new Vector(...TANK_SIZE));
+		super(position, new Vector(...TANK_SIZE), Direction.Bottom);
 		this.type = type;
 		this.lives = ENEMY_STATS[type].lives;
-		this.prevPosition = new Vector(35, 35);
-		this.direction = Direction.Bottom;
-		this.soundManager = new SoundManager({
-			destroy: assetsHolder.audio.destroy,
-		});
+		this.timeManager = new TimeManager();
+		this.soundManager = new SoundManager(['explode']);
 
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		powerupEvents.subscribe(this.id, powerupObserver.bind(this));
@@ -93,10 +87,10 @@ export class Enemy extends Entity {
 
 	resolveTileCollision() {
 		this.goBack();
-		this.shot(ENEMY_STATS[this.type].shotCD);
+		// this.shot(ENEMY_STATS[this.type].shotCD);
 	}
 
-	resolveEntityCollision(other, game) {
+	resolveEntityCollision(other) {
 		if (other instanceof Powerup) {
 			return;
 		} else if (other instanceof Bullet && other.shooter instanceof Player) {
@@ -113,12 +107,6 @@ export class Enemy extends Entity {
 			this.goBack();
 			this.setOpositeDirection();
 		}
-	}
-
-	die() {
-		this.timeManager.setTimer('death', DEATH_FRAMES);
-		entityManager.toRemove(this.id);
-		powerupEvents.unsubscribe(this.id);
 	}
 
 	setRandomDirection() {
@@ -141,11 +129,3 @@ export class Enemy extends Entity {
 		}
 	}
 }
-
-Enemy.prototype.animateMovement = animateMovement;
-Enemy.prototype.goBack = goBack;
-Enemy.prototype.isOutOfScreen = isOutOfScreen;
-Enemy.prototype.move = move;
-Enemy.prototype.shot = shot;
-Enemy.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
-Enemy.prototype.destroy = destroy;

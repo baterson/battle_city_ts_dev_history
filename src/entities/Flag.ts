@@ -16,9 +16,10 @@ export class Flag extends Entity {
 		assetsHolder.sprites.flag(this.position, this.size);
 	}
 
-	resolveEntityCollision(other, game) {
+	resolveEntityCollision(other) {
 		if (other instanceof Bullet) {
-			game.gameOver();
+			// THIS death
+			// game.gameOver();
 		}
 	}
 }

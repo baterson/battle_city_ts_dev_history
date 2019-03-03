@@ -1,41 +1,42 @@
-import * as entities from './entities';
-import { checkEntityCollision } from './utils';
-import { rigid } from './tileMap';
-import c from './utils/console';
+import * as entities from '../entities';
+import { Entities, Direction, TankTypes, PowerupTypes } from '../types';
+import { checkEntityCollision, Vector } from '../utils';
+import { TileMap } from '../TileMap';
+import { rigid } from '../TileMap';
 
-class EntityManager {
-	public pool;
-	private toRemoveQueue;
+export class EntityManager {
+	public pool: { [key: number]: Entities };
+	private toRemoveQueue: Set<number>;
 
 	constructor() {
 		this.pool = {};
 		this.toRemoveQueue = new Set();
 	}
 
+	spawnEntity(type: 'Player');
+	spawnEntity(type: 'Flag');
+	spawnEntity(type: 'Enemy', tankType: TankTypes, position: Vector);
+	spawnEntity(type: 'Powerup', powerupType: PowerupTypes, position: Vector);
+	spawnEntity(type: 'Bullet', position: Vector, direction: Direction, shooter: entities.Tank);
 	spawnEntity(type, ...args) {
 		const entity = new entities[type](...args);
 		this.pool[entity.id] = entity;
 	}
 
-	toRemove = id => {
+	toRemove = (id: number) => {
 		this.toRemoveQueue.add(id);
 	};
 
 	removeFromQueue = () => {
 		this.toRemoveQueue.forEach(entityId => {
 			const entity = this.pool[entityId];
-			const deathLeft = entity.timeManager.getTimer('death');
+			const deathLeft = this.getTime(entity, 'death');
 			if (!deathLeft) {
 				delete this.pool[entityId];
 				this.toRemoveQueue.delete(entityId);
 			}
 		});
 	};
-
-	get entities() {
-		// TODO:
-		return Object.values(this.pool);
-	}
 
 	forEach = cb => {
 		return Object.values(this.pool).forEach(entity => {
@@ -51,7 +52,7 @@ class EntityManager {
 		return Object.values(this.pool).find(entity => entity instanceof entities.Player);
 	}
 
-	getByIntersection(entity) {
+	getByIntersection(entity: Entities) {
 		// Refactor name at least
 		return Object.values(this.pool).filter((el: any) => {
 			if (
@@ -71,49 +72,57 @@ class EntityManager {
 		this.forEach(entity => entity.update());
 	}
 
-	checkCollisions(game) {
+	checkCollisions(tileMap: TileMap) {
 		const seen = new Set();
 		this.forEach(entity => {
-			const spawn = entity.timeManager.getTimer('spawn');
-			const death = entity.timeManager.getTimer('death');
+			const spawn = this.getTime(entity, 'spawn');
+			const death = this.getTime(entity, 'death');
 			if (entity instanceof entities.Flag || entity instanceof entities.Powerup || spawn || death) return;
 
-			this.checkTileCollision(entity, game);
-			this.checkEntitiesCollision(entity, seen, game);
+			this.checkTileCollision(entity, tileMap);
+			this.checkEntitiesCollision(entity, seen);
 			seen.add(entity.id);
 		});
 	}
 
-	checkTileCollision(entity, game) {
+	checkTileCollision(entity, tileMap: TileMap) {
 		if (entity.isOutOfScreen()) {
 			entity.resolveEdgeCollision();
 		} else {
 			const [first, second] = entity.getFrontCollisionPoints();
-			const tiles = game.stage.map.lookupRange(first, second);
+			const tiles = tileMap.lookupRange(first, second);
 			const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
 			if (collided) {
-				entity.resolveTileCollision(tiles, game);
+				entity.resolveTileCollision(tiles, tileMap);
 			}
 		}
 	}
 
-	checkEntitiesCollision(entity, seen, game) {
+	checkEntitiesCollision(entity, seen) {
 		this.forEach(other => {
 			if (entity.id === other.id || seen.has(other.id)) return;
-			const spawn = other.timeManager.getTimer('spawn');
-			const death = other.timeManager.getTimer('death');
+			const spawn = this.getTime(other, 'spawn');
+			const death = this.getTime(other, 'death');
 
 			if (!spawn && !death && checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())) {
-				entity.resolveEntityCollision(other, game, entity);
-				other.resolveEntityCollision(entity, game, entity);
+				entity.resolveEntityCollision(other);
+				other.resolveEntityCollision(entity);
 			}
 		});
+	}
+
+	getTime(entity, timerName: string) {
+		return entity.hasOwnProperty('timeManager') ? entity.timeManager.getTimer(timerName) : undefined;
 	}
 
 	clear() {
 		this.pool = {};
 		this.toRemoveQueue = new Set();
 	}
+
+	get entities(): Entities[] {
+		return Object.values(this.pool);
+	}
 }
 
-export default new EntityManager();
+export const entityManager = new EntityManager();

@@ -1,22 +1,16 @@
 import c from './utils/console';
-import entityManager from './entityManager';
+import { entityManager } from './managers';
+import { ControlKeys } from './types';
+import { Game } from './Game';
 
-enum Keys {
-	ArrowUp = 'ArrowUp',
-	ArrowRight = 'ArrowRight',
-	ArrowDown = 'ArrowDown',
-	ArrowLeft = 'ArrowLeft',
-	Space = 'Space',
-}
-
-class Keyboard {
-	public queue;
+export class Keyboard {
+	public queue: Set<ControlKeys>;
 
 	constructor() {
 		this.queue = new Set();
 	}
 
-	handleEvent(event, game) {
+	handleEvent(event: KeyboardEvent, game: Game) {
 		const { code, type } = event;
 		if (game.isWaitingForRestart()) {
 			return game.restart();
@@ -41,15 +35,15 @@ class Keyboard {
 		if (code === 'KeyK') {
 			const p: any = entityManager.getPlayer();
 			if (p && p.lives) {
-				p.resolveEntityCollision({ type: 'bullet', state: {} }, game);
+				p.resolveEntityCollision({ type: 'bullet', state: {} });
 			}
 		}
-		if (!Keys[code]) return;
+		if (!ControlKeys[code]) return;
 
 		if (type === 'keydown') {
-			this.queue.add(code);
+			this.queue.add(ControlKeys[code]);
 		} else {
-			this.queue.delete(code);
+			this.queue.delete(ControlKeys[code]);
 		}
 	}
 
@@ -57,14 +51,13 @@ class Keyboard {
 		return Array.from(this.queue).pop();
 	}
 
-	listenToEvents(game) {
+	listenToEvents(game: Game) {
 		['keydown', 'keyup'].forEach(eventName => {
-			window.addEventListener(eventName, event => {
+			window.addEventListener(eventName, (event: KeyboardEvent) => {
 				this.handleEvent(event, game);
 			});
 		});
 	}
 }
 
-export { Keys };
-export default new Keyboard();
+export const keyboard = new Keyboard();

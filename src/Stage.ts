@@ -1,24 +1,23 @@
-import { PowerupTypes } from './types';
+import { PowerupTypes, Layers, Entities, TankTypes } from './types';
 import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
-import { TimeManager } from './managers/TimeManager';
+import { TimeManager, entityManager } from './managers';
 import { Vector, randomInt } from './utils';
-import TileMap, { Layers } from './tileMap';
-import entityManager from './entityManager';
+import { TileMap } from './TileMap';
 
-class Stage {
+export class Stage {
 	public number: number;
 	public map: TileMap;
-	public tanks: number[][];
+	public tanks: number[];
 	public powerupsAvailable: number;
-	public timeManager: TimeManager;
+	public timeManager: TimeManager<'enemySpawnCD' | 'powerupSpawnCD'>;
 
-	constructor(number, map, tanks) {
+	constructor(number: number, map: TileMap, tanks: number[]) {
 		this.number = number;
 		this.map = map;
 		this.tanks = [...tanks];
 		this.powerupsAvailable = 5;
 		this.timeManager = new TimeManager();
-		entityManager.spawnEntity('Flag');
+		// entityManager.spawnEntity('Flag');
 	}
 
 	update() {
@@ -59,7 +58,7 @@ class Stage {
 		if (!powerupSpawnCD || !this.powerupsAvailable) return;
 
 		const index = randomInt(Object.keys(PowerupTypes).length / 2);
-		entityManager.spawnEntity(PowerupTypes[PowerupTypes[index]], new Vector(randomInt(600), randomInt(600))); // TODO: looks odd
+		entityManager.spawnEntity('Powerup', PowerupTypes[PowerupTypes[index]], new Vector(randomInt(600), randomInt(600))); // TODO: looks odd
 		this.timeManager.setTimer('powerupSpawnCD', POWERUP_SPAWN_CD);
 		this.powerupsAvailable -= 1;
 	}
@@ -70,6 +69,8 @@ class Stage {
 		entityManager.render();
 		this.map.renderLayer(Layers.over);
 	}
+
+	get screenNum() {
+		return this.number + 1;
+	}
 }
-export { ENEMY_SPAWN_POSITION };
-export default Stage;

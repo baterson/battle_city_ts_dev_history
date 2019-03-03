@@ -1,7 +1,6 @@
-import { Entity } from './Entity';
-import { Vector, assetsHolder, animateVariableSprites, getAnimationIndex } from '../utils';
-import { TimeManager } from '../managers/TimeManager';
-import { Direction, PowerupTypes, PlayerPower, Player as IPlayer } from '../types';
+import { Tank } from './Tank';
+import { Vector, assetsHolder, animateVariableSprites } from '../utils';
+import { Direction, PowerupTypes, PlayerPower, ControlKeys } from '../types';
 import {
 	PLAYER_SPAWN_POSITION,
 	TANK_SIZE,
@@ -10,11 +9,10 @@ import {
 	DEATH_FRAMES,
 	INVINCIBLE_FRAMES,
 } from '../constants';
-import { animateMovement, move, goBack, shot, isOutOfScreen, getFrontCollisionPoints, destroy } from './commonMethods';
 import { powerupEvents, Powerup } from './Powerup';
-import keyboard, { Keys } from '../keyboard';
+import { keyboard } from '../keyboard';
 import { Bullet } from './Bullet';
-import { SoundManager } from '../managers';
+import { SoundManager, TimeManager } from '../managers';
 
 function powerupObserver(powerupType: PowerupTypes) {
 	if (powerupType === PowerupTypes.Tank) {
@@ -26,27 +24,30 @@ function powerupObserver(powerupType: PowerupTypes) {
 	}
 }
 
-export interface Player extends IPlayer {}
-
-export class Player extends Entity {
-	// Экспортировать только интерфейсы методов и описать все типы внутри класса, расширить Player этими интерфейсами
+export class Player extends Tank {
 	public prevPosition: Vector;
 	public direction: Direction;
 	public lives: number;
 	public power: PlayerPower;
-	public soundManager: SoundManager;
+	public timeManager: TimeManager<'spawn' | 'death' | 'invincible' | 'shotCD'>;
+	public soundManager: SoundManager<'explode' | 'neutral' | 'move'>;
 
 	constructor() {
-		super(new Vector(...PLAYER_SPAWN_POSITION), new Vector(...TANK_SIZE));
-		this.prevPosition = new Vector(...PLAYER_SPAWN_POSITION);
-		this.direction = Direction.Top;
+		super(new Vector(...PLAYER_SPAWN_POSITION), new Vector(...TANK_SIZE), Direction.Top);
 		this.lives = 1;
 		this.power = PlayerPower.Default;
-		this.soundManager = new SoundManager({
-			neutral: assetsHolder.audio.neutral,
-			move: assetsHolder.audio.move,
-			destroy: assetsHolder.audio.destroy,
-		});
+		this.timeManager = new TimeManager();
+		this.soundManager = new SoundManager([
+			'destroy',
+			{
+				trackName: 'neutral',
+				loop: true,
+			},
+			{
+				trackName: 'move',
+				loop: true,
+			},
+		]);
 
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		this.timeManager.setTimer('invincible', INVINCIBLE_FRAMES);
@@ -72,10 +73,8 @@ export class Player extends Entity {
 		} else if (death) {
 			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankDestruction, DEATH_FRAMES, death);
 		} else if (invincible) {
-			// TODO: REFACTOR to animate in loop, animate
 			const invincibleSprites = assetsHolder.sprites.invincible;
 			const index = invincible % invincibleSprites.length;
-			// const index = Math.floor(game.elapsedTime / 0.1) % invincibleSprites.length;
 			invincibleSprites[index](this.position, this.size);
 		}
 		this.animateMovement(assetsHolder.sprites.player[this.power][this.direction]);
@@ -85,20 +84,20 @@ export class Player extends Entity {
 		const key = keyboard.getKey();
 		let isMoving = true;
 
-		if (key === Keys.ArrowUp) {
+		if (key === ControlKeys.ArrowUp) {
 			this.direction = Direction.Top;
-		} else if (key === Keys.ArrowDown) {
+		} else if (key === ControlKeys.ArrowDown) {
 			this.direction = Direction.Bottom;
-		} else if (key === Keys.ArrowLeft) {
+		} else if (key === ControlKeys.ArrowLeft) {
 			this.direction = Direction.Left;
-		} else if (key === Keys.ArrowRight) {
+		} else if (key === ControlKeys.ArrowRight) {
 			this.direction = Direction.Right;
 		} else {
 			this.soundManager.pause('move');
 			isMoving = false;
 		}
 
-		if (key === Keys.Space) {
+		if (key === ControlKeys.Space) {
 			this.shot(PLAYER_STATS[this.power].shotCD);
 		}
 
@@ -117,8 +116,7 @@ export class Player extends Entity {
 		this.goBack();
 	}
 
-	resolveEntityCollision(other, game) {
-		// TODO: check for spawn
+	resolveEntityCollision(other) {
 		if (other instanceof Powerup) {
 			return;
 		} else if (other instanceof Bullet) {
@@ -128,7 +126,7 @@ export class Player extends Entity {
 			this.timeManager.setTimer('death', DEATH_FRAMES);
 			this.lives -= 1;
 			if (this.lives === 0) {
-				this.destroy();
+				this.die();
 			}
 		} else {
 			this.goBack();
@@ -142,11 +140,3 @@ export class Player extends Entity {
 		this.position = new Vector(...PLAYER_SPAWN_POSITION);
 	}
 }
-
-Player.prototype.animateMovement = animateMovement;
-Player.prototype.move = move;
-Player.prototype.goBack = goBack;
-Player.prototype.shot = shot;
-Player.prototype.isOutOfScreen = isOutOfScreen;
-Player.prototype.getFrontCollisionPoints = getFrontCollisionPoints;
-Player.prototype.destroy = destroy;
