@@ -1,4 +1,4 @@
-import { PowerupTypes, Layers, Entities, TankTypes } from './types';
+import { PowerupTypes, Layers, TankTypes } from './types';
 import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
 import { TimeManager, entityManager } from './managers';
 import { randomInt } from './utils';

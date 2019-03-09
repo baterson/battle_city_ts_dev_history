@@ -101,7 +101,7 @@ export class Player extends Tank {
 
 		if (isMoving) {
 			this.soundManager.pause('neutral');
-			// this.soundManager.play('move');
+			this.soundManager.play('move');
 			this.move(PLAYER_STATS[this.power].velocity);
 		}
 	}

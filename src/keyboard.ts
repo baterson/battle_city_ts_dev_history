@@ -15,6 +15,9 @@ export class Keyboard {
 		if (game.isWaitingForRestart()) {
 			return game.restart();
 		}
+		if (game.isStartScreen) {
+			return game.play();
+		}
 
 		// TODO: remove it
 		if (code === 'KeyC') {
@@ -24,9 +27,6 @@ export class Keyboard {
 		if (code === 'KeyP') {
 			const p: any = entityManager.getPlayer();
 			console.log(p);
-		}
-		if (code === 'KeyG') {
-			console.log(game);
 		}
 		if (code === 'KeyR') {
 			const p: any = entityManager.getPlayer();

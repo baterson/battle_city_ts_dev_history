@@ -1,6 +1,7 @@
 import { Entity } from './Entity';
 import { DELTA_TIME } from '../constants';
-import { Direction, Sprite, Vector } from '../types';
+import { TileMap } from '../TileMap';
+import { Direction, Sprite, Vector, Tile } from '../types';
 
 export class Movable extends Entity {
 	public direction: Direction;
@@ -11,6 +12,12 @@ export class Movable extends Entity {
 		this.direction = direction;
 		this.prevPosition = { ...position };
 	}
+
+	resolveEdgeCollision() {}
+
+	resolveTileCollision(tiles: Tile[], tileMap: TileMap) {}
+
+	resolveEntityCollision(other) {}
 
 	move(velocity: number): void {
 		this.prevPosition = { ...this.position };

@@ -38,43 +38,40 @@ export class EntityManager {
 		});
 	};
 
-	forEach = cb => {
-		return Object.values(this.pool).forEach(entity => {
-			cb(entity);
-		});
-	};
-
 	getEnemies() {
-		return Object.values(this.pool).filter(entity => entity instanceof entities.Enemy);
+		return this.entities.filter(entity => entity instanceof entities.Enemy);
 	}
 
 	getPlayer() {
-		return Object.values(this.pool).find(entity => entity instanceof entities.Player);
+		return this.entities.find(entity => entity instanceof entities.Player);
 	}
 
-	getByIntersection(entity: Entities) {
-		// Refactor name at least
-		return Object.values(this.pool).filter((el: any) => {
+	getFlag() {
+		return this.entities.find(entity => entity instanceof entities.Flag);
+	}
+
+	getByIntersection(entity: entities.Movable) {
+		return this.entities.filter(other => {
 			if (
-				(el.type === 'enemy' || el.type === 'player') &&
-				checkEntityCollision(entity.getBoundingBox(), el.getBoundingBox())
+				(other instanceof entities.Enemy || other instanceof entities.Player) &&
+				checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())
 			) {
-				return el;
+				return entity;
 			}
 		});
 	}
 
 	render() {
-		this.forEach(entity => entity.render());
+		this.entities.forEach(entity => entity.render());
 	}
 
 	update() {
-		this.forEach(entity => entity.update());
+		this.entities.forEach(entity => entity.update());
 	}
 
 	checkCollisions(tileMap: TileMap) {
 		const seen = new Set();
-		this.forEach(entity => {
+		this.entities.forEach(entity => {
 			const spawn = this.getTime(entity, 'spawn');
 			const death = this.getTime(entity, 'death');
 			if (entity instanceof entities.Flag || entity instanceof entities.Powerup || spawn || death) return;
@@ -85,7 +82,7 @@ export class EntityManager {
 		});
 	}
 
-	checkTileCollision(entity, tileMap: TileMap) {
+	checkTileCollision(entity: entities.Movable, tileMap: TileMap) {
 		if (entity.isOutOfScreen()) {
 			entity.resolveEdgeCollision();
 		} else {
@@ -98,8 +95,8 @@ export class EntityManager {
 		}
 	}
 
-	checkEntitiesCollision(entity, seen) {
-		this.forEach(other => {
+	checkEntitiesCollision(entity: entities.Movable, seen: Set<number>) {
+		this.entities.forEach(other => {
 			if (entity.id === other.id || seen.has(other.id)) return;
 			const spawn = this.getTime(other, 'spawn');
 			const death = this.getTime(other, 'death');
@@ -111,7 +108,7 @@ export class EntityManager {
 		});
 	}
 
-	getTime(entity, timerName: string) {
+	getTime(entity: any, timerName: string) {
 		return entity.hasOwnProperty('timeManager') ? entity.timeManager.getTimer(timerName) : undefined;
 	}
 

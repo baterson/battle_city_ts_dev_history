@@ -48,8 +48,8 @@ export const INVINCIBLE_FRAMES = 100;
 export const FREEZE_FRAMES = 100;
 export const POWERUP_SPAWN_CD = 30;
 export const ENEMY_SPAWN_CD = 400;
-export const CHANGING_STAGE_FRAMES = 200;
-export const GAME_OVER_FRAMES = 200;
+export const CHANGING_STAGE_FRAMES = 1;
+export const GAME_OVER_FRAMES = 300;
 
 // Stage
 export const ENEMY_SPAWN_POSITION = [{ x: 0, y: 0 }, { x: 560, y: 0 }];

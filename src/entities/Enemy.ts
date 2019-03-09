@@ -52,6 +52,10 @@ export class Enemy extends Tank {
 		if (spawn) {
 			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankSpawn, SPAWN_FRAMES, spawn);
 		} else if (death) {
+			const step = DEATH_FRAMES / assetsHolder.variableSprites.tankDestruction.length;
+			var c = Math.floor(death / step);
+			console.log('C', c);
+
 			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankDestruction, DEATH_FRAMES, death);
 		}
 

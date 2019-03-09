@@ -8,22 +8,17 @@ import { main as mainScreen, dashboard } from './screens';
 import { SoundManager, TimeManager, entityManager } from './managers';
 
 export class Game {
-	public stage: Stage;
+	public isStartScreen: boolean;
 	public isLost: boolean;
+	public stage: Stage;
 	public timeManager: TimeManager<'changingStage' | 'gameOverAnim'>;
 	public soundManager: SoundManager<'start'>;
 
 	constructor() {
+		this.isStartScreen = true;
 		this.isLost = false;
 		this.timeManager = new TimeManager();
 		this.soundManager = new SoundManager(['start']);
-
-		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
-
-		// this.soundManager.play('start') TODO: run screen before game
-
-		entityManager.spawnEntity('Player');
 	}
 
 	createLoop() {
@@ -45,28 +40,36 @@ export class Game {
 
 	update() {
 		this.timeManager.decrementTimers();
-		if (this.isLost) return;
+		const changingStage = this.timeManager.getTimer('changingStage');
+		if (this.isLost || this.isStartScreen || changingStage) return;
 
 		this.stage.update();
 		entityManager.update();
 		entityManager.checkCollisions(this.stage.map);
 		entityManager.removeFromQueue();
 
-		if (!entityManager.getPlayer()) {
+		if (!entityManager.getPlayer() || !entityManager.getFlag()) {
 			return this.gameOver();
 		}
 
-		// if (this.stage.isFinish()) {
-		// 	this.toNextStage();
-		// }
-
-		// TODO: if flag is gone
+		if (this.stage.isFinish()) {
+			this.toNextStage();
+		}
 	}
 
 	render() {
+		mainScreen.clearScreen();
+		dashboard.clearScreen();
+		if (this.isStartScreen) {
+			mainScreen.renderStartScreen();
+		} else {
+			this.renderGame();
+		}
+	}
+
+	renderGame() {
 		const changingStageTime = this.timeManager.getTimer('changingStage');
 
-		mainScreen.clearScreen();
 		this.stage.render();
 		if (changingStageTime) {
 			mainScreen.renderChaingingStage(changingStageTime);
@@ -74,7 +77,6 @@ export class Game {
 			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'));
 		} else {
 			const player: any = entityManager.getPlayer();
-			dashboard.clearScreen();
 			dashboard.render(player.lives, this.stage.screenNum, this.stage.tanks);
 		}
 	}
@@ -105,12 +107,17 @@ export class Game {
 		player.respawn();
 	}
 
+	play() {
+		this.isStartScreen = false;
+		entityManager.spawnEntity('Player');
+		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
+		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
+		this.soundManager.play('start');
+	}
+
 	restart() {
 		this.isLost = false;
 		entityManager.clear();
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
-		entityManager.spawnEntity('Player');
-		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
-		this.soundManager.play('start');
+		this.play();
 	}
 }

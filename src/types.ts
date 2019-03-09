@@ -96,6 +96,7 @@ export interface Sprites {
 	flagIcon: Sprite;
 	playerIcon: Sprite;
 	numberIcons: Sprite[];
+	logo: Sprite;
 	tiles: Partial<{ [key in Tiles]: Sprite }>;
 	gameOver: Sprite;
 	powerup: { [key in PowerupTypes]: Sprite };

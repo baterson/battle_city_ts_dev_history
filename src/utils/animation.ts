@@ -1,10 +1,6 @@
 export function getAnimationIndex(animationLength, framesTotal, framesLeft) {
-	const step = animationLength / framesTotal;
+	const step = framesTotal / animationLength;
 	return Math.floor(framesLeft / step);
-}
-
-export function getLoopAnimationIndex(animationLenght, framesLeft) {
-	return framesLeft % animationLenght;
 }
 
 export function animateVariableSprites(position, animation, framesTotal, framesLeft) {
