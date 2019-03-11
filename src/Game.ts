@@ -1,24 +1,20 @@
 import { maps, tanks as tanksConfig } from './stageConfig';
-import { DELTA_TIME, CHANGING_STAGE_FRAMES, GAME_OVER_FRAMES } from './constants';
-import { PowerupTypes } from './types';
-import { assetsHolder } from './utils';
+import { DELTA_TIME, SCREEN_FADE_FRAMES } from './constants';
 import { TileMap } from './TileMap';
 import { Stage } from './Stage';
 import { main as mainScreen, dashboard } from './screens';
-import { SoundManager, TimeManager, entityManager } from './managers';
+import { TimeManager, entityManager } from './managers';
 
 export class Game {
-	public isStartScreen: boolean;
-	public isLost: boolean;
-	public stage: Stage;
-	public timeManager: TimeManager<'changingStage' | 'gameOverAnim'>;
-	public soundManager: SoundManager<'start'>;
+	isStartScreen: boolean;
+	isLost: boolean;
+	stage: Stage;
+	timeManager: TimeManager<'screenFade'>;
 
 	constructor() {
 		this.isStartScreen = true;
 		this.isLost = false;
 		this.timeManager = new TimeManager();
-		this.soundManager = new SoundManager(['start']);
 	}
 
 	createLoop() {
@@ -40,18 +36,19 @@ export class Game {
 
 	update() {
 		this.timeManager.decrementTimers();
-		const changingStage = this.timeManager.getTimer('changingStage');
-		if (this.isLost || this.isStartScreen || changingStage) return;
+		const sreenFadeLeft = this.timeManager.getTimer('screenFade');
+		if (this.isLost || this.isStartScreen || sreenFadeLeft) return;
 
 		this.stage.update();
 		entityManager.update();
 		entityManager.checkCollisions(this.stage.map);
 		entityManager.removeFromQueue();
+		const player = entityManager.getPlayer();
+		const flag = entityManager.getFlag();
 
-		if (!entityManager.getPlayer() || !entityManager.getFlag()) {
+		if (!player || flag.isDestroyed) {
 			return this.gameOver();
 		}
-
 		if (this.stage.isFinish()) {
 			this.toNextStage();
 		}
@@ -60,6 +57,7 @@ export class Game {
 	render() {
 		mainScreen.clearScreen();
 		dashboard.clearScreen();
+
 		if (this.isStartScreen) {
 			mainScreen.renderStartScreen();
 		} else {
@@ -68,13 +66,13 @@ export class Game {
 	}
 
 	renderGame() {
-		const changingStageTime = this.timeManager.getTimer('changingStage');
-
+		const sreenFadeLeft = this.timeManager.getTimer('screenFade');
 		this.stage.render();
-		if (changingStageTime) {
-			mainScreen.renderChaingingStage(changingStageTime);
-		} else if (this.isLost) {
-			mainScreen.renderGameOver(this.timeManager.getTimer('gameOverAnim'));
+
+		if (this.isLost) {
+			mainScreen.renderGameOver(sreenFadeLeft);
+		} else if (sreenFadeLeft) {
+			mainScreen.renderChaingingStage(sreenFadeLeft);
 		} else {
 			const player: any = entityManager.getPlayer();
 			dashboard.render(player.lives, this.stage.screenNum, this.stage.tanks);
@@ -82,12 +80,12 @@ export class Game {
 	}
 
 	gameOver() {
-		this.timeManager.setTimer('gameOverAnim', GAME_OVER_FRAMES);
+		this.timeManager.setTimer('screenFade', SCREEN_FADE_FRAMES);
 		this.isLost = true;
 	}
 
 	isWaitingForRestart() {
-		const gameOverTime = this.timeManager.getTimer('gameOverAnim');
+		const gameOverTime = this.timeManager.getTimer('screenFade');
 		return !gameOverTime && this.isLost;
 	}
 
@@ -100,7 +98,8 @@ export class Game {
 	}
 
 	toNextStage() {
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
+		this.timeManager.setTimer('screenFade', SCREEN_FADE_FRAMES);
+		entityManager.clear(false);
 		const stageNum = this.getNextStageNum();
 		const player: any = entityManager.getPlayer();
 		this.stage = new Stage(stageNum, new TileMap(maps[stageNum]), tanksConfig[stageNum]);
@@ -110,9 +109,8 @@ export class Game {
 	play() {
 		this.isStartScreen = false;
 		entityManager.spawnEntity('Player');
-		this.timeManager.setTimer('changingStage', CHANGING_STAGE_FRAMES);
+		this.timeManager.setTimer('screenFade', SCREEN_FADE_FRAMES);
 		this.stage = new Stage(0, new TileMap(maps[0]), tanksConfig[0]);
-		this.soundManager.play('start');
 	}
 
 	restart() {

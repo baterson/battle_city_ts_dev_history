@@ -1,11 +1,10 @@
 import { Movable } from './Movable';
-import { powerupEvents } from './Powerup';
-import { BULLET_SIZE, DEATH_FRAMES } from '../constants';
+import { BULLET_SIZE, DEATH_FRAMES, TILE_SIDE } from '../constants';
 import { TimeManager, SoundManager, entityManager } from '../managers';
-import { Direction, Vector } from '../types';
+import { Direction, Vector, Tile } from '../types';
 
 export class Tank extends Movable {
-	public timeManager: TimeManager<'death' | 'shotCD'>;
+	public timeManager: TimeManager<'spawn' | 'death' | 'shotCD'>;
 	public soundManager: SoundManager<'explode'>;
 
 	constructor(position: Vector, size: Vector, direction: Direction) {
@@ -27,7 +26,7 @@ export class Tank extends Movable {
 		} else {
 			bulletPosition = { x: this.position.x - width, y: this.size.y / 2 + this.position.y - height / 2 };
 		}
-		entityManager.spawnEntity('Bullet', bulletPosition, this.direction, this);
+		// entityManager.spawnEntity('Bullet', bulletPosition, this.direction, this);
 		this.timeManager.setTimer('shotCD', cd);
 	}
 
@@ -35,6 +34,25 @@ export class Tank extends Movable {
 		this.timeManager.setTimer('death', DEATH_FRAMES);
 		this.soundManager.play('explode');
 		entityManager.toRemove(this.id);
-		powerupEvents.unsubscribe(this.id);
+	}
+
+	forgiveCollision(tile: Tile): Vector | undefined {
+		const [point1, point2] = this.getFrontCollisionPoints();
+		const tilePos = tile.position;
+
+		if (this.direction === Direction.Top || this.direction === Direction.Bottom) {
+			const diffPoint = Math.min(Math.abs(tilePos.x - point1.x), Math.abs(tilePos.x - point2.x));
+			if (diffPoint > 0 && diffPoint < 5) {
+				const destination = this.position.x > tilePos.x ? tilePos.x + TILE_SIDE : tilePos.x - this.size.x;
+				return { x: destination, y: this.prevPosition.y };
+			}
+		} else if (this.direction === Direction.Left || this.direction === Direction.Right) {
+			const diffPoint = Math.min(Math.abs(tilePos.y - point1.y), Math.abs(tilePos.y - point2.y));
+			if (diffPoint > 0 && diffPoint < 5) {
+				const destination = this.position.y > tilePos.y ? tilePos.y + TILE_SIDE : tilePos.y - this.size.y;
+				return { x: this.prevPosition.x, y: destination };
+			}
+		}
+		return;
 	}
 }

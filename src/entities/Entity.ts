@@ -2,9 +2,9 @@ import { BoundingBox, Vector } from '../types';
 
 export class Entity {
 	static numberGen: number = 0;
-	public id: number;
-	public position: Vector;
-	public size: Vector;
+	id: number;
+	position: Vector;
+	size: Vector;
 
 	constructor(position: Vector, size: Vector) {
 		this.id = Entity.numberGen;
@@ -30,4 +30,6 @@ export class Entity {
 			y2: y + height,
 		};
 	}
+
+	deconstruct() {}
 }

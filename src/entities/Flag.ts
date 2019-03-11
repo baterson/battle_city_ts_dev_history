@@ -1,17 +1,17 @@
 import { Entity } from './Entity';
 import { assetsHolder } from '../utils';
-import { Bullet } from './Bullet';
-import { entityManager } from '../managers';
+import { FLAG_SIZE, FLAG_POSITION } from '../constants';
+import { isBullet } from './guards';
 
 export class Flag extends Entity {
-	public isDeath = false;
+	isDestroyed = false;
 
 	constructor() {
-		super({ x: 280, y: 560 }, { x: 40, y: 40 });
+		super(FLAG_POSITION, FLAG_SIZE);
 	}
 
 	render() {
-		if (this.isDeath) {
+		if (this.isDestroyed) {
 			assetsHolder.sprites.flagDeath(this.position, this.size);
 		} else {
 			assetsHolder.sprites.flag(this.position, this.size);
@@ -19,9 +19,8 @@ export class Flag extends Entity {
 	}
 
 	resolveEntityCollision(other) {
-		if (other instanceof Bullet) {
-			this.isDeath = true;
-			entityManager.toRemove(this.id);
+		if (isBullet(other)) {
+			this.isDestroyed = true;
 		}
 	}
 }

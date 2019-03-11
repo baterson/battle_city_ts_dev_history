@@ -1,5 +1,5 @@
-export class TimeManager<T extends string> {
-	public timers: { [key in T]?: number } = {};
+export class TimeManager<T extends string = any> {
+	timers: { [key in T]?: number } = {};
 
 	setTimer(timerName: T, frameLength) {
 		this.timers[timerName] = frameLength;
@@ -7,6 +7,10 @@ export class TimeManager<T extends string> {
 
 	getTimer(timerName: T) {
 		return this.timers[timerName];
+	}
+
+	some(timers: T[]) {
+		return Object.entries(this.timers).some(entry => timers.includes(entry[0] as T) && entry[1] >= 0);
 	}
 
 	decrementTimers() {

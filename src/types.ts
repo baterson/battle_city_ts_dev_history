@@ -30,14 +30,15 @@ export enum PlayerPower {
 }
 
 export enum Tiles {
-	none,
-	brick1,
-	brick2,
-	brick3,
-	brick4,
-	steel,
-	ice,
-	grass,
+	None,
+	Brick1,
+	Brick2,
+	Brick3,
+	Brick4,
+	Steel,
+	Ice,
+	Grass,
+	Water,
 }
 
 export enum Layers {
@@ -54,7 +55,13 @@ export enum ControlKeys {
 	Space = 'Space',
 }
 
-export type Entities = entities.Player | entities.Enemy | entities.Bullet | entities.Flag | entities.Powerup;
+export type Entities =
+	| entities.Tank
+	| entities.Player
+	| entities.Enemy
+	| entities.Bullet
+	| entities.Flag
+	| entities.Powerup;
 
 export type Vector = { x: number; y: number };
 
@@ -71,7 +78,7 @@ export interface BoundingBox {
 
 // Assets
 export type Sprite = (position: Vector | { x: number; y: number }, size: Vector | { x: number; y: number }) => void;
-
+export type VariableSprite = { sprite: Sprite; size: Vector };
 type DirectionSprites = { [key in Direction]: Sprite[] };
 
 export interface Sprites {
@@ -104,18 +111,21 @@ export interface Sprites {
 }
 
 export interface VariableSprites {
-	tankDestruction: { sprite: Sprite; size: Vector }[];
-	tankSpawn: { sprite: Sprite; size: Vector }[];
+	tankDestruction: VariableSprite[];
+	tankSpawn: VariableSprite[];
 }
 
 export interface AudioSrc {
 	explode: string;
 	hit: string;
+	hitdmg: string;
 	neutral: string;
 	powerup: string;
 	move: string;
 	start: string;
 }
+
+// Map
 
 export type RawTiles = number[][];
 export type Tile = { type: Tiles; position: Vector };

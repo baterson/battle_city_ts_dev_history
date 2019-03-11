@@ -1,7 +1,7 @@
 import { assetsHolder } from '../utils';
 
 export class SoundManager<T extends string> {
-	public tracks: { [key in T]?: HTMLAudioElement };
+	tracks: { [key in T]?: HTMLAudioElement };
 
 	constructor(trackNames: (string | { trackName: string; loop: boolean })[]) {
 		this.setupTracks(trackNames);
@@ -27,5 +27,9 @@ export class SoundManager<T extends string> {
 
 	pause(trackName: T) {
 		return this.tracks[trackName].pause();
+	}
+
+	pauseAll() {
+		Object.values<HTMLAudioElement>(this.tracks).forEach(track => track.pause());
 	}
 }

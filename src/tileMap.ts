@@ -2,16 +2,18 @@ import { Tiles, Layers, RawTiles, Tile, Vector } from './types';
 import { TILE_SIDE } from './constants';
 import { assetsHolder } from './utils';
 
-export const rigid = [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4, Tiles.steel];
+export const rigid = [Tiles.Brick1, Tiles.Brick2, Tiles.Brick3, Tiles.Brick4, Tiles.Steel, Tiles.Water];
+
+export const bulletThrough = [Tiles.Grass, Tiles.Water, Tiles.None];
 
 const layesrMap = {
-	[Layers.under]: [Tiles.ice],
-	[Layers.main]: [Tiles.brick1, Tiles.brick2, Tiles.brick3, Tiles.brick4, Tiles.steel],
-	[Layers.over]: [Tiles.grass],
+	[Layers.under]: [Tiles.Ice, Tiles.Water],
+	[Layers.main]: [Tiles.Brick1, Tiles.Brick2, Tiles.Brick3, Tiles.Brick4, Tiles.Steel],
+	[Layers.over]: [Tiles.Grass],
 };
 
 export class TileMap {
-	public tiles: RawTiles;
+	tiles: RawTiles;
 
 	constructor(tiles: RawTiles) {
 		this.tiles = tiles.map(row => [...row]);
@@ -20,7 +22,7 @@ export class TileMap {
 	destroy(point: Vector): void {
 		const xIndex = Math.max(0, Math.floor(point.x / TILE_SIDE));
 		const yIndex = Math.max(0, Math.floor(point.y / TILE_SIDE));
-		this.tiles[yIndex][xIndex] = Tiles.none;
+		this.tiles[yIndex][xIndex] = Tiles.None;
 	}
 
 	lookup(point: Vector): Tile {
@@ -30,18 +32,17 @@ export class TileMap {
 	}
 
 	lookupRange(point1: Vector, point2: Vector): Tile[] {
-		let inBetweenPoint = [];
+		let inBetweenPoints = [];
 		const rangeX = Math.abs(point1.x - point2.x);
 		const rangeY = Math.abs(point1.y - point2.y);
 
 		if (rangeX > 0 && rangeX > TILE_SIDE) {
-			// Checks tiles in between tank edges
-			inBetweenPoint.push({ x: point1.x + TILE_SIDE, y: point1.y });
+			// Checks tile in between tank edges
+			inBetweenPoints.push({ x: point1.x + TILE_SIDE, y: point1.y });
 		} else if (rangeY > 0 && rangeY > TILE_SIDE) {
-			inBetweenPoint.push({ x: point1.x, y: point1.y + TILE_SIDE });
+			inBetweenPoints.push({ x: point1.x, y: point1.y + TILE_SIDE });
 		}
-
-		return [point1, ...inBetweenPoint, point2].map(point => this.lookup(point));
+		return [point1, ...inBetweenPoints, point2].map(point => this.lookup(point));
 	}
 
 	renderLayer(name: Layers): void {

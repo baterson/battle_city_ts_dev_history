@@ -4,8 +4,8 @@ import { TileMap } from '../TileMap';
 import { Direction, Sprite, Vector, Tile } from '../types';
 
 export class Movable extends Entity {
-	public direction: Direction;
-	public prevPosition: Vector;
+	direction: Direction;
+	prevPosition: Vector;
 
 	constructor(position: Vector, size: Vector, direction: Direction) {
 		super(position, size);
@@ -37,15 +37,15 @@ export class Movable extends Entity {
 		this.position = { ...this.prevPosition };
 	}
 
-	animateMovement(sprite: Sprite[]): void {
+	animateMovement(sprites: Sprite[]): void {
 		let distance;
 		if (this.direction === Direction.Left || this.direction === Direction.Right) {
 			distance = this.position.x;
 		} else {
 			distance = this.position.y;
 		}
-		const index = Math.floor(distance) % sprite.length;
-		sprite[index](this.position, this.size);
+		const index = Math.floor(distance / 0.3) % sprites.length;
+		sprites[index](this.position, this.size);
 	}
 
 	isOutOfScreen(): boolean {

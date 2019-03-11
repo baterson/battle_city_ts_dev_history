@@ -36,7 +36,6 @@ export const dashboard = {
 		numberIcons[playerLives]({ x: 700, y: 380 }, { x: 20, y: 20 });
 	},
 	clearScreen() {
-		// TODO: get from canvas
 		context.clearRect(0, 0, canvas.width, canvas.height);
 		context.beginPath();
 	},

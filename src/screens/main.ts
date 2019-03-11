@@ -1,5 +1,5 @@
 import { getAnimationIndex } from '../utils';
-import { CHANGING_STAGE_FRAMES, GAME_OVER_FRAMES } from '../constants';
+import { SCREEN_FADE_FRAMES } from '../constants';
 import { assetsHolder } from '../utils';
 
 const canvas = <HTMLCanvasElement>document.getElementById('root');
@@ -21,17 +21,17 @@ export const main = {
 	},
 
 	renderChaingingStage(left: number) {
-		const index = getAnimationIndex(CHANGING_STAGE_FRAMES, CHANGING_STAGE_FRAMES, left);
+		const index = getAnimationIndex(SCREEN_FADE_FRAMES, SCREEN_FADE_FRAMES, left);
 		context.fillRect(0, 0, 600, index);
 		context.fillRect(0, 600 - index, 600, index);
 	},
 
 	renderGameOver(left = 0) {
-		const index = getAnimationIndex(GAME_OVER_FRAMES, GAME_OVER_FRAMES, left);
+		const index = getAnimationIndex(SCREEN_FADE_FRAMES, SCREEN_FADE_FRAMES, left);
 		context.fillRect(0, 0, 600, 300 - index);
 		context.fillRect(0, 300 + index, 600, 300 - index);
 		if (!left) {
-			assetsHolder.sprites.gameOver({ x: 200, y: 200 }, { x: 200, y: 150 });
+			assetsHolder.sprites.gameOver({ x: 275, y: 275 }, { x: 50, y: 50 });
 		}
 	},
 

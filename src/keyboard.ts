@@ -4,7 +4,7 @@ import { ControlKeys } from './types';
 import { Game } from './Game';
 
 export class Keyboard {
-	public queue: Set<ControlKeys>;
+	queue: Set<ControlKeys>;
 
 	constructor() {
 		this.queue = new Set();
@@ -24,9 +24,14 @@ export class Keyboard {
 			c.show = !c.show;
 		}
 
-		if (code === 'KeyP') {
+		if (code === 'KeyV') {
 			const p: any = entityManager.getPlayer();
-			console.log(p);
+			console.log(
+				`\n Prev: ${JSON.stringify(p.prevPosition)} \n Pos: ${JSON.stringify(p.position)} \n Box: ${JSON.stringify(
+					p.getBoundingBox()
+				)} \n Points: ${JSON.stringify(p.getFrontCollisionPoints())}\n`
+			);
+			// console.log(p);
 		}
 		if (code === 'KeyR') {
 			const p: any = entityManager.getPlayer();
@@ -35,7 +40,7 @@ export class Keyboard {
 		if (code === 'KeyK') {
 			const p: any = entityManager.getPlayer();
 			if (p && p.lives) {
-				p.resolveEntityCollision({ type: 'bullet', state: {} });
+				p.die();
 			}
 		}
 		if (!ControlKeys[code]) return;
@@ -56,6 +61,14 @@ export class Keyboard {
 			window.addEventListener(eventName, (event: KeyboardEvent) => {
 				this.handleEvent(event, game);
 			});
+		});
+
+		//TODO: remove Debug
+		window.addEventListener('click', event => {
+			const { clientX, clientY } = event;
+			const map = game.stage.map;
+			const tile = map.lookup({ x: clientX - 60, y: clientY - 60 });
+			console.log(JSON.stringify(tile));
 		});
 	}
 }

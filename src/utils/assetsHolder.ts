@@ -33,23 +33,23 @@ const setupSprites = (image: HTMLImageElement): Sprites => {
 				[Direction.Left]: [mainSprite(32, 0, 16, 15), mainSprite(48, 0, 16, 15)],
 			},
 			[PlayerPower.First]: {
-				[Direction.Top]: [mainSprite(0, 16, 16, 15), mainSprite(16, 16, 16, 15)],
-				[Direction.Bottom]: [mainSprite(64, 16, 16, 15), mainSprite(80, 16, 16, 15)],
-				[Direction.Right]: [mainSprite(96, 16, 16, 15), mainSprite(112, 16, 16, 15)],
-				[Direction.Left]: [mainSprite(32, 16, 16, 15), mainSprite(48, 16, 16, 15)],
+				[Direction.Top]: [mainSprite(0, 32.3, 16, 15), mainSprite(15.7, 32.5, 16, 15)],
+				[Direction.Bottom]: [mainSprite(64, 32.3, 16, 15), mainSprite(80, 32.5, 16, 15)],
+				[Direction.Right]: [mainSprite(96, 32.3, 16, 15), mainSprite(112.3, 32, 16, 15)],
+				[Direction.Left]: [mainSprite(31.7, 32, 16, 15), mainSprite(48, 32, 16, 15)],
 			},
 			[PlayerPower.Second]: {
-				[Direction.Top]: [mainSprite(0, 32, 16, 15), mainSprite(16, 32, 16, 15)],
-				[Direction.Bottom]: [mainSprite(64, 32, 16, 15), mainSprite(80, 32, 16, 15)],
-				[Direction.Right]: [mainSprite(96, 32, 16, 15), mainSprite(112, 32, 16, 15)],
-				[Direction.Left]: [mainSprite(32, 32, 16, 15), mainSprite(48, 32, 16, 15)],
+				[Direction.Top]: [mainSprite(0, 48, 16, 15), mainSprite(15.7, 48, 16, 15)],
+				[Direction.Bottom]: [mainSprite(64, 48, 16, 15), mainSprite(80, 48, 16, 15)],
+				[Direction.Right]: [mainSprite(96, 48, 16, 15), mainSprite(112.3, 48, 16, 15)],
+				[Direction.Left]: [mainSprite(31.7, 48, 16, 15), mainSprite(48, 48, 16, 15)],
 			},
 		},
 		enemy: {
 			[TankTypes.Default]: {
 				[Direction.Top]: [mainSprite(128, 0, 16, 15), mainSprite(144, 0, 16, 15)],
 				[Direction.Bottom]: [mainSprite(192, 0, 16, 15), mainSprite(208, 0, 16, 15)],
-				[Direction.Right]: [mainSprite(224, 0, 16, 15), mainSprite(240, 0, 16, 15)],
+				[Direction.Right]: [mainSprite(223.7, 0, 16, 15), mainSprite(239.7, 0, 16, 15)],
 				[Direction.Left]: [mainSprite(160, 0, 16, 15), mainSprite(176, 0, 16, 15)],
 			},
 			[TankTypes.Fast]: {
@@ -66,16 +66,16 @@ const setupSprites = (image: HTMLImageElement): Sprites => {
 					[Direction.Left]: [mainSprite(159, 111.75, 16, 16), mainSprite(174.75, 111.75, 16, 16)],
 				},
 				'2': {
-					[Direction.Top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
-					[Direction.Bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
-					[Direction.Right]: [mainSprite(223.75, 175.75, 16, 16), mainSprite(239.75, 175.75, 14.75, 16)],
-					[Direction.Left]: [mainSprite(159, 175.75, 16, 16), mainSprite(174.75, 175.75, 16, 16)],
+					[Direction.Top]: [mainSprite(0, 240, 14.75, 16), mainSprite(16, 240, 14.75, 16)],
+					[Direction.Bottom]: [mainSprite(64, 240, 15.25, 16), mainSprite(80, 240, 15.25, 16)],
+					[Direction.Right]: [mainSprite(96, 240, 16, 16), mainSprite(112, 240, 14.75, 16)],
+					[Direction.Left]: [mainSprite(32, 240, 16, 16), mainSprite(48, 240, 16, 16)],
 				},
 				'3': {
-					[Direction.Top]: [mainSprite(128.5, 175.75, 14.75, 16), mainSprite(144.25, 175.75, 14.75, 16)],
-					[Direction.Bottom]: [mainSprite(191.75, 175.75, 15.25, 16), mainSprite(207.5, 175.75, 15.25, 16)],
-					[Direction.Right]: [mainSprite(223.75, 175.75, 16, 16), mainSprite(239.75, 175.75, 14.75, 16)],
-					[Direction.Left]: [mainSprite(159, 175.75, 16, 16), mainSprite(174.75, 175.75, 16, 16)],
+					[Direction.Top]: [mainSprite(128, 240, 14.75, 16), mainSprite(144, 240, 14.75, 16)],
+					[Direction.Bottom]: [mainSprite(192, 240, 15.25, 16), mainSprite(208, 240, 15.25, 16)],
+					[Direction.Right]: [mainSprite(224, 240, 16, 16), mainSprite(240, 240, 14.75, 16)],
+					[Direction.Left]: [mainSprite(160, 240, 16, 16), mainSprite(176, 240, 16, 16)],
 				},
 			},
 		},
@@ -86,7 +86,7 @@ const setupSprites = (image: HTMLImageElement): Sprites => {
 			[Direction.Left]: [mainSprite(329.5, 101.5, 5, 5.7)],
 		},
 		flag: mainSprite(304.5, 33, 16, 15.25),
-		flagDeath: mainSprite(304, 33, 16, 15.25),
+		flagDeath: mainSprite(320, 33, 16, 15.25),
 		tankIcon: dashboardSprite(320.25, 192.75, 8.5, 7.75),
 		flagIcon: dashboardSprite(375.5, 184, 17, 15),
 		playerIcon: dashboardSprite(376.5, 144.5, 8, 8.5),
@@ -104,13 +104,14 @@ const setupSprites = (image: HTMLImageElement): Sprites => {
 		],
 		logo: mainSprite(0, 260, 375, 137),
 		tiles: {
-			[Tiles.brick1]: mainSprite(256, 0, 8, 7),
-			[Tiles.brick2]: mainSprite(264, 0, 8, 7),
-			[Tiles.brick3]: mainSprite(256, 8, 8, 7),
-			[Tiles.brick4]: mainSprite(264, 8, 8, 7),
-			[Tiles.steel]: mainSprite(256, 16, 8, 7),
-			[Tiles.ice]: mainSprite(288, 32, 8, 7),
-			[Tiles.grass]: mainSprite(272, 32, 8, 7),
+			[Tiles.Brick1]: mainSprite(256, 0, 8, 7),
+			[Tiles.Brick2]: mainSprite(264, 0, 8, 7),
+			[Tiles.Brick3]: mainSprite(256, 8, 8, 7),
+			[Tiles.Brick4]: mainSprite(264, 8, 8, 7),
+			[Tiles.Steel]: mainSprite(256, 16, 8, 7),
+			[Tiles.Ice]: mainSprite(288, 32, 8, 7),
+			[Tiles.Grass]: mainSprite(272, 32, 8, 7),
+			[Tiles.Water]: mainSprite(256, 40, 8, 7),
 		},
 		gameOver: mainSprite(288.5, 184, 31.2, 16),
 		powerup: {
@@ -146,10 +147,10 @@ const setupVariableSprites = (image: HTMLImageElement): VariableSprites => {
 };
 
 class AssetsHolder {
-	public image: HTMLImageElement;
-	public audio: AudioSrc;
-	public sprites: Sprites;
-	public variableSprites: VariableSprites;
+	image: HTMLImageElement;
+	audio: AudioSrc;
+	sprites: Sprites;
+	variableSprites: VariableSprites;
 
 	loadSprite(src: string) {
 		return new Promise((resolve, reject) => {

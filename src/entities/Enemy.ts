@@ -1,11 +1,10 @@
 import { Tank } from './Tank';
-import { assetsHolder, animateVariableSprites } from '../utils';
-import { Direction, PowerupTypes, TankTypes, Vector } from '../types';
+import { assetsHolder, animateVariableSprites, checkEntityCollision } from '../utils';
+import { Direction, PowerupTypes, TankTypes, Vector, Tile } from '../types';
 import { TANK_SIZE, SPAWN_FRAMES, DEATH_FRAMES, FREEZE_FRAMES, ENEMY_STATS } from '../constants';
-import { SoundManager, TimeManager } from '../managers';
-import { Player } from './Player';
-import { Bullet } from './Bullet';
-import { Powerup, powerupEvents } from './Powerup';
+import { SoundManager, TimeManager, entityManager } from '../managers';
+import { powerupEvents } from './Powerup';
+import { isPlayer, isEnemy, isBullet, isPowerup } from './guards';
 
 function powerupObserver(powerupType) {
 	if (powerupType === PowerupTypes.Stopwatch) {
@@ -16,15 +15,17 @@ function powerupObserver(powerupType) {
 }
 
 export class Enemy extends Tank {
-	public type: TankTypes;
-	public lives: number;
-	public timeManager: TimeManager<'spawn' | 'death' | 'freeze' | 'shotCD'>;
-	public soundManager: SoundManager<'explode'>;
+	type: TankTypes;
+	lives: number;
+	prevTile: Vector;
+	timeManager: TimeManager<'spawn' | 'death' | 'freeze' | 'shotCD'>;
+	soundManager: SoundManager<'explode'>;
 
 	constructor(type: TankTypes, position: Vector) {
 		super(position, { ...TANK_SIZE }, Direction.Bottom);
 		this.type = type;
 		this.lives = ENEMY_STATS[type].lives;
+		this.prevTile = { ...position };
 		this.timeManager = new TimeManager();
 		this.soundManager = new SoundManager(['explode']);
 
@@ -38,10 +39,17 @@ export class Enemy extends Tank {
 		const freeze = this.timeManager.getTimer('freeze');
 		this.timeManager.decrementTimers();
 
-		if (spawn || death || freeze) {
+		if (spawn) {
+			const isIntersecting = this.isSpawnSpotClear();
+			if (isIntersecting) {
+				this.timeManager.setTimer('spawn', SPAWN_FRAMES);
+				return;
+			}
+		} else if (death || freeze) {
 			return;
 		} else {
 			this.aiMove();
+			this.shot(ENEMY_STATS[this.type].shotCD);
 		}
 	}
 
@@ -52,10 +60,6 @@ export class Enemy extends Tank {
 		if (spawn) {
 			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankSpawn, SPAWN_FRAMES, spawn);
 		} else if (death) {
-			const step = DEATH_FRAMES / assetsHolder.variableSprites.tankDestruction.length;
-			var c = Math.floor(death / step);
-			console.log('C', c);
-
 			return animateVariableSprites(this.position, assetsHolder.variableSprites.tankDestruction, DEATH_FRAMES, death);
 		}
 
@@ -66,15 +70,13 @@ export class Enemy extends Tank {
 		}
 	}
 
-	//Rename
 	aiMove() {
-		const { shotCD, velocity } = ENEMY_STATS[this.type];
-
+		const { velocity } = ENEMY_STATS[this.type];
 		if (
-			Math.abs(Math.floor(this.prevPosition.x - this.position.x)) > 120 ||
-			Math.abs(Math.floor(this.prevPosition.y - this.position.y)) > 120
+			Math.abs(Math.floor(this.prevTile.x - this.position.x)) > 120 ||
+			Math.abs(Math.floor(this.prevTile.y - this.position.y)) > 120
 		) {
-			this.shot(shotCD);
+			this.prevTile = { ...this.position };
 			this.setRandomDirection();
 			this.move(velocity);
 		} else {
@@ -84,30 +86,40 @@ export class Enemy extends Tank {
 
 	resolveEdgeCollision() {
 		this.goBack();
-		this.setOpositeDirection();
+		this.setRandomDirection();
+		// this.setOpositeDirection();
 	}
 
-	resolveTileCollision() {
-		this.goBack();
-		// this.shot(ENEMY_STATS[this.type].shotCD);
+	resolveTileCollision(tiles: Tile[]) {
+		if (tiles.length === 1) {
+			const newPos = this.forgiveCollision(tiles[0]);
+			if (newPos) {
+				this.position = { ...newPos };
+			} else {
+				this.setRandomDirection();
+				this.goBack();
+			}
+		} else {
+			this.setRandomDirection();
+			this.goBack();
+		}
 	}
 
 	resolveEntityCollision(other) {
-		if (other instanceof Powerup) {
+		if (isPowerup(other)) {
 			return;
-		} else if (other instanceof Bullet && other.shooter instanceof Player) {
+		} else if (isBullet(other) && isPlayer(other.shooter)) {
 			if (this.lives === 1) {
 				this.die();
 			} else {
 				this.lives -= 1;
 			}
-		} else if (other instanceof Enemy) {
+		} else if (isEnemy(other)) {
 			this.goBack();
 			this.setOpositeDirection();
-		} else if (other instanceof Player) {
-			this.shot(ENEMY_STATS[this.type].shotCD);
+		} else if (isPlayer(other)) {
+			if (this.timeManager.getTimer('shotCD') > 10) this.setOpositeDirection();
 			this.goBack();
-			this.setOpositeDirection();
 		}
 	}
 
@@ -129,5 +141,21 @@ export class Enemy extends Tank {
 		} else {
 			this.direction = Direction.Right;
 		}
+	}
+
+	isSpawnSpotClear() {
+		return entityManager.entities
+			.filter(entity => entity.id !== this.id && !isBullet(entity))
+			.filter(entity => {
+				if (isEnemy(entity)) {
+					return !entity.timeManager.getTimer('spawn');
+				}
+				return true;
+			})
+			.some(entity => checkEntityCollision(entity.getBoundingBox(), this.getBoundingBox()));
+	}
+
+	deconstruct() {
+		powerupEvents.unsubscribe(this.id);
 	}
 }

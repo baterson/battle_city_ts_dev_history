@@ -1,12 +1,14 @@
 import * as entities from '../entities';
+import { Enemy, Player, Flag, Movable } from '../entities';
 import { Entities, Direction, TankTypes, PowerupTypes, Vector } from '../types';
 import { checkEntityCollision } from '../utils';
-import { TileMap } from '../TileMap';
-import { rigid } from '../TileMap';
+import { TileMap, rigid } from '../TileMap';
+import { isPlayer, isEnemy, isTank, isFlag, isPowerup } from '../entities/guards';
+import { TILE_SIDE } from '../constants';
 
 export class EntityManager {
-	public pool: { [key: number]: Entities };
-	private toRemoveQueue: Set<number>;
+	pool: { [key: number]: Entities };
+	toRemoveQueue: Set<number>;
 
 	constructor() {
 		this.pool = {};
@@ -30,35 +32,25 @@ export class EntityManager {
 	removeFromQueue = () => {
 		this.toRemoveQueue.forEach(entityId => {
 			const entity = this.pool[entityId];
-			const deathLeft = this.getTime(entity, 'death');
+			const deathLeft = this._checkDeath(entity);
 			if (!deathLeft) {
 				delete this.pool[entityId];
+				entity.deconstruct();
 				this.toRemoveQueue.delete(entityId);
 			}
 		});
 	};
 
-	getEnemies() {
-		return this.entities.filter(entity => entity instanceof entities.Enemy);
+	getEnemies(): Enemy[] {
+		return this.entities.filter(isEnemy);
 	}
 
-	getPlayer() {
-		return this.entities.find(entity => entity instanceof entities.Player);
+	getPlayer(): Player {
+		return this.entities.find(isPlayer);
 	}
 
-	getFlag() {
-		return this.entities.find(entity => entity instanceof entities.Flag);
-	}
-
-	getByIntersection(entity: entities.Movable) {
-		return this.entities.filter(other => {
-			if (
-				(other instanceof entities.Enemy || other instanceof entities.Player) &&
-				checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())
-			) {
-				return entity;
-			}
-		});
+	getFlag(): Flag {
+		return this.entities.find(isFlag);
 	}
 
 	render() {
@@ -72,53 +64,77 @@ export class EntityManager {
 	checkCollisions(tileMap: TileMap) {
 		const seen = new Set();
 		this.entities.forEach(entity => {
-			const spawn = this.getTime(entity, 'spawn');
-			const death = this.getTime(entity, 'death');
-			if (entity instanceof entities.Flag || entity instanceof entities.Powerup || spawn || death) return;
+			if (isPowerup(entity) || isFlag(entity)) return;
 
-			this.checkTileCollision(entity, tileMap);
+			this.checkTileCollision(entity as entities.Movable, tileMap);
 			this.checkEntitiesCollision(entity, seen);
 			seen.add(entity.id);
 		});
 	}
 
-	checkTileCollision(entity: entities.Movable, tileMap: TileMap) {
+	checkTileCollision(entity: Movable, tileMap: TileMap) {
 		if (entity.isOutOfScreen()) {
 			entity.resolveEdgeCollision();
 		} else {
 			const [first, second] = entity.getFrontCollisionPoints();
 			const tiles = tileMap.lookupRange(first, second);
-			const collided = tiles.filter(tile => rigid.includes(tile.type)).length;
-			if (collided) {
-				entity.resolveTileCollision(tiles, tileMap);
+			const collidable = tiles
+				.filter(tile => rigid.includes(tile.type))
+				.filter(tile =>
+					checkEntityCollision(entity.getBoundingBox(), {
+						x1: tile.position.x,
+						x2: tile.position.x + TILE_SIDE,
+						y1: tile.position.y,
+						y2: tile.position.y + TILE_SIDE,
+					})
+				);
+
+			if (collidable.length) {
+				entity.resolveTileCollision(collidable, tileMap);
 			}
 		}
 	}
 
-	checkEntitiesCollision(entity: entities.Movable, seen: Set<number>) {
+	checkEntitiesCollision(entity: Entities, seen: Set<number>) {
 		this.entities.forEach(other => {
 			if (entity.id === other.id || seen.has(other.id)) return;
-			const spawn = this.getTime(other, 'spawn');
-			const death = this.getTime(other, 'death');
 
-			if (!spawn && !death && checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())) {
+			if (this._isInteractive(other) && checkEntityCollision(entity.getBoundingBox(), other.getBoundingBox())) {
 				entity.resolveEntityCollision(other);
 				other.resolveEntityCollision(entity);
 			}
 		});
 	}
 
-	getTime(entity: any, timerName: string) {
-		return entity.hasOwnProperty('timeManager') ? entity.timeManager.getTimer(timerName) : undefined;
-	}
-
-	clear() {
-		this.pool = {};
+	clear(clearPlayer = true) {
+		if (!clearPlayer) {
+			const player = this.getPlayer();
+			Object.values(this.pool)
+				.filter(entity => entity.id !== player.id)
+				.forEach(entity => entity.deconstruct());
+			this.pool = { [player.id]: player };
+		} else {
+			Object.values(this.pool).forEach(entity => entity.deconstruct());
+			this.pool = {};
+		}
 		this.toRemoveQueue = new Set();
 	}
 
+	_isInteractive(entity: Entities) {
+		if (isTank(entity)) {
+			return !entity.timeManager.some(['spawn', 'death']);
+		}
+		return true;
+	}
+
+	_checkDeath(entity: Entities) {
+		if (isTank(entity)) {
+			return entity.timeManager.getTimer('death');
+		}
+	}
+
 	get entities(): Entities[] {
-		return Object.values(this.pool);
+		return Object.values<Entities>(this.pool);
 	}
 }
 

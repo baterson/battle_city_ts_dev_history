@@ -1,15 +1,16 @@
-import { PowerupTypes, Layers, TankTypes } from './types';
-import { TANK_SIZE, POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
-import { TimeManager, entityManager } from './managers';
+import { PowerupTypes, Layers } from './types';
+import { POWERUP_SPAWN_CD, ENEMY_SPAWN_CD, ENEMY_SPAWN_POSITION } from './constants';
+import { TimeManager, SoundManager, entityManager } from './managers';
 import { randomInt } from './utils';
 import { TileMap } from './TileMap';
 
 export class Stage {
-	public number: number;
-	public map: TileMap;
-	public tanks: number[];
-	public powerupsAvailable: number;
-	public timeManager: TimeManager<'enemySpawnCD' | 'powerupSpawnCD'>;
+	number: number;
+	map: TileMap;
+	tanks: number[];
+	powerupsAvailable: number;
+	timeManager: TimeManager<'enemySpawnCD' | 'powerupSpawnCD'>;
+	soundManager: SoundManager<'start'>;
 
 	constructor(number: number, map: TileMap, tanks: number[]) {
 		this.number = number;
@@ -17,6 +18,10 @@ export class Stage {
 		this.tanks = [...tanks];
 		this.powerupsAvailable = 5;
 		this.timeManager = new TimeManager();
+		this.soundManager = new SoundManager(['start']);
+
+		this.timeManager.setTimer('powerupSpawnCD', POWERUP_SPAWN_CD);
+		this.soundManager.play('start');
 		entityManager.spawnEntity('Flag');
 	}
 
@@ -32,33 +37,21 @@ export class Stage {
 	}
 
 	spawnEnemy() {
-		// TODO: parametrize it in TS
-		// TODO: move stage state to stage
 		const enemySpawnCD = this.timeManager.getTimer('enemySpawnCD');
-		if (!this.tanks.length || enemySpawnCD) return;
+		const enemies = entityManager.getEnemies();
+		if (!this.tanks.length || enemies.length > 4 || enemySpawnCD) return;
 
-		const index = randomInt(1);
-		// TODO: uncoment
-		// const index = randomInt(2);
-		let { x, y } = ENEMY_SPAWN_POSITION[index];
-		// TODO: Fix it
-		// if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-		// 	// if spot is not available, try on the next frame
-		// 	[x, y] = ENEMY_SPAWN_POSITION[1 - index];
-		// 	if (entityManager.getByIntersection({ x, y, side: TANK_SIDE }).length) {
-		// 		return;
-		// 	}
-		// }
+		const index = randomInt(2);
 		this.timeManager.setTimer('enemySpawnCD', ENEMY_SPAWN_CD);
-		entityManager.spawnEntity('Enemy', this.tanks.pop(), { x, y });
+		entityManager.spawnEntity('Enemy', this.tanks.pop(), { ...ENEMY_SPAWN_POSITION[index] });
 	}
 
 	spawnPowerup() {
 		const powerupSpawnCD = this.timeManager.getTimer('powerupSpawnCD');
-		if (!powerupSpawnCD || !this.powerupsAvailable) return;
-
+		if (powerupSpawnCD || !this.powerupsAvailable) return;
 		const index = randomInt(Object.keys(PowerupTypes).length / 2);
-		entityManager.spawnEntity('Powerup', PowerupTypes[PowerupTypes[index]], { x: randomInt(600), y: randomInt(600) }); // TODO: looks odd
+		entityManager.spawnEntity('Powerup', PowerupTypes.Star, { x: randomInt(500), y: randomInt(500) });
+		// entityManager.spawnEntity('Powerup', PowerupTypes[PowerupTypes[index]], { x: randomInt(500), y: randomInt(500) });
 		this.timeManager.setTimer('powerupSpawnCD', POWERUP_SPAWN_CD);
 		this.powerupsAvailable -= 1;
 	}

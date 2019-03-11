@@ -1,6 +1,6 @@
 import { Tank } from './Tank';
 import { assetsHolder, animateVariableSprites } from '../utils';
-import { Direction, PowerupTypes, PlayerPower, ControlKeys } from '../types';
+import { Direction, PowerupTypes, PlayerPower, ControlKeys, Entities, Tile } from '../types';
 import {
 	PLAYER_SPAWN_POSITION,
 	TANK_SIZE,
@@ -9,10 +9,10 @@ import {
 	DEATH_FRAMES,
 	INVINCIBLE_FRAMES,
 } from '../constants';
-import { powerupEvents, Powerup } from './Powerup';
+import { powerupEvents } from './Powerup';
 import { keyboard } from '../keyboard';
-import { Bullet } from './Bullet';
 import { SoundManager, TimeManager } from '../managers';
+import { isPowerup, isBullet } from './guards';
 
 function powerupObserver(powerupType: PowerupTypes) {
 	if (powerupType === PowerupTypes.Tank) {
@@ -25,18 +25,18 @@ function powerupObserver(powerupType: PowerupTypes) {
 }
 
 export class Player extends Tank {
-	public lives: number;
-	public power: PlayerPower;
-	public timeManager: TimeManager<'spawn' | 'death' | 'invincible' | 'shotCD'>;
-	public soundManager: SoundManager<'explode' | 'neutral' | 'move'>;
+	lives: number;
+	power: PlayerPower;
+	timeManager: TimeManager<'spawn' | 'death' | 'invincible' | 'shotCD'>;
+	soundManager: SoundManager<'explode' | 'neutral' | 'move'>;
 
 	constructor() {
 		super({ ...PLAYER_SPAWN_POSITION }, { ...TANK_SIZE }, Direction.Top);
-		this.lives = 1;
+		this.lives = 3;
 		this.power = PlayerPower.Default;
 		this.timeManager = new TimeManager();
 		this.soundManager = new SoundManager([
-			'destroy',
+			'explode',
 			{
 				trackName: 'neutral',
 				loop: true,
@@ -54,9 +54,15 @@ export class Player extends Tank {
 
 	update() {
 		this.timeManager.decrementTimers();
-		const spawn = this.timeManager.getTimer('spawn');
 		const death = this.timeManager.getTimer('death');
-		if (spawn || death) return;
+		const spawn = this.timeManager.getTimer('spawn');
+
+		if (death) {
+			if (death === 1) this.respawn(true);
+			return;
+		} else if (spawn) {
+			return;
+		}
 		this.soundManager.play('neutral');
 		this.processInput();
 	}
@@ -110,18 +116,27 @@ export class Player extends Tank {
 		this.goBack();
 	}
 
-	resolveTileCollision() {
-		this.goBack();
+	resolveTileCollision(tiles: Tile[]) {
+		if (tiles.length === 1) {
+			const newPos = this.forgiveCollision(tiles[0]);
+			if (newPos) this.position = { ...newPos };
+			else this.goBack();
+		} else {
+			this.goBack();
+		}
 	}
 
-	resolveEntityCollision(other) {
-		if (other instanceof Powerup) {
+	resolveEntityCollision(other: Entities) {
+		const death = this.timeManager.getTimer('death');
+
+		if (isPowerup(other)) {
 			return;
-		} else if (other instanceof Bullet) {
+		} else if (isBullet(other) && !death) {
 			const invincible = this.timeManager.getTimer('invincible');
 			if (invincible) return;
 
 			this.timeManager.setTimer('death', DEATH_FRAMES);
+			this.soundManager.play('explode');
 			this.lives -= 1;
 			if (this.lives === 0) {
 				this.die();
@@ -131,10 +146,17 @@ export class Player extends Tank {
 		}
 	}
 
-	respawn() {
+	respawn(defaultPower = false) {
+		if (defaultPower) this.power = PlayerPower.Default;
+		this.soundManager.pauseAll();
 		this.timeManager.setTimer('spawn', SPAWN_FRAMES);
 		this.timeManager.setTimer('invincible', INVINCIBLE_FRAMES);
-		this.power = PlayerPower.Default;
 		this.position = { ...PLAYER_SPAWN_POSITION };
+		this.prevPosition = { ...PLAYER_SPAWN_POSITION };
+	}
+
+	deconstruct() {
+		this.soundManager.pauseAll();
+		powerupEvents.unsubscribe(this.id);
 	}
 }
